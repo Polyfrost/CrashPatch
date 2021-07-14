@@ -1,3 +1,9 @@
+/*
+ *This file is modified based on
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/99cb47cc05b4790e8ef02bbcac932b21dafa107f/src/main/java/org/dimdev/vanillafix/crashes/GuiCrashScreen.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.utils;
 
 import cpw.mods.fml.relauncher.Side;
@@ -7,6 +13,7 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiOptionButton;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.crash.CrashReport;
+
 
 @SideOnly(Side.CLIENT)
 public class GuiCrashScreen extends GuiProblemScreen{

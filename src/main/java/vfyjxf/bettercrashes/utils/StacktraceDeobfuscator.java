@@ -1,3 +1,9 @@
+/*
+ *This file is from
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/vanillafix/crashes/StacktraceDeobfuscator.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.utils;
 
 import java.io.File;
@@ -10,6 +16,9 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * @author Runemoro
+ */
 public final class StacktraceDeobfuscator {
     private static final boolean DEBUG_IN_DEV = false; // Makes this MCP -> SRG for testing in dev. Don't forget to set to false when done!
     private static HashMap<String, String> srgMcpMethodMap = null;

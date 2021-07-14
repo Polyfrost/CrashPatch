@@ -1,3 +1,9 @@
+/*
+ *This file is from
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/vanillafix/crashes/StateManager.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.utils;
 
 import java.lang.ref.WeakReference;
@@ -5,6 +11,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * @author Runemoro
+ */
 public class StateManager {
     public interface IResettable {
         default void register() {

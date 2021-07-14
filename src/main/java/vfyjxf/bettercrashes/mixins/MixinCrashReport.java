@@ -1,3 +1,9 @@
+/*
+ *This file is from
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/vanillafix/crashes/mixins/MixinCrashReport.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.mixins;
 
 import cpw.mods.fml.common.ModContainer;

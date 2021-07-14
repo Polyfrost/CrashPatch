@@ -1,3 +1,9 @@
+/*
+ *This file is from
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/utils/ModIdentifier.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.utils;
 
 import cpw.mods.fml.common.Loader;
@@ -14,6 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * @author Runemoro
+ */
 public final class ModIdentifier {
     private static final Logger log = LogManager.getLogger();
 

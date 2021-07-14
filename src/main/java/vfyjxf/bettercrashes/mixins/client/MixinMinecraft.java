@@ -1,5 +1,10 @@
-package vfyjxf.bettercrashes.mixins.client;
+/*
+ *This file is modified based on
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/vanillafix/crashes/mixins/client/MixinMinecraft.java
+ *The source file uses the MIT License.
+ */
 
+package vfyjxf.bettercrashes.mixins.client;
 
 import cpw.mods.fml.client.SplashProgress;
 import cpw.mods.fml.common.Loader;
@@ -39,7 +44,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 
-
+/**
+ * @author Runemoro
+ */
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft{
 
@@ -141,6 +148,10 @@ public abstract class MixinMinecraft{
 
     }
 
+    /**
+     * @author Runemoro
+     * @param report
+     */
     public void displayCrashScreen(CrashReport report) {
         try {
             CrashUtils.outputReport(report);
@@ -170,6 +181,10 @@ public abstract class MixinMinecraft{
         crashReport.getCategory().addCrashSectionCallable("Client Crashes Since Restart",() -> String.valueOf(clientCrashCount));
         crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(serverCrashCount));
     }
+
+    /**
+     * @author Runemoro
+     */
     public void resetGameState() {
         try {
             // Free up memory such that this works properly in case of an OutOfMemoryError
@@ -205,6 +220,11 @@ public abstract class MixinMinecraft{
             } catch (Throwable ignored) {}
         }
     }
+
+    /**
+     * @author Runemoro
+     * @param report
+     */
     public void displayInitErrorScreen(CrashReport report) {
         CrashUtils.outputReport(report);
         try {
@@ -234,6 +254,11 @@ public abstract class MixinMinecraft{
             System.exit(report.getFile() != null ? -1 : -2);
         }
     }
+
+    /**
+     * @author Runemoro
+     * @param screen
+     */
     private void runGUILoop(GuiScreen screen) throws IOException {
         displayGuiScreen(screen);
         while (running && currentScreen != null && !(currentScreen instanceof GuiMainMenu) && !(Loader.isModLoaded("custommainmenu"))) {
@@ -283,10 +308,9 @@ public abstract class MixinMinecraft{
     }
 
 
-
     /**
      * @author Runemoro
-     * @reason
+     * @param report
      */
     @Overwrite
     public void displayCrashReport(CrashReport report) {

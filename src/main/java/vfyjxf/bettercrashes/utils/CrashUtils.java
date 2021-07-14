@@ -1,3 +1,9 @@
+/*
+ *This file is modified based on
+ *https://github.com/DimensionalDevelopment/VanillaFix/blob/99cb47cc05b4790e8ef02bbcac932b21dafa107f/src/main/java/org/dimdev/vanillafix/crashes/CrashUtils.java
+ *The source file uses the MIT License.
+ */
+
 package vfyjxf.bettercrashes.utils;
 
 import net.minecraft.client.Minecraft;
@@ -10,9 +16,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * @author Runemoro
+ */
 public class CrashUtils {
 
-
+    /**
+     * @author Runemoro
+     * @param report
+     */
     public static void outputReport(CrashReport report) {
         try {
             if (report.getFile() == null) {
@@ -34,6 +46,9 @@ public class CrashUtils {
                 + "\n" + report.getCompleteReport());
     }
 
+    /**
+     * @author Runemoro
+     */
     private static boolean isClient() {
         try {
             return Minecraft.getMinecraft() != null;
@@ -42,6 +57,11 @@ public class CrashUtils {
         }
     }
 
+    /**
+     * @author vfyjxf
+     * @param crashReport
+     * @throws IOException
+     */
     public static void openCrashReport(CrashReport crashReport) throws IOException {
 
         if(!Desktop.isDesktopSupported()){
