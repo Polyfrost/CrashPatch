@@ -6,5 +6,9 @@ Most of the code comes from VanillaFix, I just make them work on Minecraft 1.7.1
 
 Requires [Grimoire](https://github.com/CrucibleMC/Grimoire) mod to work
 
-# Credits 
+## Known Issues
+
+Not compatible with hodgepodge mod
+
+## Credits 
 Thanks VanillaFix and Grimoire
