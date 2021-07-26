@@ -10,5 +10,9 @@ Requires [Grimoire](https://github.com/CrucibleMC/Grimoire) mod to work
 
 Not compatible with hodgepodge mod
 
-## Credits 
+## For GTNH player
+
+you need go to hodgepodge mod's config file to to turn off fixGuiGameOver,if you don't do this, it may cause a crash.
+
+## Credits
 Thanks VanillaFix and Grimoire

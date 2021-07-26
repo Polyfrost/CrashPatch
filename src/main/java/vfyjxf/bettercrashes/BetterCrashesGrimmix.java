@@ -9,7 +9,7 @@ public class BetterCrashesGrimmix extends GrimmixController {
 
     @Override
     public void buildMixinConfigs(IConfigBuildingEvent event) {
-        event.createBuilder("bettercrashes/mixins.bettercrash.json")
+        event.createBuilder("bettercrashes/mixins.bettercrashes.json")
              .mixinPackage("vfyjxf.bettercrashes.mixins")
              .clientMixins("client.MixinMinecraft")
              .commonMixins("MixinCrashReport")
