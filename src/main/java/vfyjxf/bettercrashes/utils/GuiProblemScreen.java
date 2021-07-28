@@ -14,7 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.crash.CrashReport;
 import org.apache.commons.lang3.StringUtils;
-import vfyjxf.bettercrashes.BetterCrashes;
+import vfyjxf.bettercrashes.BetterCrashesConfig;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 
 @SideOnly(Side.CLIENT)
-public abstract class GuiProblemScreen extends GuiScreen {
+public abstract class GuiProblemScreen extends GuiScreen{
 
     protected final CrashReport report;
     private String hasteLink = null;
@@ -37,18 +37,34 @@ public abstract class GuiProblemScreen extends GuiScreen {
     public void initGui() {
         mc.setIngameNotInFocus();
         buttonList.clear();
-        buttonList.add(new GuiButton(1, width / 2 - 155 + 160, height / 4 + 120 + 12, 150, 20, I18n.format("bettercrashes.gui.openCrashReport")));
+        if(BetterCrashesConfig.enableUploadCrash) {
+            buttonList.add(new GuiButton(1, width / 2 - 155 + 160, height / 4 + 120 + 12, 150, 20, I18n.format("bettercrashes.gui.uploadReportAndCopyLink")));
+        }else {
+            buttonList.add(new GuiButton(1, width / 2 - 155 + 160, height / 4 + 120 + 12, 150, 20, I18n.format("bettercrashes.gui.openCrashReport")));
+        }
     }
+
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        if(button.id == 1){
+        if(button.id == 1 && BetterCrashesConfig.enableUploadCrash){
+            if(hasteLink == null){
+                try {
+                    hasteLink = CrashReportUpload.uploadToUbuntuPastebin("https://paste.ubuntu.com",report.getCompleteReport());
+                } catch (IOException e) {
+                    button.displayString = I18n.format("bettercrashes.gui.failed");
+                    button.enabled = false;
+                    e.printStackTrace();
+                }
+            }
+            setClipboardString(hasteLink);
+        }else if (button.id == 1){
             try {
                 CrashUtils.openCrashReport(report);
             } catch (IOException e) {
-                BetterCrashes.logger.error("Can't open crashreoprt",e);
                 button.displayString = I18n.format("bettercrashes.gui.failed");
                 button.enabled = false;
+                e.printStackTrace();
             }
         }
     }

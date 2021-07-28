@@ -1,4 +1,5 @@
-bettercrashes.gui.openCrashReport=Open CrashReport
+bettercrashes.gui.uploadReportAndCopyLink=Copy Link
+bettercrashes.gui.openCrashReport=Open Crash Report
 bettercrashes.gui.failed=[Failed]
 bettercrashes.crashscreen.identificationErrored=[Error identifying]
 bettercrashes.crashscreen.unknownCause=Unknown
