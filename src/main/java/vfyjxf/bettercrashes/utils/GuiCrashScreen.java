@@ -16,14 +16,15 @@ import net.minecraft.crash.CrashReport;
 
 
 @SideOnly(Side.CLIENT)
-public class GuiCrashScreen extends GuiProblemScreen{
+public class GuiCrashScreen extends GuiProblemScreen {
     public GuiCrashScreen(CrashReport report) {
         super(report);
     }
+
     @Override
     public void initGui() {
         super.initGui();
-        GuiOptionButton mainMenuButton = new GuiOptionButton(0, width / 2 - 155, height / 4 + 120 + 12, I18n.format("bettercrashes.gui.toTitle"));
+        GuiOptionButton mainMenuButton = new GuiOptionButton(0, width / 2 - 50 - 115, height / 4 + 120 + 12, 110, 20, I18n.format("bettercrashes.gui.toTitle"));
         buttonList.add(mainMenuButton);
     }
 
@@ -56,7 +57,7 @@ public class GuiCrashScreen extends GuiProblemScreen{
         drawString(fontRendererObj, I18n.format("bettercrashes.crashscreen.paragraph3.line1"), x, y += 12, textColor);
         drawString(fontRendererObj, I18n.format("bettercrashes.crashscreen.paragraph3.line2"), x, y += 9, textColor);
         drawString(fontRendererObj, I18n.format("bettercrashes.crashscreen.paragraph3.line3"), x, y += 9, textColor);
-
+        drawString(fontRendererObj, I18n.format("bettercrashes.crashscreen.paragraph3.line4"), x, y += 9, textColor);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 }

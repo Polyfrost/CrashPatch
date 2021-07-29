@@ -1,4 +1,4 @@
-bettercrashes.gui.uploadReportAndCopyLink=Copy Link
+bettercrashes.gui.uploadReportAndCopyLink=Upload and copy link
 bettercrashes.gui.openCrashReport=Open Crash Report
 bettercrashes.gui.failed=[Failed]
 bettercrashes.crashscreen.identificationErrored=[Error identifying]
@@ -9,14 +9,15 @@ bettercrashes.crashscreen.title=Minecraft crashed!
 bettercrashes.crashscreen.summary=Minecraft ran into a problem and crashed.
 bettercrashes.crashscreen.paragraph1.line1=The following mod(s) have been identified as potential causes:
 bettercrashes.crashscreen.paragraph2.line1=report has been generated, and click the button below to open:
-bettercrashes.crashscreen.paragraph3.line1=You're encouraged to send this report to the mod's author to help
-bettercrashes.crashscreen.paragraph3.line2=them fix the issue. Since Since BetterCrashes is installed, you can keep
-bettercrashes.crashscreen.paragraph3.line3=playing despite the crash.
+bettercrashes.crashscreen.paragraph3.line1=You're encouraged to send this report's link to the mod's author to help
+bettercrashes.crashscreen.paragraph3.line2=them fix the issue, click the "Upload and Copy link" can upload report
+bettercrashes.crashscreen.paragraph3.line3=and copy its link to clipboard. Since BetterCrashes is installed, you
+bettercrashes.crashscreen.paragraph3.line4=can keep playing despite the crash.
 
 bettercrashes.initerrorscreen.title=Minecraft failed to start!
 bettercrashes.initerrorscreen.summary=An error during startup prevented Minecraft from starting.
 bettercrashes.initerrorscreen.paragraph2.line1=report has been generated, and click the button below to open:
-bettercrashes.initerrorscreen.paragraph3.line1=You're encouraged to send this report to the mod's author to help
-bettercrashes.initerrorscreen.paragraph3.line2=them fix the issue. Since BetterCrashes is installed, you can keep
-bettercrashes.initerrorscreen.paragraph3.line3=playing despite the crash.
-
+bettercrashes.initerrorscreen.paragraph3.line1=You're encouraged to send this report's link to the mod's author to help
+bettercrashes.initerrorscreen.paragraph3.line2=them fix the issue, click the "Upload and Copy link" can upload report
+bettercrashes.initerrorscreen.paragraph3.line3=and copy its link to clipboard. Since BetterCrashes is installed, you
+bettercrashes.initerrorscreen.paragraph3.line4=can keep playing despite the crash.

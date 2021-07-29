@@ -24,7 +24,8 @@ public class GuiInitErrorScreen extends GuiProblemScreen{
     public void initGui() {
         mc.setIngameNotInFocus();
         buttonList.clear();
-        buttonList.add(new GuiButton(1, width / 2 - 155,  height / 4 + 120 + 12, 310, 20, I18n.format("bettercrashes.gui.openCrashReport")));
+        buttonList.add(new GuiButton(1,width / 2 - 155, height / 4 + 120 + 12, 150, 20, I18n.format("bettercrashes.gui.openCrashReport")));
+        buttonList.add(new GuiButton(2, width / 2 - 155 + 160, height / 4 + 120 + 12, 150, 20, I18n.format("bettercrashes.gui.uploadReportAndCopyLink")));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class GuiInitErrorScreen extends GuiProblemScreen{
         drawString(fontRendererObj, I18n.format("bettercrashes.initerrorscreen.paragraph3.line1"), x, y += 12, textColor);
         drawString(fontRendererObj, I18n.format("bettercrashes.initerrorscreen.paragraph3.line2"), x, y += 9, textColor);
         drawString(fontRendererObj, I18n.format("bettercrashes.initerrorscreen.paragraph3.line3"), x, y += 9, textColor);
-
+        drawString(fontRendererObj, I18n.format("bettercrashes.initerrorscreen.paragraph3.line4"), x, y += 9, textColor);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 }
