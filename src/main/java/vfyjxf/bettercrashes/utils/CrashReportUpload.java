@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class CrashReportUpload {
 
@@ -21,7 +22,7 @@ public class CrashReportUpload {
         connection.setReadTimeout(1000000);
         connection.setConnectTimeout(500000);
         PrintWriter out = new PrintWriter(connection.getOutputStream());
-        String params = "poster=CrashReport&syntax=text&content=" + crashReport;
+        String params = "poster=CrashReport&syntax=text&content=" + URLEncoder.encode(crashReport, "UTF-8");
         out.write(params);
         out.flush();
         String resultUrl = null;
