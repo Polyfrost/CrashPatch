@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -306,12 +305,12 @@ public abstract class MixinMinecraft {
             currentScreen.handleInput();
             currentScreen.updateScreen();
 
-            GL11.glPushMatrix();
-            GL11.glClear(16640);
+            GlStateManager.pushMatrix();
+            GlStateManager.clear(16640);
             framebufferMc.bindFramebuffer(true);
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GlStateManager.enableTexture2D();
 
-            GL11.glViewport(0, 0, displayWidth, displayHeight);
+            GlStateManager.viewport(0, 0, displayWidth, displayHeight);
 
             // EntityRenderer.setupOverlayRendering
             ScaledResolution scaledResolution = new ScaledResolution((Minecraft) (Object) this);
@@ -333,11 +332,11 @@ public abstract class MixinMinecraft {
             }
 
             framebufferMc.unbindFramebuffer();
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
 
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
             framebufferMc.framebufferRender(displayWidth, displayHeight);
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
 
             updateDisplay();
             Thread.yield();
