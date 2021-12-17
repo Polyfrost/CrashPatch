@@ -4,13 +4,13 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.utils;
 
+import gg.essential.universal.UDesktop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
-import vfyjxf.bettercrashes.BetterCrashes;
+import net.wyvest.bettercrashes.BetterCrashes;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -22,15 +22,15 @@ import java.util.Date;
 public class CrashUtils {
 
     /**
-     * @author Runemoro
      * @param report
+     * @author Runemoro
      */
     public static void outputReport(CrashReport report) {
         try {
             if (report.getFile() == null) {
                 String reportName = "crash-";
                 reportName += new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date());
-                reportName += Minecraft.getMinecraft().func_152345_ab() ? "-client" : "-server";
+                reportName += Minecraft.getMinecraft().isCallingFromMinecraftThread() ? "-client" : "-server";
                 reportName += ".txt";
 
                 File reportsDir = isClient() ? new File(Minecraft.getMinecraft().mcDataDir, "crash-reports") : new File("crash-reports");
@@ -58,19 +58,14 @@ public class CrashUtils {
     }
 
     /**
-     * @author vfyjxf
      * @param crashReport
      * @throws IOException
+     * @author vfyjxf
      */
     public static void openCrashReport(CrashReport crashReport) throws IOException {
-
-        if(!Desktop.isDesktopSupported()){
-            BetterCrashes.logger.error("Desktop is not supported");
-            return;
-        }
         File report = crashReport.getFile();
-        if(report.exists()){
-            Desktop.getDesktop().open(report);
+        if (report.exists()) {
+            UDesktop.open(report);
         }
     }
 

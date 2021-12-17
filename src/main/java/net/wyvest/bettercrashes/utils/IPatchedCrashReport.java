@@ -4,9 +4,9 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.utils;
 
-import cpw.mods.fml.common.ModContainer;
+import net.minecraftforge.fml.common.ModContainer;
 
 import java.util.Set;
 

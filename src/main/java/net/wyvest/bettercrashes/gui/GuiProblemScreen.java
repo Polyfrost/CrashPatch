@@ -4,15 +4,17 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.gui;
 
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.crash.CrashReport;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.wyvest.bettercrashes.utils.CrashReportUpload;
+import net.wyvest.bettercrashes.utils.CrashUtils;
+import net.wyvest.bettercrashes.utils.IPatchedCrashReport;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -22,9 +24,9 @@ import java.util.Set;
 
 
 @SideOnly(Side.CLIENT)
-public abstract class GuiProblemScreen extends GuiScreen{
+public abstract class GuiProblemScreen extends GuiScreen {
 
-    protected final CrashReport report;
+    public final CrashReport report;
     private String hasteLink = null;
     private String modListString;
 
@@ -36,27 +38,27 @@ public abstract class GuiProblemScreen extends GuiScreen{
     public void initGui() {
         mc.setIngameNotInFocus();
         buttonList.clear();
-        buttonList.add(new GuiButton(1, width / 2 - 50, height / 4 + 120 + 12, 110, 20, I18n.format("bettercrashes.gui.openCrashReport")));
-        buttonList.add(new GuiButton(2, width / 2 - 50 + 115, height / 4 + 120 + 12, 110, 20, I18n.format("bettercrashes.gui.uploadReportAndCopyLink")));
+        buttonList.add(new GuiButton(1, width / 2 - 50, height / 4 + 120 + 12, 110, 20, "Open Crash Report"));
+        buttonList.add(new GuiButton(2, width / 2 - 50 + 115, height / 4 + 120 + 12, 110, 20, "Upload and copy link"));
     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        if (button.id == 1){
+        if (button.id == 1) {
             try {
                 CrashUtils.openCrashReport(report);
             } catch (IOException e) {
-                button.displayString = I18n.format("bettercrashes.gui.failed");
+                button.displayString = "[Failed]";
                 button.enabled = false;
                 e.printStackTrace();
             }
         }
-        if(button.id == 2){
-            if(hasteLink == null){
+        if (button.id == 2) {
+            if (hasteLink == null) {
                 try {
-                    hasteLink = CrashReportUpload.uploadToUbuntuPastebin("https://paste.ubuntu.com",report.getCompleteReport());
+                    hasteLink = CrashReportUpload.uploadToUbuntuPastebin("https://paste.ubuntu.com", report.getCompleteReport());
                 } catch (IOException e) {
-                    button.displayString = I18n.format("bettercrashes.gui.failed");
+                    button.displayString = "[Failed]";
                     button.enabled = false;
                     e.printStackTrace();
                 }
@@ -67,20 +69,21 @@ public abstract class GuiProblemScreen extends GuiScreen{
     }
 
     @Override
-    protected void keyTyped(char typedChar, int keyCode) {}
+    protected void keyTyped(char typedChar, int keyCode) {
+    }
 
     protected String getModListString() {
         if (modListString == null) {
             final Set<ModContainer> suspectedMods = ((IPatchedCrashReport) report).getSuspectedMods();
             if (suspectedMods == null) {
-                return modListString = I18n.format("bettercrashes.crashscreen.identificationErrored");
+                return modListString = "[Error identifying]";
             }
             List<String> modNames = new ArrayList<>();
             for (ModContainer mod : suspectedMods) {
                 modNames.add(mod.getName());
             }
             if (modNames.isEmpty()) {
-                modListString = I18n.format("bettercrashes.crashscreen.unknownCause");
+                modListString = "Unknown";
             } else {
                 modListString = StringUtils.join(modNames, ", ");
             }

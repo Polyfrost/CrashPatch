@@ -4,7 +4,7 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.utils;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -15,16 +15,8 @@ import java.util.Set;
  * @author Runemoro
  */
 public class StateManager {
-    public interface IResettable {
-        default void register() {
-            resettableRefs.add(new WeakReference<>(this));
-        }
-
-        void resetState();
-    }
-
     // Use WeakReference to allow garbage collection, preventing memory leaks
-    private static Set<WeakReference<IResettable>> resettableRefs = new HashSet<>();
+    private static final Set<WeakReference<IResettable>> resettableRefs = new HashSet<>();
 
     public static void resetStates() {
         Iterator<WeakReference<IResettable>> iterator = resettableRefs.iterator();
@@ -36,5 +28,13 @@ public class StateManager {
                 iterator.remove();
             }
         }
+    }
+
+    public interface IResettable {
+        default void register() {
+            resettableRefs.add(new WeakReference<>(this));
+        }
+
+        void resetState();
     }
 }

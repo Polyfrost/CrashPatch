@@ -1,4 +1,4 @@
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.utils;
 
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class CrashReportUpload {
         String params = "poster=CrashReport&syntax=text&content=" + URLEncoder.encode(crashReport, "UTF-8");
         out.write(params);
         out.flush();
-        String resultUrl = null;
+        String resultUrl;
         resultUrl = connection.getHeaderField("Location");
         if (resultUrl == null) {
             resultUrl = connection.getHeaderField("location");

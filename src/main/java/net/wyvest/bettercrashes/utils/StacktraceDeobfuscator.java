@@ -4,7 +4,7 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.utils;
+package net.wyvest.bettercrashes.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;

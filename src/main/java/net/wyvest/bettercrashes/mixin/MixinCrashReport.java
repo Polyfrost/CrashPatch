@@ -4,11 +4,14 @@
  *The source file uses the MIT License.
  */
 
-package vfyjxf.bettercrashes.mixins;
+package net.wyvest.bettercrashes.mixin;
 
-import cpw.mods.fml.common.ModContainer;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
+import net.minecraftforge.fml.common.ModContainer;
+import net.wyvest.bettercrashes.utils.IPatchedCrashReport;
+import net.wyvest.bettercrashes.utils.ModIdentifier;
+import net.wyvest.bettercrashes.utils.StacktraceDeobfuscator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.spongepowered.asm.mixin.Final;
@@ -18,9 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import vfyjxf.bettercrashes.utils.IPatchedCrashReport;
-import vfyjxf.bettercrashes.utils.ModIdentifier;
-import vfyjxf.bettercrashes.utils.StacktraceDeobfuscator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,21 +30,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-@Mixin(value = CrashReport.class,priority = 500)
+@Mixin(value = CrashReport.class, priority = 500)
 public class MixinCrashReport implements IPatchedCrashReport {
-    @Shadow @Final private CrashReportCategory theReportCategory;
-    @Shadow @Final private Throwable cause;
-    @Shadow @Final private List<CrashReportCategory> crashReportSections;
-    @Shadow @Final private String description;
+    @Shadow
+    @Final
+    private CrashReportCategory theReportCategory;
+    @Shadow
+    @Final
+    private Throwable cause;
+    @Shadow
+    @Final
+    private List<CrashReportCategory> crashReportSections;
+    @Shadow
+    @Final
+    private String description;
 
-    @Shadow private static String getWittyComment() { return null; }
+    @Shadow
+    private static String getWittyComment() {
+        return null;
+    }
 
     private Set<ModContainer> suspectedMods;
+
     @Override
     public Set<ModContainer> getSuspectedMods() {
         return suspectedMods;
     }
-    /** @reason Adds a list of mods which may have caused the crash to the report. */
+
+    /**
+     * @reason Adds a list of mods which may have caused the crash to the report.
+     */
     @Inject(method = "populateEnvironment", at = @At("TAIL"))
     private void afterPopulateEnvironment(CallbackInfo ci) {
         theReportCategory.addCrashSectionCallable("Suspected Mods", () -> {
@@ -67,7 +82,9 @@ public class MixinCrashReport implements IPatchedCrashReport {
         });
     }
 
-    /** @reason Deobfuscates the stacktrace using MCP mappings */
+    /**
+     * @reason Deobfuscates the stacktrace using MCP mappings
+     */
     @Inject(method = "populateEnvironment", at = @At("HEAD"))
     private void beforePopulateEnvironment(CallbackInfo ci) {
         StacktraceDeobfuscator.deobfuscateThrowable(cause);
@@ -126,7 +143,8 @@ public class MixinCrashReport implements IPatchedCrashReport {
                 String author = mod.getMetadata().authorList.get(0);
                 return "I blame " + author + ".";
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         return getWittyComment();
     }
