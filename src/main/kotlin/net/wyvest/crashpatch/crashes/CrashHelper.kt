@@ -1,7 +1,8 @@
-package net.wyvest.bettercrashes.utils
+package net.wyvest.crashpatch.crashes
 
 import com.google.common.io.Resources
 import com.google.gson.JsonArray
+import net.wyvest.crashpatch.utils.JsonObjectExt
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern

@@ -4,7 +4,7 @@
  *The source file uses the MIT License.
  */
 
-package net.wyvest.bettercrashes.mixin;
+package net.wyvest.crashpatch.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
@@ -27,10 +27,10 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.Loader;
-import net.wyvest.bettercrashes.gui.GuiCrashScreen;
-import net.wyvest.bettercrashes.gui.GuiInitErrorScreen;
-import net.wyvest.bettercrashes.utils.CrashUtils;
-import net.wyvest.bettercrashes.utils.StateManager;
+import net.wyvest.crashpatch.gui.GuiCrashScreen;
+import net.wyvest.crashpatch.gui.GuiInitErrorScreen;
+import net.wyvest.crashpatch.crashes.CrashUtils;
+import net.wyvest.crashpatch.crashes.StateManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
@@ -188,7 +188,7 @@ public abstract class MixinMinecraft {
      */
     public void displayCrashScreen(CrashReport report) {
         try {
-            CrashUtils.outputReport(report);
+            CrashUtils.INSTANCE.outputReport(report);
 
             // Reset hasCrashed, debugCrashKeyPressTime, and crashIntegratedServerNextTick
             hasCrashed = false;
@@ -231,10 +231,10 @@ public abstract class MixinMinecraft {
             } catch (Throwable ignored) {
             }
 
-            StateManager.resetStates();
+            StateManager.INSTANCE.resetStates();
 
             if (getNetHandler() != null) {
-                getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[BetterCrashes] Client crashed"));
+                getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
             }
             loadWorld(null);
             if (entityRenderer.isShaderActive()) {
@@ -252,7 +252,7 @@ public abstract class MixinMinecraft {
         } catch (Throwable t) {
             logger.error("Failed to reset state after a crash", t);
             try {
-                StateManager.resetStates();
+                StateManager.INSTANCE.resetStates();
             } catch (Throwable ignored) {
             }
         }
@@ -262,7 +262,7 @@ public abstract class MixinMinecraft {
      * @author Runemoro
      */
     public void displayInitErrorScreen(CrashReport report) {
-        CrashUtils.outputReport(report);
+        CrashUtils.INSTANCE.outputReport(report);
         try {
             mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
             renderEngine = new TextureManager(mcResourceManager);
@@ -327,8 +327,8 @@ public abstract class MixinMinecraft {
             int mouseX = Mouse.getX() * width / displayWidth;
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             currentScreen.drawScreen(mouseX, mouseY, 0);
-            if (screen.shouldCrash) {
-                throw screen.report.getCrashCause();
+            if (screen.getShouldCrash()) {
+                throw screen.getReport().getCrashCause();
             }
 
             framebufferMc.unbindFramebuffer();
@@ -341,7 +341,7 @@ public abstract class MixinMinecraft {
             updateDisplay();
             Thread.yield();
             Display.sync(60);
-            checkGLError("BetterCrashes GUI Loop");
+            checkGLError("CrashPatch GUI Loop");
         }
     }
 
@@ -352,7 +352,7 @@ public abstract class MixinMinecraft {
      */
     @Overwrite
     public void displayCrashReport(CrashReport report) {
-        CrashUtils.outputReport(report);
+        CrashUtils.INSTANCE.outputReport(report);
     }
 
 }

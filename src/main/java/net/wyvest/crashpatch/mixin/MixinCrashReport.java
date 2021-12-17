@@ -4,14 +4,13 @@
  *The source file uses the MIT License.
  */
 
-package net.wyvest.bettercrashes.mixin;
+package net.wyvest.crashpatch.mixin;
 
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraftforge.fml.common.ModContainer;
-import net.wyvest.bettercrashes.hook.CrashReportHook;
-import net.wyvest.bettercrashes.utils.ModIdentifier;
-import net.wyvest.bettercrashes.utils.StacktraceDeobfuscator;
+import net.wyvest.crashpatch.crashes.ModIdentifier;
+import net.wyvest.crashpatch.hook.CrashReportHook;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.spongepowered.asm.mixin.Final;
@@ -64,7 +63,7 @@ public class MixinCrashReport implements CrashReportHook {
     private void afterPopulateEnvironment(CallbackInfo ci) {
         theReportCategory.addCrashSectionCallable("Suspected Mods", () -> {
             try {
-                suspectedMods = ModIdentifier.identifyFromStacktrace(cause);
+                suspectedMods = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
 
                 String modListString = "Unknown";
                 List<String> modNames = new ArrayList<>();
@@ -80,14 +79,6 @@ public class MixinCrashReport implements CrashReportHook {
                 return ExceptionUtils.getStackTrace(e).replace("\t", "    ");
             }
         });
-    }
-
-    /**
-     * @reason Deobfuscates the stacktrace using MCP mappings
-     */
-    @Inject(method = "populateEnvironment", at = @At("HEAD"))
-    private void beforePopulateEnvironment(CallbackInfo ci) {
-        StacktraceDeobfuscator.deobfuscateThrowable(cause);
     }
 
     /**

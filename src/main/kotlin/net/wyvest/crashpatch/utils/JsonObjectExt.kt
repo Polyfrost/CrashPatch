@@ -1,4 +1,4 @@
-package net.wyvest.bettercrashes.utils
+package net.wyvest.crashpatch.utils
 
 import com.google.gson.*
 import java.io.*

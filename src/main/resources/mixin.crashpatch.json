@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.7",
-  "package": "net.wyvest.bettercrashes.mixin",
+  "package": "net.wyvest.crashpatch.mixin",
   "refmap": "mixin.bettercrashes.refmap.json",
   "mixins": [
     "MixinCrashReport",

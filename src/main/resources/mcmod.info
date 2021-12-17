@@ -1,12 +1,12 @@
 [{
-  "modid": "bettercrashes",
-  "name": "BetterCrashes",
+  "modid": "crashpatch",
+  "name": "CrashPatch",
   "description": "",
-  "version": "1.0.0",
+  "version": "${version}",
   "mcversion": "1.8.9",
   "url": "",
   "updateUrl": "",
-  "authorList": ["Wyvest"],
+  "authorList": ["W-OVERFLOW"],
   "credits": "",
   "screenshots": [],
   "dependencies": []
