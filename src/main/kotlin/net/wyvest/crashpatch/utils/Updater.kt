@@ -42,7 +42,7 @@ object Updater {
             if (currentVersion < latestVersion) {
                 updateUrl = latestRelease["assets"].asJsonArray[0].asJsonObject["browser_download_url"].asString
                 shouldUpdate = true
-                EssentialAPI.getNotifications().push("Mod Update", "${CrashPatch.NAME} $latestVersion is available!\nClick here to download it!") {
+                EssentialAPI.getNotifications().push("Mod Update", "${CrashPatch.NAME} $latestTag is available!\nClick here to download it!") {
                     EssentialAPI.getGuiUtil().openScreen(GuiDownload())
                 }
             }
@@ -96,7 +96,7 @@ object Updater {
                     }
                 }
                 println("Using runtime $runtime")
-                val file = File("config/W-OVERFLOW/Libraries/Deleter-1.2.jar")
+                val file = File(CrashPatch.modDir.parentFile, "Deleter-1.2.jar")
                 println("\"$runtime\" -jar \"${file.absolutePath}\" \"${CrashPatch.jarFile.absolutePath}\"")
                 if (System.getProperty("os.name").lowercase(Locale.ENGLISH).containsAny("linux", "unix")) {
                     println("On Linux, giving Deleter jar execute permissions...")
