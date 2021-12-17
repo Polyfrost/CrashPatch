@@ -4,7 +4,7 @@
  *The source file uses the MIT License.
  */
 
-package net.wyvest.bettercrashes.utils;
+package net.wyvest.bettercrashes.hook;
 
 import net.minecraftforge.fml.common.ModContainer;
 
@@ -13,6 +13,6 @@ import java.util.Set;
 /**
  * @author Runemoro
  */
-public interface IPatchedCrashReport {
+public interface CrashReportHook {
     Set<ModContainer> getSuspectedMods();
 }

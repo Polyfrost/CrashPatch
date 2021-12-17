@@ -22,7 +22,6 @@ import java.util.Date;
 public class CrashUtils {
 
     /**
-     * @param report
      * @author Runemoro
      */
     public static void outputReport(CrashReport report) {
@@ -57,11 +56,6 @@ public class CrashUtils {
         }
     }
 
-    /**
-     * @param crashReport
-     * @throws IOException
-     * @author vfyjxf
-     */
     public static void openCrashReport(CrashReport crashReport) throws IOException {
         File report = crashReport.getFile();
         if (report.exists()) {

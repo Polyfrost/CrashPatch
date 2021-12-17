@@ -9,6 +9,7 @@ package net.wyvest.bettercrashes.utils;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -23,7 +24,7 @@ public class StateManager {
         while (iterator.hasNext()) {
             WeakReference<IResettable> ref = iterator.next();
             if (ref.get() != null) {
-                ref.get().resetState();
+                Objects.requireNonNull(ref.get()).resetState();
             } else {
                 iterator.remove();
             }

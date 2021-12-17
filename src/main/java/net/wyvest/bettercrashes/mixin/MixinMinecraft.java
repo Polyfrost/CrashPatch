@@ -42,6 +42,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Queue;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author Runemoro
@@ -62,7 +63,7 @@ public abstract class MixinMinecraft {
     public static byte[] memoryReserve;
     @Shadow
     @Final
-    private Queue scheduledTasks;
+    private Queue<FutureTask<?>> scheduledTasks;
     @Shadow
     public EntityRenderer entityRenderer;
     @Shadow
@@ -184,7 +185,6 @@ public abstract class MixinMinecraft {
     }
 
     /**
-     * @param report
      * @author Runemoro
      */
     public void displayCrashScreen(CrashReport report) {
@@ -260,7 +260,6 @@ public abstract class MixinMinecraft {
     }
 
     /**
-     * @param report
      * @author Runemoro
      */
     public void displayInitErrorScreen(CrashReport report) {
@@ -295,7 +294,6 @@ public abstract class MixinMinecraft {
     }
 
     /**
-     * @param screen
      * @author Runemoro
      */
     private void runGUILoop(GuiInitErrorScreen screen) throws Throwable {
@@ -350,7 +348,6 @@ public abstract class MixinMinecraft {
 
 
     /**
-     * @param report
      * @author Runemoro
      * @reason
      */

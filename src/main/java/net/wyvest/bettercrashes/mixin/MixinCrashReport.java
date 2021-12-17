@@ -9,7 +9,7 @@ package net.wyvest.bettercrashes.mixin;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraftforge.fml.common.ModContainer;
-import net.wyvest.bettercrashes.utils.IPatchedCrashReport;
+import net.wyvest.bettercrashes.hook.CrashReportHook;
 import net.wyvest.bettercrashes.utils.ModIdentifier;
 import net.wyvest.bettercrashes.utils.StacktraceDeobfuscator;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mixin(value = CrashReport.class, priority = 500)
-public class MixinCrashReport implements IPatchedCrashReport {
+public class MixinCrashReport implements CrashReportHook {
     @Shadow
     @Final
     private CrashReportCategory theReportCategory;

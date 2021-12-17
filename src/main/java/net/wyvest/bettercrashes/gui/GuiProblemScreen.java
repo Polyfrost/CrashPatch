@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.wyvest.bettercrashes.utils.CrashReportUpload;
 import net.wyvest.bettercrashes.utils.CrashUtils;
-import net.wyvest.bettercrashes.utils.IPatchedCrashReport;
+import net.wyvest.bettercrashes.hook.CrashReportHook;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ public abstract class GuiProblemScreen extends GuiScreen {
 
     protected String getModListString() {
         if (modListString == null) {
-            final Set<ModContainer> suspectedMods = ((IPatchedCrashReport) report).getSuspectedMods();
+            final Set<ModContainer> suspectedMods = ((CrashReportHook) report).getSuspectedMods();
             if (suspectedMods == null) {
                 return modListString = "[Error identifying]";
             }
