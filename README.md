@@ -3,8 +3,7 @@
 <a href="https://github.com/W-OVERFLOW/CrashPatch/releases" target="_blank"></a>
 <img alt="downloads" src="https://img.shields.io/github/downloads/W-OVERFLOW/CrashPatch/total?color=F5C400&style=for-the-badge" /> <img alt="downloads latest" src="https://img.shields.io/github/downloads-pre/W-OVERFLOW/CrashPatch/latest/total?color=F5C400&style=for-the-badge"/>
 
-## **[Discord server (CLICK HERE TO GET SUPPORT)](https://discord.gg/w-overflow)**
-
+### **[Discord server (CLICK HERE TO GET SUPPORT)](https://discord.gg/w-overflow)**
 
 CrashPatch is a Minecraft (1.8.9) modification port of the BetterCrashes Minecraft modification (1.7.10) which is a port of the VanillaFix Minecraft modification (1.12.2).
 
