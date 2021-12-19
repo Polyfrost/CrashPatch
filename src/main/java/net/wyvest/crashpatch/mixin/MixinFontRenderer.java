@@ -1,8 +1,7 @@
 package net.wyvest.crashpatch.mixin;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.wyvest.crashpatch.hook.FontRendererHook;
-import org.jetbrains.annotations.NotNull;
+import net.wyvest.crashpatch.hooks.FontRendererHook;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -28,7 +27,7 @@ public abstract class MixinFontRenderer implements FontRendererHook {
     protected abstract int renderStringAligned(String text, int x, int y, int width, int color, boolean dropShadow);
 
     @Override
-    public int drawCrashPatchSplitText(@NotNull String str, int x, int y, int wrapWidth, int textColor) {
+    public int drawCrashPatchSplitText(String str, int x, int y, int wrapWidth, int textColor) {
         resetStyles();
         this.textColor = textColor;
         str = trimStringNewline(str);

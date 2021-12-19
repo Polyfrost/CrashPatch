@@ -75,7 +75,7 @@ class GuiInitErrorScreen(report: CrashReport) : GuiProblemScreen(report) {
         drawString(fontRendererObj, "and copy its link to clipboard. ", x, 9.also { y += it }, textColor)
         if (crashScan != null) drawString(
             fontRendererObj,
-            "You can also try checking the solutions below.",
+            "You should also try checking the solutions below before relaunching.",
             x,
             y + 9,
             textColor

@@ -82,7 +82,7 @@ class GuiCrashScreen(report: CrashReport) : GuiProblemScreen(report) {
         drawString(fontRendererObj, "can keep playing despite the crash.", x, 9.let { y += it; y }, textColor)
         if (crashScan != null) drawString(
             fontRendererObj,
-            "You can also try checking the solutions below.",
+            "You should also try checking the solutions below before relaunching.",
             x,
             y + 9,
             textColor

@@ -1,11 +1,11 @@
 package net.wyvest.crashpatch.gui
 
-import net.wyvest.crashpatch.hook.CrashReportHook
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.apache.commons.lang3.StringUtils
 import net.wyvest.crashpatch.crashes.CrashUtils
+import net.wyvest.crashpatch.hooks.CrashReportHook
 import java.io.IOException
 
 abstract class GuiProblemScreen(val report: CrashReport) : GuiScreen() {

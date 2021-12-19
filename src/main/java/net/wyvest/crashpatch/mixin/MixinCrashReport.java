@@ -10,7 +10,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraftforge.fml.common.ModContainer;
 import net.wyvest.crashpatch.crashes.ModIdentifier;
-import net.wyvest.crashpatch.hook.CrashReportHook;
+import net.wyvest.crashpatch.hooks.CrashReportHook;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.spongepowered.asm.mixin.Final;
@@ -90,7 +90,7 @@ public class MixinCrashReport implements CrashReportHook {
         StringBuilder builder = new StringBuilder();
 
         builder.append("---- Minecraft Crash Report ----\n")
-                .append("// ").append(getVanillaFixComment())
+                .append("// ").append(getCrashPatchComment())
                 .append("\n\n")
                 .append("Time: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date())).append("\n")
                 .append("Description: ").append(description)
@@ -114,7 +114,7 @@ public class MixinCrashReport implements CrashReportHook {
     }
 
     /**
-     * @reason Improve report formatting, add VanillaFix comment
+     * @reason Improve report formatting, add CrashPatch comment
      * @author Runemoro
      */
     @Overwrite
@@ -127,12 +127,12 @@ public class MixinCrashReport implements CrashReportHook {
         theReportCategory.appendToStringBuilder(builder);
     }
 
-    private String getVanillaFixComment() {
+    private String getCrashPatchComment() {
         try {
             if (Math.random() < 0.01 && !suspectedMods.isEmpty()) {
                 ModContainer mod = suspectedMods.iterator().next();
                 String author = mod.getMetadata().authorList.get(0);
-                return "I blame " + author + ".";
+                return "I'm not 100% accurate but I blame " + author + ".";
             }
         } catch (Throwable ignored) {
         }

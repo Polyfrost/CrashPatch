@@ -7,7 +7,7 @@ plugins {
     id "net.kyori.blossom" version "1.3.0"
 }
 
-version = "0.1.0-beta1"
+version = "0.1.0-beta2"
 group = "net.wyvest"
 archivesBaseName = "CrashPatch"
 

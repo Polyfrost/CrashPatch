@@ -1,9 +1,9 @@
 package net.wyvest.crashpatch.gui
 
-import net.wyvest.crashpatch.hook.FontRendererHook
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.wyvest.crashpatch.crashes.CrashScan
+import net.wyvest.crashpatch.hooks.FontRendererHook
 import java.awt.Color
 
 class GuiIssuesScreen(private val crashScan: CrashScan, private val parent: GuiScreen) : GuiScreen() {

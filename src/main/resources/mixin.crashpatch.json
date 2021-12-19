@@ -2,7 +2,7 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.7",
   "package": "net.wyvest.crashpatch.mixin",
-  "refmap": "mixin.bettercrashes.refmap.json",
+  "refmap": "mixin.crashpatch.refmap.json",
   "mixins": [
     "MixinCrashReport",
     "MixinFontRenderer",
