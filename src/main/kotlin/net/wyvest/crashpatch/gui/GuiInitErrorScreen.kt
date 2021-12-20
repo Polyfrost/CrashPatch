@@ -40,42 +40,42 @@ class GuiInitErrorScreen(report: CrashReport) : GuiProblemScreen(report) {
             fontRendererObj,
             "The following mod(s) have been identified as potential causes:",
             x,
-            18.also { y += it },
+            18.let { y += it; y },
             textColor
         )
-        drawCenteredString(fontRendererObj, modListString, width / 2, 11.also { y += it }, 0xE0E000)
+        drawCenteredString(fontRendererObj, modListString ?: "Unknown", width / 2, 11.let { y += it; y }, 0xE0E000)
         drawString(
             fontRendererObj,
             "A report has been generated, click the button below to open:",
             x,
-            11.also { y += it },
+            11.let { y += it; y },
             textColor
         )
         drawCenteredString(
             fontRendererObj,
             if (report.file != null) "\u00A7n" + report.file.name else "Failed",
             width / 2,
-            11.also { y += it },
+            11.let { y += it; y },
             0x00FF00
         )
         drawString(
             fontRendererObj,
             "You're encouraged to send this report's link to the mod's author to help",
             x,
-            12.also { y += it },
+            12.let { y += it; y },
             textColor
         )
         drawString(
             fontRendererObj,
             "them fix the issue, click the \"Upload and Copy link\" can upload report",
             x,
-            9.also { y += it },
+            9.let { y += it; y },
             textColor
         )
-        drawString(fontRendererObj, "and copy its link to clipboard. ", x, 9.also { y += it }, textColor)
+        drawString(fontRendererObj, "and copy its link to clipboard. ", x, 9.let { y += it; y }, textColor)
         if (crashScan != null) drawString(
             fontRendererObj,
-            "You should also try checking the solutions below before relaunching.",
+            "You should let try checking the solutions below before relaunching.",
             x,
             y + 9,
             textColor

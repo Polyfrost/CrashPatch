@@ -53,7 +53,7 @@ object ModIdentifier {
         // Get the mod containing that class
         return try {
             if (url.protocol == "jar") url = URL(url.file.substring(0, url.file.indexOf('!')))
-            modMap[File(url.toURI()).canonicalFile]!!
+            modMap[File(url.toURI()).canonicalFile] ?: emptySet()
         } catch (e: URISyntaxException) {
             throw RuntimeException(e)
         } catch (e: IOException) {
