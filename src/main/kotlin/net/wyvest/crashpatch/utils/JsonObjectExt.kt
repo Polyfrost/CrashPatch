@@ -4,11 +4,13 @@ import com.google.gson.*
 import java.io.*
 import java.util.stream.Collectors
 
+private val PARSER = JsonParser()
+private val pp: Gson = GsonBuilder().setPrettyPrinting().create()
+
 class JsonObjectExt(val data: JsonObject) {
-    private val pp: Gson = GsonBuilder().setPrettyPrinting().create()
 
     constructor() : this(JsonObject())
-    constructor(jsonIn: String) : this(JsonParser().parse(jsonIn).asJsonObject)
+    constructor(jsonIn: String) : this(PARSER.parse(jsonIn).asJsonObject)
 
     operator fun get(key: String, value: String? = ""): String? {
         if (key.isEmpty() || !has(key)) return value
