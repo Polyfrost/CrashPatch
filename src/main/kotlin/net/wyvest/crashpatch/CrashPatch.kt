@@ -6,8 +6,6 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.wyvest.crashpatch.utils.Updater
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import java.io.File
 
 @Mod(modid = CrashPatch.MODID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
@@ -17,7 +15,6 @@ object CrashPatch {
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    val logger: Logger = LogManager.getLogger(NAME)
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -25,6 +22,7 @@ object CrashPatch {
         if (!modDir.exists()) modDir.mkdirs()
         jarFile = e.sourceFile
     }
+
     @Mod.EventHandler
     fun onPostInitialization(event: FMLPostInitializationEvent) {
         MinecraftForge.EVENT_BUS.register(this)

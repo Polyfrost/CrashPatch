@@ -1,8 +1,8 @@
 package net.wyvest.crashpatch.utils
 
-import com.google.common.io.Resources
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
+import gg.essential.api.utils.WebUtil
 import net.wyvest.crashpatch.CrashPatch
 import net.wyvest.crashpatch.gui.GuiDownload
 import org.apache.http.HttpResponse
@@ -14,8 +14,6 @@ import java.awt.Desktop
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.URL
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 object Updater {
@@ -29,11 +27,7 @@ object Updater {
      */
     fun update() {
         Multithreading.runAsync {
-            @Suppress("UnstableApiUsage")
-            val latestRelease = JsonObjectExt(Resources.toString(
-                URL("https://api.github.com/repos/W-OVERFLOW/${CrashPatch.MODID}/releases/latest"),
-                StandardCharsets.UTF_8
-            ))
+            val latestRelease = WebUtil.fetchString("https://api.github.com/repos/W-OVERFLOW/${CrashPatch.MODID}/releases/latest")?.asJsonObject() ?: return@runAsync
             latestTag = latestRelease["tag_name"].asString
 
             val currentVersion = CrashPatchVersion.CURRENT
@@ -126,5 +120,4 @@ object Updater {
         }
         return java
     }
-    private fun String.containsAny(vararg sequences: CharSequence?) = sequences.any { it != null && this.contains(it, true) }
 }

@@ -18,23 +18,19 @@ object ModIdentifier {
         val modMap = makeModMap()
 
         // Get the set of classes
-        val classes: HashSet<String> = LinkedHashSet()
+        val classes = LinkedHashSet<String>()
         while (theThrowable != null) {
             for (element in theThrowable.stackTrace) {
                 classes.add(element.className)
             }
             theThrowable = theThrowable.cause
         }
-        val mods: MutableSet<ModContainer> = LinkedHashSet()
+        val mods = LinkedHashSet<ModContainer>()
         for (className in classes) {
             val classMods = identifyFromClass(className, modMap)
             mods.addAll(classMods)
         }
         return mods
-    }
-
-    fun identifyFromClass(className: String): Set<ModContainer> {
-        return identifyFromClass(className, makeModMap())
     }
 
     private fun identifyFromClass(className: String, modMap: Map<File, MutableSet<ModContainer>>): Set<ModContainer> {
@@ -62,7 +58,7 @@ object ModIdentifier {
     }
 
     private fun makeModMap(): Map<File, MutableSet<ModContainer>> {
-        val modMap: MutableMap<File, MutableSet<ModContainer>> = HashMap()
+        val modMap = HashMap<File, MutableSet<ModContainer>>()
         for (mod in Loader.instance().modList) {
             val currentMods = modMap.getOrDefault(mod.source, HashSet())
             currentMods.add(mod)

@@ -1,11 +1,12 @@
 package net.wyvest.crashpatch.gui
 
+import gg.essential.universal.UDesktop
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.apache.commons.lang3.StringUtils
-import net.wyvest.crashpatch.crashes.CrashUtils
 import net.wyvest.crashpatch.hooks.CrashReportHook
+import net.wyvest.crashpatch.utils.InternetUtils
 import java.io.IOException
 
 abstract class GuiProblemScreen(val report: CrashReport) : GuiScreen() {
@@ -15,7 +16,7 @@ abstract class GuiProblemScreen(val report: CrashReport) : GuiScreen() {
             if (field == null) {
                 val suspectedMods =
                     (report as CrashReportHook).suspectedMods ?: return "[Error identifying]".also { field = it }
-                val modNames: MutableList<String?> = ArrayList()
+                val modNames = ArrayList<String>()
                 for (mod in suspectedMods) {
                     modNames.add(mod.name)
                 }
@@ -38,26 +39,23 @@ abstract class GuiProblemScreen(val report: CrashReport) : GuiScreen() {
 
     override fun actionPerformed(button: GuiButton) {
         if (button.id == 1) {
-            try {
-                CrashUtils.openCrashReport(report)
-            } catch (e: IOException) {
+            if (!UDesktop.open(report.file)) {
                 button.displayString = "[Failed]"
                 button.enabled = false
-                e.printStackTrace()
             }
         }
         if (button.id == 2) {
-            if (hasteLink == null) {
+            setClipboardString(hasteLink ?: run {
                 try {
-                    hasteLink =
-                        CrashUtils.uploadToUbuntuPastebin("https://paste.ubuntu.com", report.completeReport)
+                    hasteLink = InternetUtils.uploadToHastebin(report.completeReport)
+                    hasteLink
                 } catch (e: IOException) {
                     button.displayString = "[Failed]"
                     button.enabled = false
                     e.printStackTrace()
                 }
-            }
-            setClipboardString(hasteLink)
+                null
+            })
         }
     }
 

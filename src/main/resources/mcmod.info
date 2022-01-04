@@ -1,13 +1,17 @@
-[{
-  "modid": "crashpatch",
-  "name": "CrashPatch",
-  "description": "",
-  "version": "${version}",
-  "mcversion": "1.8.9",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["W-OVERFLOW"],
-  "credits": "",
-  "screenshots": [],
-  "dependencies": []
-}]
+[
+  {
+    "modid": "crashpatch",
+    "name": "CrashPatch",
+    "description": "",
+    "version": "${version}",
+    "mcversion": "1.8.9",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "W-OVERFLOW"
+    ],
+    "credits": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

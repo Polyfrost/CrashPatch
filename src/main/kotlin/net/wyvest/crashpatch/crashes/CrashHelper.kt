@@ -1,10 +1,10 @@
 package net.wyvest.crashpatch.crashes
 
-import com.google.common.io.Resources
 import com.google.gson.JsonArray
-import net.wyvest.crashpatch.utils.JsonObjectExt
-import java.net.URL
-import java.nio.charset.StandardCharsets
+import gg.essential.api.utils.WebUtil
+import net.wyvest.crashpatch.utils.asJsonObject
+import net.wyvest.crashpatch.utils.get
+import net.wyvest.crashpatch.utils.keys
 import java.util.regex.Pattern
 
 object CrashHelper {
@@ -38,19 +38,13 @@ object CrashHelper {
         }
     }
 
-    private fun getResponses(report: String): LinkedHashMap<String, ArrayList<String>> {
-        @Suppress("UnstableApiUsage")
-        val issues = JsonObjectExt(
-            Resources.toString(
-                URL("https://raw.githubusercontent.com/isXander/MinecraftIssues/main/issues.json"),
-                StandardCharsets.UTF_8
-            )
-        )
+    private fun getResponses(report: String): HashMap<String, ArrayList<String>> {
+        val issues = WebUtil.fetchString("https://raw.githubusercontent.com/isXander/MinecraftIssues/main/issues.json")?.asJsonObject() ?: return linkedMapOf()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
         for (category in issues.keys) {
             for (categoryElement in issues[category, JsonArray()]!!) {
-                val issue = JsonObjectExt(categoryElement.asJsonObject)
+                val issue = categoryElement.asJsonObject
                 var info = issue["info", ""]!!
                 if (info.isEmpty() && !issue.has("hardcode")) continue
 
@@ -74,7 +68,7 @@ object CrashHelper {
                     }
                 } else {
                     for (checkElement in issue["and", JsonArray()]!!) {
-                        val check = JsonObjectExt(checkElement.asJsonObject)
+                        val check = checkElement.asJsonObject
 
                         var outcome = true
                         when (check["method", "contains"]!!.lowercase()) {
@@ -94,7 +88,7 @@ object CrashHelper {
                     if (issue.has("or")) {
                         orCheck = false
                         for (checkElement in issue["or", JsonArray()]!!) {
-                            val check = JsonObjectExt(checkElement.asJsonObject)
+                            val check = checkElement.asJsonObject
 
                             var outcome = true
                             when (check["method", "contains"]!!.lowercase()) {
@@ -130,5 +124,5 @@ data class CrashScan(
     val warnings: ArrayList<String>,
     val solutions: ArrayList<String>,
     val recommendations: ArrayList<String>,
-    val responses: LinkedHashMap<String, ArrayList<String>>
+    val responses: HashMap<String, ArrayList<String>>
 )

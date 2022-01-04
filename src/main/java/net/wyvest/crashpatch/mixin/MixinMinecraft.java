@@ -26,11 +26,10 @@ import net.minecraft.util.MinecraftError;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.SplashProgress;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.wyvest.crashpatch.gui.GuiCrashScreen;
 import net.wyvest.crashpatch.gui.GuiInitErrorScreen;
-import net.wyvest.crashpatch.crashes.CrashUtils;
-import net.wyvest.crashpatch.crashes.StateManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
@@ -39,6 +38,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
@@ -128,6 +129,8 @@ public abstract class MixinMinecraft {
     @Shadow
     public abstract void updateDisplay();
 
+    @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
+
     private int clientCrashCount = 0;
     private int serverCrashCount = 0;
 
@@ -188,7 +191,7 @@ public abstract class MixinMinecraft {
      */
     public void displayCrashScreen(CrashReport report) {
         try {
-            CrashUtils.INSTANCE.outputReport(report);
+            displayCrashReport(report);
 
             // Reset hasCrashed, debugCrashKeyPressTime, and crashIntegratedServerNextTick
             hasCrashed = false;
@@ -231,8 +234,6 @@ public abstract class MixinMinecraft {
             } catch (Throwable ignored) {
             }
 
-            StateManager.INSTANCE.resetStates();
-
             if (getNetHandler() != null) {
                 getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
             }
@@ -251,10 +252,6 @@ public abstract class MixinMinecraft {
             System.gc();
         } catch (Throwable t) {
             logger.error("Failed to reset state after a crash", t);
-            try {
-                StateManager.INSTANCE.resetStates();
-            } catch (Throwable ignored) {
-            }
         }
     }
 
@@ -262,7 +259,7 @@ public abstract class MixinMinecraft {
      * @author Runemoro
      */
     public void displayInitErrorScreen(CrashReport report) {
-        CrashUtils.INSTANCE.outputReport(report);
+        displayCrashReport(report);
         try {
             mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
             renderEngine = new TextureManager(mcResourceManager);
@@ -345,14 +342,8 @@ public abstract class MixinMinecraft {
         }
     }
 
-
-    /**
-     * @author Runemoro
-     * @reason
-     */
-    @Overwrite
-    public void displayCrashReport(CrashReport report) {
-        CrashUtils.INSTANCE.outputReport(report);
+    @Redirect(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleExit(I)V"))
+    public void redirect(FMLCommonHandler instance, int soafsdg) {
     }
 
 }
