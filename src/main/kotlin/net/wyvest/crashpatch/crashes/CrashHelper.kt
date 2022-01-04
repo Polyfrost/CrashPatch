@@ -78,7 +78,7 @@ object CrashHelper {
 
                         var outcome = true
                         when (check["method", "contains"]!!.lowercase()) {
-                            "contains" -> outcome = report.contains(check["value", "ouughaughaygajhgajhkgahjk"]!!)
+                            "contains" -> outcome = report.contains(check["value", "ouughaughaygajhgajhkgahjk"]!!) // hi lily
                             "regex" -> outcome =
                                 Pattern.compile(check["value", "ouughaughaygajhgajhkgahjk"]!!, Pattern.CASE_INSENSITIVE)
                                     .matcher(report).find()

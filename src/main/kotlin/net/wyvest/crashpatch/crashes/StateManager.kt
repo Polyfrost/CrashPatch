@@ -10,11 +10,7 @@ object StateManager {
         val iterator = resettableRefs.iterator()
         while (iterator.hasNext()) {
             val ref = iterator.next()
-            if (ref.get() != null) {
-                Objects.requireNonNull(ref.get())!!.resetState()
-            } else {
-                iterator.remove()
-            }
+            ref.get()?.resetState() ?: iterator.remove()
         }
     }
 

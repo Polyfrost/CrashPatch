@@ -23,8 +23,9 @@ public abstract class MixinFontRenderer implements FontRendererHook {
     @Shadow
     public abstract List<String> listFormattedStringToWidth(String str, int wrapWidth);
 
-    @Shadow
-    protected abstract int renderStringAligned(String text, int x, int y, int width, int color, boolean dropShadow);
+    @Shadow public abstract int drawStringWithShadow(String text, float x, float y, int color);
+
+    @Shadow public abstract int getStringWidth(String text);
 
     @Override
     public int drawCrashPatchSplitText(String str, int x, int y, int wrapWidth, int textColor) {
@@ -33,7 +34,7 @@ public abstract class MixinFontRenderer implements FontRendererHook {
         str = trimStringNewline(str);
         int y2 = y;
         for (String s : listFormattedStringToWidth(str, wrapWidth)) {
-            this.renderStringAligned(s, x, y2, wrapWidth, this.textColor, false);
+            drawStringWithShadow(s, (float)(x - getStringWidth(s) / 2), (float)y2, textColor);
             y2 += FONT_HEIGHT;
         }
         return y2 - y;
