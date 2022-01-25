@@ -1,4 +1,4 @@
-package net.wyvest.crashpatch.utils
+package cc.woverflow.crashpatch.utils
 
 import com.google.gson.*
 

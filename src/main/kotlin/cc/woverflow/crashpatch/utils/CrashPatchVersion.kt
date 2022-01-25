@@ -1,6 +1,6 @@
-package net.wyvest.crashpatch.utils
+package cc.woverflow.crashpatch.utils
 
-import net.wyvest.crashpatch.CrashPatch
+import cc.woverflow.crashpatch.CrashPatch
 import java.text.ParseException
 
 /**

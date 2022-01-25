@@ -1,9 +1,9 @@
-package net.wyvest.crashpatch.gui
+package cc.woverflow.crashpatch.gui
 
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
-import net.wyvest.crashpatch.crashes.CrashScan
-import net.wyvest.crashpatch.hooks.FontRendererHook
+import cc.woverflow.crashpatch.crashes.CrashScan
+import cc.woverflow.crashpatch.hooks.FontRendererHook
 import java.awt.Color
 
 class GuiIssuesScreen(private val crashScan: CrashScan, private val parent: GuiScreen) : GuiScreen() {
@@ -21,7 +21,7 @@ class GuiIssuesScreen(private val crashScan: CrashScan, private val parent: GuiS
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawDefaultBackground()
         var y = 0
-        crashScan.responses.forEach { (title, stuff) ->
+        crashScan.solutions.forEach { (title, stuff) ->
             drawCenteredString(fontRendererObj, title, width / 2, 10.also { y += it }, Color.WHITE.rgb)
             y += 10
             for (text in stuff) {

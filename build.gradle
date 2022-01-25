@@ -8,11 +8,11 @@ plugins {
 }
 
 version = "1.1.0"
-group = "net.wyvest"
+group = "cc.woverflow"
 archivesBaseName = "CrashPatch"
 
 blossom {
-    replaceToken("@VERSION@", project.version, "src/main/kotlin/net/wyvest/crashpatch/CrashPatch.kt")
+    replaceToken("@VERSION@", project.version, "src/main/kotlin/cc/woverflow/crashpatch/CrashPatch.kt")
 }
 
 minecraft {
@@ -44,6 +44,7 @@ dependencies {
         transitive = false
     }
     implementation "gg.essential:essential-1.8.9-forge:1750"
+    implementation "org.spongepowered:mixin:0.7.11-SNAPSHOT"
     annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
 

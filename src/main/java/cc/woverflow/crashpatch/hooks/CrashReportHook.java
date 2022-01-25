@@ -1,4 +1,4 @@
-package net.wyvest.crashpatch.hooks;
+package cc.woverflow.crashpatch.hooks;
 
 import net.minecraftforge.fml.common.ModContainer;
 

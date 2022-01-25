@@ -1,10 +1,10 @@
-package net.wyvest.crashpatch.crashes
+package cc.woverflow.crashpatch.crashes
 
 import com.google.gson.JsonArray
 import gg.essential.api.utils.WebUtil
-import net.wyvest.crashpatch.utils.asJsonObject
-import net.wyvest.crashpatch.utils.get
-import net.wyvest.crashpatch.utils.keys
+import cc.woverflow.crashpatch.utils.asJsonObject
+import cc.woverflow.crashpatch.utils.get
+import cc.woverflow.crashpatch.utils.keys
 import java.util.regex.Pattern
 
 object CrashHelper {
@@ -17,28 +17,14 @@ object CrashHelper {
             val responses = getResponses(report)
 
             if (responses.isEmpty()) return null
-            val theScan = CrashScan(arrayListOf(), arrayListOf(), arrayListOf(), responses)
-            responses.forEach { (t, u) ->
-                when (t) {
-                    "Warnings" -> {
-                        theScan.warnings.addAll(u)
-                    }
-                    "Solutions" -> {
-                        theScan.solutions.addAll(u)
-                    }
-                    "Recommendations" -> {
-                        theScan.recommendations.addAll(u)
-                    }
-                }
-            }
-            return theScan
+            return CrashScan(responses)
         } catch (e: Throwable) {
             e.printStackTrace()
             return null
         }
     }
 
-    private fun getResponses(report: String): HashMap<String, ArrayList<String>> {
+    private fun getResponses(report: String): Map<String, ArrayList<String>> {
         val issues = WebUtil.fetchString("https://raw.githubusercontent.com/isXander/MinecraftIssues/main/issues.json")?.asJsonObject() ?: return linkedMapOf()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
@@ -121,8 +107,5 @@ object CrashHelper {
 }
 
 data class CrashScan(
-    val warnings: ArrayList<String>,
-    val solutions: ArrayList<String>,
-    val recommendations: ArrayList<String>,
-    val responses: HashMap<String, ArrayList<String>>
+    val solutions: Map<String, MutableList<String>>
 )

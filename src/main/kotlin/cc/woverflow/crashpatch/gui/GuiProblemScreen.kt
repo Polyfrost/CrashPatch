@@ -1,12 +1,12 @@
-package net.wyvest.crashpatch.gui
+package cc.woverflow.crashpatch.gui
 
 import gg.essential.universal.UDesktop
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.apache.commons.lang3.StringUtils
-import net.wyvest.crashpatch.hooks.CrashReportHook
-import net.wyvest.crashpatch.utils.InternetUtils
+import cc.woverflow.crashpatch.hooks.CrashReportHook
+import cc.woverflow.crashpatch.utils.InternetUtils
 import java.io.IOException
 
 abstract class GuiProblemScreen(val report: CrashReport) : GuiScreen() {

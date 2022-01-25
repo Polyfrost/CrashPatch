@@ -4,12 +4,12 @@
  *The source file uses the MIT License.
  */
 
-package net.wyvest.crashpatch.mixin;
+package cc.woverflow.crashpatch.mixin;
 
+import cc.woverflow.crashpatch.hooks.CrashReportHook;
 import net.minecraft.crash.CrashReport;
 import net.minecraftforge.fml.common.ModContainer;
-import net.wyvest.crashpatch.crashes.ModIdentifier;
-import net.wyvest.crashpatch.hooks.CrashReportHook;
+import cc.woverflow.crashpatch.crashes.ModIdentifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

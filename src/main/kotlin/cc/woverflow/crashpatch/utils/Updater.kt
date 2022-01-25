@@ -1,10 +1,10 @@
-package net.wyvest.crashpatch.utils
+package cc.woverflow.crashpatch.utils
 
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
 import gg.essential.api.utils.WebUtil
-import net.wyvest.crashpatch.CrashPatch
-import net.wyvest.crashpatch.gui.GuiDownload
+import cc.woverflow.crashpatch.CrashPatch
+import cc.woverflow.crashpatch.gui.GuiDownload
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.config.RequestConfig

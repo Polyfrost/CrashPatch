@@ -1,9 +1,10 @@
-package net.wyvest.crashpatch.gui
+package cc.woverflow.crashpatch.gui
 
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.crash.CrashReport
-import net.wyvest.crashpatch.crashes.CrashHelper
-import net.wyvest.crashpatch.crashes.CrashScan
+import cc.woverflow.crashpatch.crashes.CrashHelper
+import cc.woverflow.crashpatch.crashes.CrashScan
+import net.minecraft.util.EnumChatFormatting
 
 class GuiInitErrorScreen(report: CrashReport) : GuiProblemScreen(report) {
     private var crashScan: CrashScan? = null
@@ -12,7 +13,7 @@ class GuiInitErrorScreen(report: CrashReport) : GuiProblemScreen(report) {
         super.initGui()
         buttonList.add(GuiButton(0, width / 2 - 50 - 115, height / 4 + 120 + 12, 110, 20, "Quit Game"))
         crashScan = CrashHelper.scanReport(report.completeReport)
-        if (crashScan != null && crashScan!!.warnings.isEmpty() && crashScan!!.recommendations.isEmpty() && crashScan!!.solutions.isEmpty()) {
+        if (crashScan != null && crashScan!!.solutions.isEmpty()) {
             crashScan = null
         }
         if (crashScan != null) {
@@ -33,46 +34,41 @@ class GuiInitErrorScreen(report: CrashReport) : GuiProblemScreen(report) {
         drawDefaultBackground()
         drawCenteredString(fontRendererObj, "Minecraft failed to start!", width / 2, height / 4 - 40, 0xFFFFFF)
         val textColor = 0xD0D0D0
-        val x = width / 2 - 155
+        val x = width / 2
         var y = height / 4
-        drawString(fontRendererObj, "An error during startup prevented Minecraft from starting.", x, y, textColor)
-        drawString(
+        drawCenteredString(fontRendererObj, "An error during startup prevented Minecraft from starting.", x, y, textColor)
+        drawCenteredString(fontRendererObj, "The following mod(s) have been identified as potential causes:", x, run { y += 18; y }, textColor)
+        drawCenteredString(fontRendererObj, modListString, x, run { y += 11; y }, 0xE0E000)
+        drawCenteredString(fontRendererObj, "A report has been generated, click the button below to open:", x, run { y += 11; y }, textColor)
+        drawCenteredString(
             fontRendererObj,
-            "The following mod(s) have been identified as potential causes:",
+            if (report.file != null) "${EnumChatFormatting.UNDERLINE}${report.file.name}" else "Failed",
             x,
-            18.let { y += it; y },
-            textColor
+            run { y += 11; y },
+            0x00FF00
         )
-        drawCenteredString(fontRendererObj, modListString ?: "Unknown", width / 2, 11.let { y += it; y }, 0xE0E000)
-        drawString(
+        drawCenteredString(
             fontRendererObj,
-            "A report has been generated, click the button below to open:",
+            "You're encouraged to send this report's link to the mod's author to help",
             x,
-            11.let { y += it; y },
+            run { y += 12; y },
             textColor
         )
         drawCenteredString(
             fontRendererObj,
-            if (report.file != null) "\u00A7n" + report.file.name else "Failed",
-            width / 2,
-            11.let { y += it; y },
-            0x00FF00
-        )
-        drawString(
-            fontRendererObj,
-            "You're encouraged to send this report's link to the mod's author to help",
-            x,
-            12.let { y += it; y },
-            textColor
-        )
-        drawString(
-            fontRendererObj,
             "them fix the issue, click the \"Upload and Copy link\" can upload report",
             x,
-            9.let { y += it; y },
+            run { y += 9; y },
             textColor
         )
-        drawString(fontRendererObj, "and copy its link to clipboard. ", x, 9.let { y += it; y }, textColor)
+        drawCenteredString(
+            fontRendererObj,
+            "and copy its link to clipboard. Since CrashPatch is installed, you",
+            x,
+            run { y += 9; y },
+            textColor
+        )
+        drawCenteredString(fontRendererObj, "can keep playing despite the crash.", x, run { y += 9; y }, textColor)
         if (crashScan != null) drawString(
             fontRendererObj,
             "You should also try checking the solutions below before relaunching.",

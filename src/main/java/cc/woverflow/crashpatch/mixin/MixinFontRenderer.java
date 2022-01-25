@@ -1,7 +1,7 @@
-package net.wyvest.crashpatch.mixin;
+package cc.woverflow.crashpatch.mixin;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.wyvest.crashpatch.hooks.FontRendererHook;
+import cc.woverflow.crashpatch.hooks.FontRendererHook;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

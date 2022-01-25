@@ -1,4 +1,4 @@
-package net.wyvest.crashpatch.crashes
+package cc.woverflow.crashpatch.crashes
 
 import net.minecraft.launchwrapper.Launch
 import net.minecraft.launchwrapper.LaunchClassLoader

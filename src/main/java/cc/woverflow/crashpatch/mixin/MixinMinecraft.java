@@ -4,7 +4,7 @@
  *The source file uses the MIT License.
  */
 
-package net.wyvest.crashpatch.mixin;
+package cc.woverflow.crashpatch.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
@@ -28,8 +28,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
-import net.wyvest.crashpatch.gui.GuiCrashScreen;
-import net.wyvest.crashpatch.gui.GuiInitErrorScreen;
+import cc.woverflow.crashpatch.gui.GuiCrashScreen;
+import cc.woverflow.crashpatch.gui.GuiInitErrorScreen;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;

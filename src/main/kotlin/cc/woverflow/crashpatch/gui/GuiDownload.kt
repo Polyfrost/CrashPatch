@@ -1,14 +1,15 @@
-package net.wyvest.crashpatch.gui
+package cc.woverflow.crashpatch.gui
 
 import gg.essential.api.EssentialAPI
 import gg.essential.api.gui.buildConfirmationModal
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.dsl.childOf
-import net.wyvest.crashpatch.CrashPatch
-import net.wyvest.crashpatch.utils.Updater
+import cc.woverflow.crashpatch.CrashPatch
+import cc.woverflow.crashpatch.utils.Updater
+import gg.essential.elementa.ElementaVersion
 import java.io.File
 
-class GuiDownload : WindowScreen(restoreCurrentGuiOnClose = true) {
+class GuiDownload : WindowScreen(version = ElementaVersion.V1, restoreCurrentGuiOnClose = true) {
 
     /**
      * Initializes the screen and builds an Essential Confirmation Modal.
