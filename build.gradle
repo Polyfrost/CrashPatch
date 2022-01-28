@@ -44,8 +44,7 @@ dependencies {
         transitive = false
     }
     implementation "gg.essential:essential-1.8.9-forge:1750"
-    implementation "org.spongepowered:mixin:0.7.11-SNAPSHOT"
-    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    annotationProcessor compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
 
 processResources {

@@ -13,7 +13,7 @@ import java.net.URL
 object ModIdentifier {
     private val log = LogManager.getLogger()
 
-    fun identifyFromStacktrace(e: Throwable?): Set<ModContainer> {
+    fun identifyFromStacktrace(e: Throwable?): ModContainer? {
         var theThrowable = e
         val modMap = makeModMap()
 
@@ -30,7 +30,7 @@ object ModIdentifier {
             val classMods = identifyFromClass(className, modMap)
             mods.addAll(classMods)
         }
-        return mods
+        return mods.firstOrNull()
     }
 
     private fun identifyFromClass(className: String, modMap: Map<File, MutableSet<ModContainer>>): Set<ModContainer> {

@@ -5,7 +5,6 @@
   "refmap": "mixin.crashpatch.refmap.json",
   "mixins": [
     "MixinCrashReport",
-    "MixinFontRenderer",
     "MixinMinecraft"
   ],
   "verbose": true

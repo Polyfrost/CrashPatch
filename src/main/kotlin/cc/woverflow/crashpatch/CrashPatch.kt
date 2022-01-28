@@ -24,7 +24,7 @@ object CrashPatch {
     const val VERSION = "@VERSION@"
 
     private val devEnv by lazy { EssentialAPI.getMinecraftUtil().isDevelopment() }
-    private val keyBinding = KeyBinding("Crash", Keyboard.KEY_J, "Crash Patch")
+    private val keyBinding = KeyBinding("Crash", Keyboard.KEY_NONE, "Crash Patch")
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -50,7 +50,7 @@ object CrashPatch {
     fun onClientTick(e: TickEvent.ClientTickEvent) {
         if (devEnv) {
             if (keyBinding.isPressed) {
-                throw NullPointerException()
+                throw NullPointerException("java.lang.IllegalArgumentException: Cannot get property PropertyEnum Failed to login: null at club.sk1er.patcher.registry.AsyncBlockAndItems.load(AsyncBlockAndItems.kt:28) BetterFPS: true")
             }
         }
     }

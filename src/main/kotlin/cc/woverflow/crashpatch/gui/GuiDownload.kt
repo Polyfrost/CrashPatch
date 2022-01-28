@@ -6,22 +6,19 @@ import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.dsl.childOf
 import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.utils.Updater
+import gg.essential.api.utils.Multithreading
 import gg.essential.elementa.ElementaVersion
 import java.io.File
 
 class GuiDownload : WindowScreen(version = ElementaVersion.V1, restoreCurrentGuiOnClose = true) {
 
-    /**
-     * Initializes the screen and builds an Essential Confirmation Modal.
-     */
-    override fun initScreen(width: Int, height: Int) {
-        super.initScreen(width, height)
+    init {
         EssentialAPI.getEssentialComponentFactory().buildConfirmationModal {
             this.text = "Are you sure you want to update?"
             this.secondaryText = "(This will update from v${CrashPatch.VERSION} to ${Updater.latestTag})"
             this.onConfirm = {
                 restorePreviousScreen()
-                gg.essential.api.utils.Multithreading.runAsync {
+                Multithreading.runAsync {
                     if (Updater.download(
                             Updater.updateUrl,
                             File(

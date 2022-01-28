@@ -6,9 +6,13 @@
 
 package cc.woverflow.crashpatch.mixin;
 
+import cc.woverflow.crashpatch.gui.GuiCrashMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -21,15 +25,9 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.MinecraftError;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
-import cc.woverflow.crashpatch.gui.GuiCrashScreen;
-import cc.woverflow.crashpatch.gui.GuiInitErrorScreen;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
@@ -90,11 +88,11 @@ public abstract class MixinMinecraft {
     @Shadow
     public GuiScreen currentScreen;
     @Shadow
-    private int leftClickCounter;
-    @Shadow
     public int displayWidth;
     @Shadow
     public int displayHeight;
+
+    private boolean letDie = false;
 
     @Shadow
     protected abstract void startGame() throws LWJGLException;
@@ -131,6 +129,8 @@ public abstract class MixinMinecraft {
 
     @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
 
+    @Shadow private Timer timer;
+    @Shadow private int leftClickCounter;
     private int clientCrashCount = 0;
     private int serverCrashCount = 0;
 
@@ -205,7 +205,7 @@ public abstract class MixinMinecraft {
 
             // Display the crash screen
 //            runGUILoop(new GuiCrashScreen(report));
-            displayGuiScreen(new GuiCrashScreen(report));
+            displayGuiScreen(new GuiCrashMenu(report));
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
@@ -279,11 +279,15 @@ public abstract class MixinMinecraft {
             try {
                 //noinspection deprecation
                 SplashProgress.pause();// Disable the forge splash progress screen
+                GlStateManager.disableTexture2D();
+                GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            runGUILoop(new GuiInitErrorScreen(report));
+            runGUILoop(new GuiCrashMenu(report, true));
         } catch (Throwable t) {
-            logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
+            if (!letDie) {
+                logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
+            }
             displayCrashReport(report);
             System.exit(report.getFile() != null ? -1 : -2);
         }
@@ -292,25 +296,34 @@ public abstract class MixinMinecraft {
     /**
      * @author Runemoro
      */
-    private void runGUILoop(GuiInitErrorScreen screen) throws Throwable {
+    private void runGUILoop(GuiCrashMenu screen) throws Throwable {
         displayGuiScreen(screen);
-        while (running && currentScreen != null && !(currentScreen instanceof GuiMainMenu) && !(Loader.isModLoaded("custommainmenu"))) {
+        while (running && currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
                 System.exit(0);
             }
-            leftClickCounter = 10000;
-            currentScreen.handleInput();
-            currentScreen.updateScreen();
+
+            timer.updateTimer();
+
+            for (int j = 0; j < this.timer.elapsedTicks; ++j)
+            {
+                leftClickCounter = 10000;
+                currentScreen.handleInput();
+                currentScreen.updateScreen();
+            }
 
             GlStateManager.pushMatrix();
             GlStateManager.clear(16640);
             framebufferMc.bindFramebuffer(true);
             GlStateManager.enableTexture2D();
 
-            GlStateManager.viewport(0, 0, displayWidth, displayHeight);
+            GlStateManager.viewport(0, 0, ((Minecraft) (Object) this).displayWidth, ((Minecraft) (Object) this).displayHeight);
+            GlStateManager.matrixMode(5889);
+            GlStateManager.loadIdentity();
+            GlStateManager.matrixMode(5888);
+            GlStateManager.loadIdentity();
 
-            // EntityRenderer.setupOverlayRendering
-            ScaledResolution scaledResolution = new ScaledResolution((Minecraft) (Object) this);
+            ScaledResolution scaledResolution = new ScaledResolution(((Minecraft) (Object) this));
             GlStateManager.clear(256);
             GlStateManager.matrixMode(5889);
             GlStateManager.loadIdentity();
@@ -319,12 +332,14 @@ public abstract class MixinMinecraft {
             GlStateManager.loadIdentity();
             GlStateManager.translate(0.0F, 0.0F, -2000.0F);
 
+            GlStateManager.clear(256);
             int width = scaledResolution.getScaledWidth();
             int height = scaledResolution.getScaledHeight();
             int mouseX = Mouse.getX() * width / displayWidth;
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             currentScreen.drawScreen(mouseX, mouseY, 0);
             if (screen.getShouldCrash()) {
+                letDie = true;
                 throw screen.getReport().getCrashCause();
             }
 
