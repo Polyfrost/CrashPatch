@@ -34,10 +34,11 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
@@ -92,7 +93,7 @@ public abstract class MixinMinecraft {
     @Shadow
     public int displayHeight;
 
-    private boolean letDie = false;
+    private boolean crashpatch$letDie = false;
 
     @Shadow
     protected abstract void startGame() throws LWJGLException;
@@ -131,22 +132,23 @@ public abstract class MixinMinecraft {
 
     @Shadow private Timer timer;
     @Shadow private int leftClickCounter;
-    private int clientCrashCount = 0;
-    private int serverCrashCount = 0;
+    private int crashpatch$clientCrashCount = 0;
+    private int crashpatch$serverCrashCount = 0;
 
     /**
      * @author Runemoro
      * @reason Overwrite Minecraft.run()
      */
-    @Overwrite
-    public void run() {
+    @Inject(method = "run", at = @At("HEAD"), cancellable = true)
+    public void run(CallbackInfo ci) {
+        ci.cancel();
         running = true;
         try {
             startGame();
         } catch (Throwable throwable) {
             CrashReport crashReport = CrashReport.makeCrashReport(throwable, "Initializing game");
             crashReport.makeCategory("Initialization");
-            displayInitErrorScreen(addGraphicsAndWorldToCrashReport(crashReport));
+            crashpatch$displayInitErrorScreen(addGraphicsAndWorldToCrashReport(crashReport));
             return;
         }
         try {
@@ -155,26 +157,26 @@ public abstract class MixinMinecraft {
                     try {
                         runGameLoop();
                     } catch (ReportedException e) {
-                        clientCrashCount++;
+                        crashpatch$clientCrashCount++;
                         addGraphicsAndWorldToCrashReport(e.getCrashReport());
-                        addInfoToCrash(e.getCrashReport());
-                        resetGameState();
+                        crashpatch$addInfoToCrash(e.getCrashReport());
+                        crashpatch$resetGameState();
                         logger.fatal("Reported exception thrown!", e);
-                        displayCrashScreen(e.getCrashReport());
+                        crashpatch$displayCrashScreen(e.getCrashReport());
                     } catch (Throwable e) {
-                        clientCrashCount++;
+                        crashpatch$clientCrashCount++;
                         CrashReport report = new CrashReport("Unexpected error", e);
                         addGraphicsAndWorldToCrashReport(report);
-                        addInfoToCrash(report);
-                        resetGameState();
+                        crashpatch$addInfoToCrash(report);
+                        crashpatch$resetGameState();
                         logger.fatal("Unreported exception thrown!", e);
-                        displayCrashScreen(report);
+                        crashpatch$displayCrashScreen(report);
                     }
                 } else {
-                    serverCrashCount++;
-                    addInfoToCrash(crashReporter);
+                    crashpatch$serverCrashCount++;
+                    crashpatch$addInfoToCrash(crashReporter);
                     freeMemory();
-                    displayCrashScreen(crashReporter);
+                    crashpatch$displayCrashScreen(crashReporter);
                     hasCrashed = false;
                     crashReporter = null;
                 }
@@ -183,13 +185,12 @@ public abstract class MixinMinecraft {
         } finally {
             shutdownMinecraftApplet();
         }
-
     }
 
     /**
      * @author Runemoro
      */
-    public void displayCrashScreen(CrashReport report) {
+    public void crashpatch$displayCrashScreen(CrashReport report) {
         try {
             displayCrashReport(report);
 
@@ -204,7 +205,7 @@ public abstract class MixinMinecraft {
             ingameGUI.getChatGUI().clearChatMessages();
 
             // Display the crash screen
-//            runGUILoop(new GuiCrashScreen(report));
+//            crashpatch$runGUILoop(new GuiCrashScreen(report));
             displayGuiScreen(new GuiCrashMenu(report));
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
@@ -214,15 +215,15 @@ public abstract class MixinMinecraft {
         }
     }
 
-    private void addInfoToCrash(CrashReport crashReport) {
-        crashReport.getCategory().addCrashSectionCallable("Client Crashes Since Restart", () -> String.valueOf(clientCrashCount));
-        crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(serverCrashCount));
+    private void crashpatch$addInfoToCrash(CrashReport crashReport) {
+        crashReport.getCategory().addCrashSectionCallable("Client Crashes Since Restart", () -> String.valueOf(crashpatch$clientCrashCount));
+        crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(crashpatch$serverCrashCount));
     }
 
     /**
      * @author Runemoro
      */
-    public void resetGameState() {
+    public void crashpatch$resetGameState() {
         try {
             // Free up memory such that this works properly in case of an OutOfMemoryError
             int originalMemoryReserveSize = -1;
@@ -258,7 +259,7 @@ public abstract class MixinMinecraft {
     /**
      * @author Runemoro
      */
-    public void displayInitErrorScreen(CrashReport report) {
+    public void crashpatch$displayInitErrorScreen(CrashReport report) {
         displayCrashReport(report);
         try {
             mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
@@ -283,9 +284,9 @@ public abstract class MixinMinecraft {
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            runGUILoop(new GuiCrashMenu(report, true));
+            crashpatch$runGUILoop(new GuiCrashMenu(report, true));
         } catch (Throwable t) {
-            if (!letDie) {
+            if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
             }
             displayCrashReport(report);
@@ -296,7 +297,7 @@ public abstract class MixinMinecraft {
     /**
      * @author Runemoro
      */
-    private void runGUILoop(GuiCrashMenu screen) throws Throwable {
+    private void crashpatch$runGUILoop(GuiCrashMenu screen) throws Throwable {
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
@@ -339,7 +340,7 @@ public abstract class MixinMinecraft {
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             currentScreen.drawScreen(mouseX, mouseY, 0);
             if (screen.getShouldCrash()) {
-                letDie = true;
+                crashpatch$letDie = true;
                 throw screen.getReport().getCrashCause();
             }
 

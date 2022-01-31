@@ -67,7 +67,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         width = 96.percent()
     } childOf content
 
-    private val susMods by UIWrappedText("${ChatColor.YELLOW}${(report as CrashReportHook).suspectedMod}", centered = true) constrain {
+    private val susMods by UIWrappedText("${ChatColor.YELLOW}${(report as CrashReportHook).suspectedCrashPatchMods}", centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
         width = 96.percent()

@@ -14,21 +14,21 @@ object ModIdentifier {
     private val log = LogManager.getLogger()
 
     fun identifyFromStacktrace(e: Throwable?): ModContainer? {
-        var theThrowable = e
         val modMap = makeModMap()
 
         // Get the set of classes
         val classes = LinkedHashSet<String>()
-        while (theThrowable != null) {
-            for (element in theThrowable.stackTrace) {
-                classes.add(element.className)
+        e?.stackTrace?.forEachIndexed { index, stackTraceElement ->
+            if (index < 4) {
+                classes.add(stackTraceElement.className)
             }
-            theThrowable = theThrowable.cause
         }
         val mods = LinkedHashSet<ModContainer>()
         for (className in classes) {
             val classMods = identifyFromClass(className, modMap)
-            mods.addAll(classMods)
+            if (classMods.isNotEmpty()) {
+                mods.addAll(classMods)
+            }
         }
         return mods.firstOrNull()
     }
