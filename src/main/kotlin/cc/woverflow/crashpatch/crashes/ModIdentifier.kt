@@ -1,17 +1,16 @@
 package cc.woverflow.crashpatch.crashes
 
+import cc.woverflow.crashpatch.logger
 import net.minecraft.launchwrapper.Launch
 import net.minecraft.launchwrapper.LaunchClassLoader
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.ModContainer
-import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
 import java.net.URISyntaxException
 import java.net.URL
 
 object ModIdentifier {
-    private val log = LogManager.getLogger()
 
     fun identifyFromStacktrace(e: Throwable?): ModContainer? {
         val modMap = makeModMap()
@@ -19,7 +18,7 @@ object ModIdentifier {
         // Get the set of classes
         val classes = LinkedHashSet<String>()
         e?.stackTrace?.forEachIndexed { index, stackTraceElement ->
-            if (index < 4) {
+            if (index < 4) { // everything after the first 3 lines are basically useless and only leads to false detections
                 classes.add(stackTraceElement.className)
             }
         }
@@ -40,9 +39,9 @@ object ModIdentifier {
         // Get the URL of the class
         val untrasformedName = untransformName(Launch.classLoader, className)
         var url = Launch.classLoader.getResource(untrasformedName.replace('.', '/') + ".class")
-        log.debug("$className = $untrasformedName = $url")
+        logger.debug("$className = $untrasformedName = $url")
         if (url == null) {
-            log.warn("Failed to identify $className (untransformed name: $untrasformedName)")
+            logger.warn("Failed to identify $className (untransformed name: $untrasformedName)")
             return emptySet()
         }
 

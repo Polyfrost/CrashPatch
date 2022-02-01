@@ -1,10 +1,12 @@
 package cc.woverflow.crashpatch.crashes
 
-import com.google.gson.JsonArray
-import gg.essential.api.utils.WebUtil
+import cc.woverflow.crashpatch.CrashPatch
+import cc.woverflow.crashpatch.logger
 import cc.woverflow.crashpatch.utils.asJsonObject
 import cc.woverflow.crashpatch.utils.get
 import cc.woverflow.crashpatch.utils.keys
+import com.google.gson.JsonArray
+import gg.essential.api.utils.WebUtil
 import java.util.regex.Pattern
 
 object CrashHelper {
@@ -14,7 +16,7 @@ object CrashHelper {
     @JvmStatic
     fun scanReport(report: String): CrashScan? {
         try {
-            val responses = getResponses(report)
+            val responses = if (!CrashPatch.useOldRepo) getResponses(report) else getOldResponses(report)
 
             if (responses.isEmpty()) return null
             return CrashScan(responses)
@@ -25,6 +27,45 @@ object CrashHelper {
     }
 
     private fun getResponses(report: String): Map<String, ArrayList<String>> {
+        val issues = WebUtil.fetchString("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")?.asJsonObject() ?: return emptyMap()
+        val responses = linkedMapOf<String, ArrayList<String>>()
+
+        val fixTypes = issues["fixtypes"].asJsonArray
+        for (type in fixTypes) {
+            responses[type.asJsonObject["name"].asString] = arrayListOf()
+        }
+
+        val fixes = issues["fixes"].asJsonArray
+
+        for (solution in fixes) {
+            val solutionJson = solution.asJsonObject
+            val causes = solutionJson["causes"].asJsonArray
+            var trigger = false
+            for (cause in causes) {
+                val causeJson = cause.asJsonObject
+                when (causeJson["method"].asString) {
+                    "contains" -> {
+                        if (report.contains(causeJson["value"].asString)) {
+                            trigger = true
+                        }
+                    }
+                    "regex" -> {
+                        if (Pattern.compile(causeJson["value"].asString, Pattern.CASE_INSENSITIVE).matcher(report).find()) {
+                            trigger = true
+                        }
+                    }
+                }
+            }
+            if (trigger) {
+                responses[ArrayList(responses.keys)[if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else 0]]?.add(solutionJson["fix"].asString)
+            }
+        }
+        return responses
+    }
+
+
+    private fun getOldResponses(report: String): Map<String, ArrayList<String>> {
+        logger.warn("Using the isXander MinecraftIssues repo is not supported! Use at your own risk.")
         val issues = WebUtil.fetchString("https://raw.githubusercontent.com/isXander/MinecraftIssues/main/issues.json")?.asJsonObject() ?: return linkedMapOf()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
