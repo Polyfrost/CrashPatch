@@ -30,15 +30,26 @@ object CrashHelper {
         val issues = WebUtil.fetchString("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")?.asJsonObject() ?: return emptyMap()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
+        val triggersToIgnore = arrayListOf<Int>()
+
         val fixTypes = issues["fixtypes"].asJsonArray
-        for (type in fixTypes) {
-            responses[type.asJsonObject["name"].asString] = arrayListOf()
+        fixTypes.map { it.asJsonObject }.forEachIndexed { index, type ->
+            if (!type.has("no_ingame_display") || !type["no_ingame_display"].asBoolean) {
+                responses[type["name"].asString] = arrayListOf()
+            } else {
+                triggersToIgnore.add(index)
+            }
         }
 
         val fixes = issues["fixes"].asJsonArray
+        val responseCategories = ArrayList(responses.keys)
 
         for (solution in fixes) {
             val solutionJson = solution.asJsonObject
+            val triggerNumber = if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else issues["default_fix_type"].asInt
+            if (triggersToIgnore.contains(triggerNumber)) {
+                continue
+            }
             val causes = solutionJson["causes"].asJsonArray
             var trigger = false
             for (cause in causes) {
@@ -57,10 +68,10 @@ object CrashHelper {
                 }
             }
             if (trigger) {
-                responses[ArrayList(responses.keys)[if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else 0]]?.add(solutionJson["fix"].asString)
+                responses[responseCategories[triggerNumber]]?.add(solutionJson["fix"].asString)
             }
         }
-        return responses
+        return responses.filterNot { it.value.isEmpty() }
     }
 
 
