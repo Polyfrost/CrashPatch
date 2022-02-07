@@ -10,23 +10,21 @@ import java.io.File
 
 @Mod(modid = CrashPatch.MODID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
 object CrashPatch {
-    lateinit var modDir: File
+    val modDir by lazy { File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), NAME).also { if (!it.exists()) it.mkdirs() } }
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    var useOldRepo = false
-    private set
+    val useOldRepo by lazy { File(modDir, "useoldrepo").exists() }
+    val isSkyclient by lazy { File(modDir, "SKYCLIENT").exists() }
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
-        modDir = File(File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), NAME)
-        if (!modDir.exists()) modDir.mkdirs()
         Updater.addToUpdater(e.sourceFile, NAME, MODID, VERSION, "W-OVERFLOW/$MODID")
     }
 
     @Mod.EventHandler
-    fun onPostInitialization(event: FMLPostInitializationEvent) {
-        useOldRepo = File(modDir, "useoldrepo").exists()
+    fun onPost(e: FMLPostInitializationEvent) {
+        throw NullPointerException()
     }
 }
 val logger = LogManager.getLogger()

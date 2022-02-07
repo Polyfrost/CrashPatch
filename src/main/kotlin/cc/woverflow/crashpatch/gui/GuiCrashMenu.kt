@@ -1,10 +1,12 @@
 package cc.woverflow.crashpatch.gui
 
+import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.hooks.CrashReportHook
 import cc.woverflow.crashpatch.utils.InternetUtils
+import cc.woverflow.wcore.utils.browse
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
@@ -76,7 +78,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
 
     private val second by UIWrappedText("""
         This may not be 100% accurate.
-        You're encouraged to send this crash report to the mod's developers to help fix the issue.${if (init) "" else "\nSince CrashPatch is installed, you can most likely keep on playing despite the crash."}
+        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue" else run { if (init) "${ChatColor.RED}You may also want to go to the SkyClient discord (https://discord.gg/eh7tNFezct) for support." else "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT." }}.${if (init) "" else "\nSince CrashPatch is installed, you can most likely keep on playing despite the crash."}
         ${if (crashScan != null) "You may also have a look at the suggestions below to fix the issue.\n" else ""}
         ${ChatColor.RED}IF MINECRAFT IS STUCK ON THE LOGGING ON SCREEN, PLEASE RESTART. WE CANNOT FIX THIS ISSUE.
     """.trimIndent(), centered = true) constrain {
@@ -84,6 +86,14 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         y = SiblingConstraint(9f)
         width = 96.percent()
     } childOf content
+
+    init {
+        second.onMouseClick {
+            if (CrashPatch.isSkyclient) {
+                UDesktop.browse("https://discord.gg/eh7tNFezct")
+            }
+        }
+    }
 
     private val block by UIBlock(VigilancePalette.getLightBackground()) constrain {
         x = 2.percent()
