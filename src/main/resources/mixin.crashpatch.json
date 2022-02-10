@@ -5,7 +5,10 @@
   "refmap": "mixin.crashpatch.refmap.json",
   "mixins": [
     "MixinCrashReport",
-    "MixinMinecraft"
+    "MixinMinecraft",
+    "MixinTileEntityRendererDispatcher",
+    "MixinWorldRenderer",
+    "MixinGuiConnecting"
   ],
   "verbose": true
 }

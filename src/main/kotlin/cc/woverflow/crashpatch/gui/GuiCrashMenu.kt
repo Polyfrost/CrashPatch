@@ -19,6 +19,7 @@ import gg.essential.elementa.dsl.*
 import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
 import gg.essential.vigilance.gui.VigilancePalette
+import gg.essential.vigilance.utils.onLeftClick
 import net.minecraft.crash.CrashReport
 import java.awt.Color
 import java.io.IOException
@@ -78,9 +79,8 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
 
     private val second by UIWrappedText("""
         This may not be 100% accurate.
-        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue" else run { if (init) "${ChatColor.RED}You may also want to go to the SkyClient discord (https://discord.gg/eh7tNFezct) for support." else "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT." }}.${if (init) "" else "\nSince CrashPatch is installed, you can most likely keep on playing despite the crash."}
+        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT."}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
         ${if (crashScan != null) "You may also have a look at the suggestions below to fix the issue.\n" else ""}
-        ${ChatColor.RED}IF MINECRAFT IS STUCK ON THE LOGGING ON SCREEN, PLEASE RESTART. WE CANNOT FIX THIS ISSUE.
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
@@ -88,7 +88,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
     } childOf content
 
     init {
-        second.onMouseClick {
+        second.onLeftClick {
             if (CrashPatch.isSkyclient) {
                 UDesktop.browse("https://discord.gg/eh7tNFezct")
             }

@@ -22,7 +22,6 @@ public class MixinCrashReport implements CrashReportHook {
     @Shadow
     @Final
     private Throwable cause;
-
     private String crashpatch$suspectedMod;
 
     @Override
