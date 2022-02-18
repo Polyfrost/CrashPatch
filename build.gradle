@@ -1,15 +1,20 @@
+//file:noinspection GroovyAssignabilityCheck
+import dev.architectury.pack200.java.Pack200Adapter
+
 plugins {
     id "java"
-    id "com.github.johnrengelman.shadow" version "6.1.0"
-    id "net.minecraftforge.gradle.forge" version "ddb1eb0"
-    id "org.spongepowered.mixin" version "d5f9873"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "gg.essential.loom" version "0.10.0.0"
+    id "dev.architectury.architectury-pack200" version "0.1.3"
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id "net.kyori.blossom" version "1.3.0"
 }
 
-version = "1.3.0"
+version = "1.3.1"
 group = "cc.woverflow"
 archivesBaseName = "CrashPatch"
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 blossom {
     replaceToken("@VERSION@", project.version, "src/main/kotlin/cc/woverflow/crashpatch/CrashPatch.kt")
@@ -22,16 +27,24 @@ compileKotlin {
     }
 }
 
-minecraft {
-    version = "1.8.9-11.15.1.2318-1.8.9"
-    runDir = "run"
-
-    mappings = "stable_22"
-
-    clientRunArgs += "--tweakClass gg.essential.loader.stage0.EssentialSetupTweaker"
-    clientRunArgs += "--mixin mixin.crashpatch.json"
-    clientJvmArgs += '-Dfml.coreMods.load=cc.woverflow.wcore.tweaker.WCoreTweaker'
-    makeObfSourceJar = false
+loom {
+    launchConfigs {
+        client {
+            property("fml.coreMods.load", "cc.woverflow.wcore.tweaker.WCoreTweaker")
+            arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            arg("--mixin", "mixin.crashpatch.json")
+        }
+    }
+    runConfigs {
+        client {
+            ideConfigGenerated = true
+        }
+    }
+    forge {
+        pack200Provider = new Pack200Adapter()
+        accessTransformer(file("src/main/resources/crashpatch_at.cfg"))
+        mixinConfig("mixin.crashpatch.json")
+    }
 }
 
 configurations {
@@ -45,15 +58,18 @@ repositories {
 }
 
 dependencies {
+    minecraft("com.mojang:minecraft:1.8.9")
+    mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
+    forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
     include ('gg.essential:loader-launchwrapper:1.1.3') {
         transitive = false
     }
     compileOnly 'gg.essential:essential-1.8.9-forge:1788'
-    compileOnly 'cc.woverflow:w-core:1.1.3'
+    implementation 'cc.woverflow:w-core:1.1.3'
     include ('cc.woverflow:w-core-tweaker:1.0.2') {
         transitive = false
     }
-    annotationProcessor compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
 }
 
 processResources {
@@ -81,7 +97,7 @@ jar {
     enabled = false
 }
 
-tasks.reobfJar.dependsOn tasks.shadowJar
+tasks.jar.dependsOn tasks.shadowJar
 
 shadowJar {
     archiveClassifier.set("")
@@ -109,23 +125,10 @@ shadowJar {
     exclude "fabric.mod.json"
 }
 
-mixin {
-    disableRefMapWarning = true
-    defaultObfuscationEnv searge
-    add sourceSets.main, "mixin.crashpatch.refmap.json"
-}
-
-reobf {
-    shadowJar {
-        classpath = sourceSets.main.compileClasspath
-    }
-}
-
 sourceSets {
     dummy
     main {
         compileClasspath += dummy.output
-        ext.refMap = "mixin.crashpatch.refmap.json"
         output.resourcesDir = file("${buildDir}/classes/java/main")
     }
 }

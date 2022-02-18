@@ -1,10 +1,15 @@
 package cc.woverflow.crashpatch
 
+import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.wcore.utils.Updater
+import cc.woverflow.wcore.utils.command
 import com.google.gson.JsonParser
 import com.google.gson.stream.MalformedJsonException
+import gg.essential.api.EssentialAPI
+import gg.essential.universal.ChatColor
 import net.minecraft.launchwrapper.Launch
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.LogManager
 import java.io.File
@@ -17,7 +22,6 @@ object CrashPatch {
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    val useOldRepo by lazy(LazyThreadSafetyMode.PUBLICATION) { File(modDir, "useoldrepo").exists() }
     val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(modDir, "SKYCLIENT").exists() || File(Launch.minecraftHome, "mods").listFiles { _, name -> name.endsWith(".jar") }?.let { list ->
         list.forEach {
             try {
@@ -51,6 +55,19 @@ object CrashPatch {
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
         Updater.addToUpdater(e.sourceFile, NAME, MODID, VERSION, "W-OVERFLOW/$MODID")
+    }
+
+    @Mod.EventHandler
+    fun onInit(e: FMLInitializationEvent) {
+        command("reloadcrashpatch", generateHelpCommand = false) {
+            main {
+                if (CrashHelper.loadJson()) {
+                    EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Successfully reloaded JSON file!")
+                } else {
+                    EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Failed to reloaded JSON file!")
+                }
+            }
+        }
     }
 }
 val logger = LogManager.getLogger(CrashPatch)
