@@ -9,7 +9,7 @@ plugins {
     id "net.kyori.blossom" version "1.3.0"
 }
 
-version = "1.3.1"
+version = "1.3.2"
 group = "cc.woverflow"
 archivesBaseName = "CrashPatch"
 
@@ -29,8 +29,7 @@ compileKotlin {
 loom {
     launchConfigs {
         client {
-            property("fml.coreMods.load", "cc.woverflow.wcore.tweaker.WCoreTweaker")
-            arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            arg("--tweakClass", "cc.woverflow.onecore.tweaker.OneCoreTweaker")
             arg("--mixin", "mixin.crashpatch.json")
         }
     }
@@ -60,12 +59,9 @@ dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-    include ('gg.essential:loader-launchwrapper:1.1.3') {
-        transitive = false
-    }
-    compileOnly 'gg.essential:essential-1.8.9-forge:1788'
-    implementation 'cc.woverflow:w-core:1.1.3'
-    include ('cc.woverflow:w-core-tweaker:1.0.2') {
+    compileOnly 'gg.essential:essential-1.8.9-forge:1933'
+    compileOnly 'cc.woverflow:onecore:1.3.3'
+    include ('cc.woverflow:onecore-tweaker:1.3.0') {
         transitive = false
     }
     compileOnly("org.spongepowered:mixin:0.8.5-SNAPSHOT")
@@ -95,12 +91,10 @@ jar {
 
     manifest.attributes(
             "ModSide": "CLIENT",
-            "TweakClass": "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass": "cc.woverflow.onecore.tweaker.OneCoreTweaker",
             "TweakOrder": "0",
             "MixinConfigs": "mixin.crashpatch.json",
-            'ForceLoadAsMod': true,
-            "FMLCorePlugin": "cc.woverflow.wcore.tweaker.WCoreTweaker",
-            "FMLCorePluginContainsFMLMod": true
+            'ForceLoadAsMod': true
     )
 }
 

@@ -1,11 +1,13 @@
 package cc.woverflow.crashpatch
 
 import cc.woverflow.crashpatch.crashes.CrashHelper
-import cc.woverflow.wcore.utils.Updater
-import cc.woverflow.wcore.utils.command
+import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
+import cc.woverflow.onecore.utils.Updater
+import cc.woverflow.onecore.utils.command
 import com.google.gson.JsonParser
 import com.google.gson.stream.MalformedJsonException
 import gg.essential.api.EssentialAPI
+import gg.essential.api.utils.Multithreading
 import gg.essential.universal.ChatColor
 import net.minecraft.launchwrapper.Launch
 import net.minecraftforge.fml.common.Mod
@@ -54,6 +56,13 @@ object CrashPatch {
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
+        DeobfuscatingRewritePolicy.install()
+        Multithreading.runAsync {
+            logger.info("Is SkyClient: $isSkyclient")
+            if (!CrashHelper.loadJson()) {
+                logger.warn("CrashHelper failed to preload crash data JSON!")
+            }
+        }
         Updater.addToUpdater(e.sourceFile, NAME, MODID, VERSION, "W-OVERFLOW/$MODID")
     }
 

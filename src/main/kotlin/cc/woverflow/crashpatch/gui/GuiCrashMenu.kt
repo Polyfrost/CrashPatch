@@ -6,7 +6,7 @@ import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.hooks.CrashReportHook
 import cc.woverflow.crashpatch.utils.InternetUtils
-import cc.woverflow.wcore.utils.browse
+import cc.woverflow.onecore.utils.browseURL
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
@@ -90,7 +90,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
     init {
         second.onLeftClick {
             if (CrashPatch.isSkyclient) {
-                UDesktop.browse("https://discord.gg/eh7tNFezct")
+                UDesktop.browseURL("https://discord.gg/eh7tNFezct")
             }
         }
     }
