@@ -6,9 +6,13 @@
 
 package cc.woverflow.crashpatch.mixin;
 
+import cc.woverflow.crashpatch.CrashPatch;
 import cc.woverflow.crashpatch.crashes.StateManager;
 import cc.woverflow.crashpatch.gui.GuiCrashMenu;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
+import cc.woverflow.crashpatch.hooks.SimpleReloadableResourceManagerHook;
+import cc.woverflow.crashpatch.utils.ModCompatUtils;
+import club.sk1er.patcher.util.enhancement.ReloadListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
@@ -19,6 +23,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.client.resources.data.IMetadataSerializer;
@@ -34,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -116,6 +122,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
     @Shadow private int leftClickCounter;
+
+    @Shadow public abstract boolean isUnicode();
+
+    @Shadow public FontRenderer standardGalacticFontRenderer;
     private int crashpatch$clientCrashCount = 0;
     private int crashpatch$serverCrashCount = 0;
     private boolean recoveredFromCrash = false;
@@ -275,7 +285,19 @@ public abstract class MixinMinecraft implements MinecraftHook {
             refreshResources(); // TODO: Why is this necessary?
             fontRendererObj = new FontRenderer(gameSettings, new ResourceLocation("textures/font/ascii.png"), renderEngine, false);
             mcResourceManager.registerReloadListener(fontRendererObj);
-
+            /*/
+            this.fontRendererObj = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
+            if (this.gameSettings.language != null) {
+                this.fontRendererObj.setUnicodeFlag(isUnicode());
+                this.fontRendererObj.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
+            }
+            standardGalacticFontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii_sga.png"), this.renderEngine, false);
+            ((SimpleReloadableResourceManagerHook) mcResourceManager).removeReloadListener(fontRendererObj);
+            ((SimpleReloadableResourceManagerHook) mcResourceManager).removeReloadListener(standardGalacticFontRenderer);
+            this.mcResourceManager.registerReloadListener(this.fontRendererObj);
+            this.mcResourceManager.registerReloadListener(this.standardGalacticFontRenderer);
+            ModCompatUtils.INSTANCE.resetPatcherFontRenderer();
+             */
             mcSoundHandler = new SoundHandler(mcResourceManager, gameSettings);
             mcResourceManager.registerReloadListener(mcSoundHandler);
 
@@ -308,6 +330,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             }
 
             leftClickCounter = 10000;
+            ModCompatUtils.INSTANCE.onPatcherTick();
             currentScreen.handleInput();
             currentScreen.updateScreen();
 
@@ -503,6 +526,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GlStateManager.matrixMode(5888);
     }
 
+    @Override
+    public IReloadableResourceManager getResourceManager() {
+        return mcResourceManager;
+    }
 }
 
 

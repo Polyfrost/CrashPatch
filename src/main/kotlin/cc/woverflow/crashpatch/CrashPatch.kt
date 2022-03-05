@@ -22,35 +22,10 @@ object CrashPatch {
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(modDir, "SKYCLIENT").exists() || File(Launch.minecraftHome, "mods").listFiles { _, name -> name.endsWith(".jar") }?.let { list ->
-        list.forEach {
-            try {
-                ZipFile(it).use { zipFile ->
-                    val entry = zipFile.getEntry("mcmod.info")
-                    if (entry != null) {
-                        zipFile.getInputStream(entry).use { inputStream ->
-                            val availableBytes = ByteArray(inputStream.available())
-                            inputStream.read(availableBytes, 0, inputStream.available())
-                            val modInfo =
-                                parser.parse(String(availableBytes)).asJsonArray[0].asJsonObject
-                            if (!modInfo.has("modid")) {
-                                return@forEach
-                            }
-                            val modid = modInfo["modid"].asString
-                            if (modid == "skyclientcosmetics" || modid == "scc" || modid == "skyclientaddons" || modid == "skyblockclientupdater") {
-                                return@let true
-                            }
-                        }
-                    }
-                }
-            } catch (ignored: MalformedJsonException) {
-            } catch (ignored: IllegalStateException) {
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        return@let false
-    } ?: false }
+    var isSkyclient = false
+    private set
+    var isPatcher = false
+    private set
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -65,6 +40,41 @@ object CrashPatch {
                     EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Successfully reloaded JSON file!")
                 } else {
                     EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Failed to reloaded JSON file!")
+                }
+            }
+        }
+    }
+
+    fun findMods() {
+        isSkyclient = File(modDir, "SKYCLIENT").exists()
+        File(Launch.minecraftHome, "mods").listFiles { _, name -> name.endsWith(".jar") }?.let { list ->
+            list.forEach {
+                try {
+                    ZipFile(it).use { zipFile ->
+                        val entry = zipFile.getEntry("mcmod.info")
+                        if (entry != null) {
+                            zipFile.getInputStream(entry).use { inputStream ->
+                                val availableBytes = ByteArray(inputStream.available())
+                                inputStream.read(availableBytes, 0, inputStream.available())
+                                val modInfo =
+                                    parser.parse(String(availableBytes)).asJsonArray[0].asJsonObject
+                                if (!modInfo.has("modid")) {
+                                    return@forEach
+                                }
+                                when (modInfo["modid"].asString) {
+                                    "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater" -> isSkyclient = true
+                                    "patcher" -> isPatcher = true
+                                }
+                                if (isPatcher && isSkyclient) {
+                                    return@let
+                                }
+                            }
+                        }
+                    }
+                } catch (ignored: MalformedJsonException) {
+                } catch (ignored: IllegalStateException) {
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }

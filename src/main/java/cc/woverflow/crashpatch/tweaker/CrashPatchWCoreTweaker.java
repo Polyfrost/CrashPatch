@@ -13,7 +13,7 @@ public class CrashPatchWCoreTweaker extends WCoreTweaker {
         super();
         DeobfuscatingRewritePolicy.Companion.install();
         Multithreading.runAsync(() -> {
-            CrashPatchKt.getLogger().info("Is SkyClient: " + CrashPatch.INSTANCE.isSkyclient());
+            CrashPatch.INSTANCE.findMods();
             if (!CrashHelper.loadJson()) {
                 CrashPatchKt.getLogger().warn("CrashHelper failed to preload crash data JSON!");
             }
