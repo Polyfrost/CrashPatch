@@ -30,7 +30,7 @@ loom {
     launchConfigs {
         client {
             arg("--tweakClass", "cc.woverflow.onecore.tweaker.OneCoreTweaker")
-            arg("--mixin", "mixin.crashpatch.json")
+            property("onecore.mixin", "mixin.crashpatch.json")
         }
     }
     runConfigs {

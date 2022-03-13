@@ -4,11 +4,12 @@
   "package": "cc.woverflow.crashpatch.mixin",
   "refmap": "mixin.crashpatch.refmap.json",
   "mixins": [
+    "AccessorGuiDisconnected",
     "MixinCrashReport",
+    "MixinGuiConnecting",
     "MixinMinecraft",
     "MixinTileEntityRendererDispatcher",
-    "MixinWorldRenderer",
-    "MixinGuiConnecting"
+    "MixinWorldRenderer"
   ],
   "verbose": true
 }

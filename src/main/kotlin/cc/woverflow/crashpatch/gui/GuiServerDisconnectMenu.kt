@@ -2,13 +2,9 @@ package cc.woverflow.crashpatch.gui
 
 import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.crashes.CrashHelper
-import cc.woverflow.crashpatch.gui.CrashPatchGUI.black
-import cc.woverflow.crashpatch.gui.CrashPatchGUI.focusedScrollBar
-import cc.woverflow.crashpatch.gui.CrashPatchGUI.unfocusedScrollBar
-import cc.woverflow.crashpatch.gui.CrashPatchGUI.white
 import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
-import cc.woverflow.crashpatch.hooks.CrashReportHook
+import cc.woverflow.crashpatch.logger
 import cc.woverflow.crashpatch.utils.InternetUtils
 import cc.woverflow.onecore.utils.browseURL
 import gg.essential.elementa.ElementaVersion
@@ -24,20 +20,20 @@ import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.utils.onLeftClick
-import net.minecraft.crash.CrashReport
+import net.minecraft.util.IChatComponent
 import java.awt.Color
 import java.io.IOException
 
-class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private val init: Boolean = false) : WindowScreen(version = ElementaVersion.V1) {
+class GuiServerDisconnectMenu(private val component: IChatComponent, reason: String) : WindowScreen(version = ElementaVersion.V1) {
     private var hasteLink: String? = null
     private val crashScan by lazy {
-        var yes = CrashHelper.scanReport(report.completeReport)
+        var yes = CrashHelper.scanReport(component.formattedText, true)
         if (yes != null && yes!!.solutions.isEmpty()) {
             yes = null
         }
         yes
     }
-    var shouldCrash = false
+
     private var hasteFailed = false
 
     private val contentContainer by UIContainer() constrain {
@@ -52,39 +48,29 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         height = 100.percent()
     } childOf contentContainer
 
-    private val scrollBar by Button(unfocusedScrollBar.toConstraint(), focusedScrollBar.toConstraint()) {} constrain {
+    private val scrollBar by Button(CrashPatchGUI.unfocusedScrollBar.toConstraint(), CrashPatchGUI.focusedScrollBar.toConstraint()) {} constrain {
         x = 7.5f.pixels(true)
         width = 3.pixels()
         color = Color(VigilancePalette.getScrollBar().red, VigilancePalette.getScrollBar().green, VigilancePalette.getScrollBar().blue, 128).toConstraint()
     } childOf contentContainer
 
-    private val crashedText by UIWrappedText("${ChatColor.RED}Minecraft has crashed!", centered = true) constrain {
+    private val crashedText by UIWrappedText("${ChatColor.RED}You were disconnected from the server!", centered = true) constrain {
         x = 2.percent()
         y = 2.percent()
         width = 96.percent()
         textScale = 2.pixels()
     } childOf content
 
-    private val first by UIWrappedText("""
-        Minecraft ran into a problem and crashed.
-        The following mod may have caused this crash:
-    """.trimIndent(), centered = true) constrain {
+    private val reasonText by UIWrappedText(reason, centered = true) constrain {
         x = 2.percent()
-        y = SiblingConstraint(9f)
-        width = 96.percent()
-    } childOf content
-
-    private val susMods by UIWrappedText("${ChatColor.YELLOW}${(report as CrashReportHook).suspectedCrashPatchMods}", centered = true) constrain {
-        x = 2.percent()
-        y = SiblingConstraint(9f)
+        y = SiblingConstraint(3f)
         width = 96.percent()
         textScale = (1.5).pixels()
     } childOf content
 
     private val second by UIWrappedText("""
-        This may not be 100% accurate.
-        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT."}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
-        ${if (crashScan != null) "You may also have a look at the suggestions below to fix the issue.\n" else ""}
+        ${component.formattedText}
+        ${if (CrashPatch.isSkyclient) "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT." else ""}${if (crashScan != null) "\nYou may also have a look at the suggestions below to fix the issue.\n" else ""}
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
@@ -111,7 +97,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         height = 100.percent()
     } childOf block
 
-    private val solutionsScrollBar by Button(unfocusedScrollBar.toConstraint(), focusedScrollBar.toConstraint()) {} constrain {
+    private val solutionsScrollBar by Button(CrashPatchGUI.unfocusedScrollBar.toConstraint(), CrashPatchGUI.focusedScrollBar.toConstraint()) {} constrain {
         x = 7.5f.pixels(true)
         width = 3.pixels()
         color = Color(VigilancePalette.getScrollBar().red, VigilancePalette.getScrollBar().green, VigilancePalette.getScrollBar().blue, 128).toConstraint()
@@ -152,26 +138,24 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         width = 100.percent()
         height = (window.getHeight() - 2).pixels() - 90.percent()
     } childOf window
-    private val openCrashReport by TextButton("Open Crash Report", black, white) {
-        UDesktop.open(report.file)
-    } constrain {
+
+    private val openCrashReport by UIContainer() constrain {
         x = CenterConstraint()
         y = CenterConstraint()
+        width = 0.pixels()
+        height = 0.pixels()
     } childOf buttonContainer
-    val close by TextButton(if (init) "Quit Game" else "Return to Game", black, white) {
-        if (init) {
-            shouldCrash = true
-        } else {
-            restorePreviousScreen()
-        }
+
+    val close by TextButton("Return to Game", CrashPatchGUI.black, CrashPatchGUI.white) {
+        restorePreviousScreen()
     } constrain {
         x = SiblingConstraint(5f, true)
         y = CenterConstraint()
     } childOf buttonContainer
-    val uploadReport by TextButton("Upload Crash Report", black, white, { !hasteFailed }) {
+    val uploadReport by TextButton("Upload Crash Report", CrashPatchGUI.black, CrashPatchGUI.white, { !hasteFailed }) {
         setClipboardString(hasteLink ?: run {
             try {
-                hasteLink = InternetUtils.uploadToHastebin(report.completeReport)
+                hasteLink = InternetUtils.uploadToHastebin(component.formattedText)
                 return@run hasteLink
             } catch (e: IOException) {
                 hasteFailed = true
@@ -187,5 +171,6 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
 
     init {
         content.setVerticalScrollBarComponent(scrollBar, true)
+        logger.error("Connection failed. Reason: $reason | Message: ${component.formattedText}")
     }
 }
