@@ -7,8 +7,8 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             switch (requested.id.id) {
-                case 'gg.essential.loom':
-                    useModule "gg.essential:architectury-loom:${requested.version}"
+                case 'cc.woverflow.loom':
+                    useModule "cc.woverflow:architectury-loom:${requested.version}"
                     break
                 case 'org.spongepowered.mixin':
                     useModule "com.github.Skytils:MixinGradle:${requested.version}"
