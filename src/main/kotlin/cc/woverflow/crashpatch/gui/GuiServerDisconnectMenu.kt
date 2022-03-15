@@ -20,8 +20,10 @@ import gg.essential.universal.ChatColor
 import gg.essential.universal.UDesktop
 import gg.essential.vigilance.gui.VigilancePalette
 import gg.essential.vigilance.utils.onLeftClick
+import net.minecraft.launchwrapper.Launch
 import net.minecraft.util.IChatComponent
 import java.awt.Color
+import java.io.File
 import java.io.IOException
 
 class GuiServerDisconnectMenu(private val component: IChatComponent, reason: String) : WindowScreen(version = ElementaVersion.V1) {
@@ -115,7 +117,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
                     textScale = 3.pixels()
                 } childOf scrollableSolutions
                 for (solution in list.value) {
-                    UIWrappedText(solution, centered = true) constrain {
+                    UIWrappedText(solution.replace("%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(File.separator)).replace("%profileroot%", Launch.minecraftHome.absolutePath.removeSuffix(File.separator)), centered = true) constrain {
                         x = 0.pixels()
                         y = SiblingConstraint(4f)
                         width = 100.percent()

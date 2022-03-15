@@ -9,6 +9,7 @@ import com.google.gson.stream.MalformedJsonException
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
 import gg.essential.universal.ChatColor
+import gg.essential.universal.UDesktop
 import net.minecraft.launchwrapper.Launch
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -53,6 +54,14 @@ object CrashPatch {
         }
         return@let false
     } ?: false }
+    val gameDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        try {
+            if (Launch.minecraftHome.parentFile?.name == (if (UDesktop.isMac) "minecraft" else ".minecraft")) Launch.minecraftHome.parentFile else Launch.minecraftHome
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Launch.minecraftHome
+        }
+    }
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
