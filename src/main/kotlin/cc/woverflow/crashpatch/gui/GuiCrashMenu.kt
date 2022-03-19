@@ -131,7 +131,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
                     textScale = 3.pixels()
                 } childOf scrollableSolutions
                 for (solution in list.value) {
-                    UIWrappedText(solution.replace("%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(File.separator)).replace("%profileroot%", Launch.minecraftHome.absolutePath.removeSuffix(File.separator)), centered = true) constrain {
+                    UIWrappedText(solution.replace("%pathindicator%", "").replace("%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(File.separator)).replace("%profileroot%", Launch.minecraftHome.absolutePath.removeSuffix(File.separator)), centered = true) constrain {
                         x = 0.pixels()
                         y = SiblingConstraint(4f)
                         width = 100.percent()
