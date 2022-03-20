@@ -55,19 +55,16 @@ object CrashHelper {
                 if ((!type.has("server_crashes") || !type["server_crashes"].asBoolean)) {
                     if (serverCrash) {
                         triggersToIgnore.add(index)
-                    } else {
-                        responses[type["name"].asString] = arrayListOf()
                     }
                 } else {
-                    if (serverCrash) {
-                        responses[type["name"].asString] = arrayListOf()
-                    } else {
+                    if (!serverCrash) {
                         triggersToIgnore.add(index)
                     }
                 }
             } else {
                 triggersToIgnore.add(index)
             }
+            responses[type["name"].asString] = arrayListOf()
         }
 
         val fixes = issues["fixes"].asJsonArray
