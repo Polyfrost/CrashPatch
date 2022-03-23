@@ -72,7 +72,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
 
     private val second by UIWrappedText("""
         ${component.formattedText}
-        ${if (CrashPatch.isSkyclient) "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support unless the solution below does not work or there is none." else ""}
+        ${if (CrashPatch.isSkyclient) "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support IF AND ONLY IF there is a solution below this." else ""}
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
