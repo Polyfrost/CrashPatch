@@ -6,6 +6,8 @@
 
 package cc.woverflow.crashpatch.mixin;
 
+import cc.woverflow.crashpatch.crashes.CrashHelper;
+import cc.woverflow.crashpatch.crashes.CrashScan;
 import cc.woverflow.crashpatch.crashes.StateManager;
 import cc.woverflow.crashpatch.gui.GuiCrashMenu;
 import cc.woverflow.crashpatch.gui.GuiServerDisconnectMenu;
@@ -27,7 +29,6 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MinecraftError;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
@@ -183,9 +184,12 @@ public abstract class MixinMinecraft implements MinecraftHook {
     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
     private void onGUIDisplay(GuiScreen i, CallbackInfo ci) {
         if (i instanceof GuiDisconnected) {
-            ci.cancel();
             AccessorGuiDisconnected gui = ((AccessorGuiDisconnected) i);
-            displayGuiScreen(new GuiServerDisconnectMenu(gui.getMessage(), gui.getReason()));
+            CrashScan scan = CrashHelper.scanReport(gui.getMessage().getFormattedText(), true);
+            if (scan != null && !scan.getSolutions().isEmpty()) {
+                ci.cancel();
+                displayGuiScreen(new GuiServerDisconnectMenu(gui.getMessage(), gui.getReason(), scan));
+            }
         }
     }
 

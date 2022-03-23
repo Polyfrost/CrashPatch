@@ -1,7 +1,7 @@
 package cc.woverflow.crashpatch.gui
 
 import cc.woverflow.crashpatch.CrashPatch
-import cc.woverflow.crashpatch.crashes.CrashHelper
+import cc.woverflow.crashpatch.crashes.CrashScan
 import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.logger
@@ -26,15 +26,8 @@ import java.awt.Color
 import java.io.File
 import java.io.IOException
 
-class GuiServerDisconnectMenu(private val component: IChatComponent, reason: String) : WindowScreen(version = ElementaVersion.V1) {
+class GuiServerDisconnectMenu(private val component: IChatComponent, reason: String, crashScan: CrashScan) : WindowScreen(version = ElementaVersion.V1) {
     private var hasteLink: String? = null
-    private val crashScan by lazy {
-        var yes = CrashHelper.scanReport(component.formattedText, true)
-        if (yes != null && yes!!.solutions.isEmpty()) {
-            yes = null
-        }
-        yes
-    }
 
     private var hasteFailed = false
 
@@ -72,7 +65,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
 
     private val second by UIWrappedText("""
         ${component.formattedText}
-        ${if (CrashPatch.isSkyclient) "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support IF AND ONLY IF there is a solution below this." else ""}
+        ${if (CrashPatch.isSkyclient) "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT." else ""}${"\nYou may also have a look at the suggestions below to fix the issue.\n"}
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
@@ -94,7 +87,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
         height = 50.percent()
     } childOf content
 
-    private val scrollableSolutions by ScrollComponent("No solutions found :( Please go to the discord server to support.", customScissorBoundingBox = block) constrain {
+    private val scrollableSolutions by ScrollComponent("No solutions found :(", customScissorBoundingBox = block) constrain {
         width = 100.percent()
         height = 100.percent()
     } childOf block
@@ -106,7 +99,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
     } childOf block
 
     init {
-        crashScan?.solutions?.let {
+        crashScan.solutions.let {
             var yes = 0
             it.forEach { list ->
                 ++yes
