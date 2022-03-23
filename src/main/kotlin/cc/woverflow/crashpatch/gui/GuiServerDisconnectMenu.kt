@@ -72,7 +72,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
 
     private val second by UIWrappedText("""
         ${component.formattedText}
-        ${if (CrashPatch.isSkyclient) "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT." else ""}${if (crashScan != null) "\nYou may also have a look at the suggestions below to fix the issue.\n" else ""}
+        ${if (CrashPatch.isSkyclient) "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support unless the solution below does not work or there is none." else ""}
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
@@ -94,7 +94,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
         height = 50.percent()
     } childOf content
 
-    private val scrollableSolutions by ScrollComponent("No solutions found :(", customScissorBoundingBox = block) constrain {
+    private val scrollableSolutions by ScrollComponent("No solutions found :( Please go to the discord server to support.", customScissorBoundingBox = block) constrain {
         width = 100.percent()
         height = 100.percent()
     } childOf block
