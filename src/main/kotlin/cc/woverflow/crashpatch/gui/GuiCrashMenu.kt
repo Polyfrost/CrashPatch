@@ -82,10 +82,9 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         width = 96.percent()
         textScale = (1.5).pixels()
     } childOf content
-
     private val second by UIWrappedText("""
         This may not be 100% accurate.
-        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.RED}PLEASE GO TO https://discord.gg/eh7tNFezct FOR SUPPORT."}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
+        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support should the solution below not work or there is none."}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
         ${if (crashScan != null) "You may also have a look at the suggestions below to fix the issue.\n" else ""}
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
