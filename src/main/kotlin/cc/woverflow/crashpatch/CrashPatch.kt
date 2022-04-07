@@ -3,8 +3,8 @@ package cc.woverflow.crashpatch
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
 import cc.woverflow.onecore.utils.Updater
+import cc.woverflow.onecore.utils.asJsonElement
 import cc.woverflow.onecore.utils.command
-import com.google.gson.JsonParser
 import com.google.gson.stream.MalformedJsonException
 import gg.essential.api.EssentialAPI
 import gg.essential.api.utils.Multithreading
@@ -35,7 +35,7 @@ object CrashPatch {
                             val availableBytes = ByteArray(inputStream.available())
                             inputStream.read(availableBytes, 0, inputStream.available())
                             val modInfo =
-                                parser.parse(String(availableBytes)).asJsonArray[0].asJsonObject
+                                String(availableBytes).asJsonElement().asJsonArray[0].asJsonObject
                             if (!modInfo.has("modid")) {
                                 return@forEach
                             }
@@ -89,4 +89,3 @@ object CrashPatch {
     }
 }
 val logger = LogManager.getLogger(CrashPatch)
-val parser = JsonParser()

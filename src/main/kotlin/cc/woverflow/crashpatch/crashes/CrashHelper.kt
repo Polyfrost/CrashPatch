@@ -1,6 +1,6 @@
 package cc.woverflow.crashpatch.crashes
 
-import cc.woverflow.crashpatch.utils.asJsonObject
+import cc.woverflow.onecore.utils.fetchJsonElement
 import com.google.gson.JsonObject
 import gg.essential.api.utils.WebUtil
 import gg.essential.universal.wrappers.message.UTextComponent
@@ -22,7 +22,7 @@ object CrashHelper {
     @JvmStatic
     fun loadJson(): Boolean {
         return try {
-            skyclientJson = WebUtil.fetchString("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")?.asJsonObject()
+            skyclientJson = WebUtil.fetchJsonElement("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json").asJsonObject
             true
         } catch (e: Exception) {
             e.printStackTrace()

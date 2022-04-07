@@ -76,16 +76,33 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         width = 96.percent()
     } childOf content
 
-    private val susMods by UIWrappedText("${ChatColor.YELLOW}${(report as CrashReportHook).suspectedCrashPatchMods}", centered = true) constrain {
+    /**
+     * HOLY SHIT DID YOU JUST SAY THE WORD SUS???😳1?/1😱//1😳/1111!!!!
+     * Wait, you don't know what it is from?😳😳😳
+     * Let 👆give you a brief r/history. 📚📚📚👨‍🚀
+     * If you didn't r/knowyourshit, the r/term sus(suspicious) is a saying from the r/popular r/game r/AmongUs.
+     * Among us is so fun😔 👉👈, don't insult it, every youtuber and streamer says so!!!!!!!11
+     * Corpses voice is so deep am i right or am i right😳😳?????
+     * I mean Mr beast and Dream play and pull big 🧠 1000000000000 iq moves in their videos.....
+     * YOU WERE THE IMPOSTER.... ඞ ඞ ඞ
+     * Get it because you don't know what sus means? r/stupidquestions r/youranidot r/stupidcuck.
+     * I CAnT BELEeVE YOUU dont KNoW WHT SUS MeaNS?/??!??!?!!🖕🖕🖕🖕🖕
+     * Man why do i have to r/explain this to a r/idiot🤪🤪🤪📚📚📚...
+     * Sus is a GREAT WORD from a GREAT VIDEO GAME. in class, YOU CAN PLAY IT ON YOUR PHONE😜😜😜😜😜😜**??!?!?**
+     * such a masterpiece... FOR THE GREAT PRICE OF FREE!!!11!💰💰🤑🤑🤑🤑😜😜😜💰💰
+     */
+    private val ඞ by UIWrappedText("${ChatColor.YELLOW}${(report as CrashReportHook).suspectedCrashPatchMods}", centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
         width = 96.percent()
         textScale = (1.5).pixels()
     } childOf content
+
     private val second by UIWrappedText("""
         This may not be 100% accurate.
-        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.BLUE}Please go to https://discord.gg/eh7tNFezct for support should the solution below not work or there is none."}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
-        ${if (crashScan != null) "You may also have a look at the suggestions below to fix the issue.\n" else ""}
+        ${if (crashScan != null) "${ChatColor.BLUE}Please have a look at the suggestions below to fix the issue." else ""}
+        ${if (!CrashPatch.isSkyclient) "You're encouraged to send this crash report to the mod's developers to help fix the issue." else "${ChatColor.RED}Please go to https://discord.gg/eh7tNFezct for support${if (crashScan == null || crashScan!!.solutions.isEmpty()) "" else " if the solution below not work"}.".run { if (init || crashScan == null || crashScan!!.solutions.isEmpty()) uppercase() else this }}${if (init) "" else "\n${ChatColor.YELLOW}Since CrashPatch is installed, you can most likely keep on playing despite the crash."}
+        
     """.trimIndent(), centered = true) constrain {
         x = 2.percent()
         y = SiblingConstraint(9f)
