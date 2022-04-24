@@ -7,6 +7,7 @@ import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.logger
 import cc.woverflow.crashpatch.utils.InternetUtils
 import cc.woverflow.onecore.utils.browseURL
+import cc.woverflow.onecore.utils.sendBrandedNotification
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
@@ -159,6 +160,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
             }
             return@run null
         })
+        sendBrandedNotification("CrashPatch", "Copied crash report to clipboard!")
     } constrain {
         x = (openCrashReport.getRight() + 5).pixels()
         y = CenterConstraint()
