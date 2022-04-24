@@ -110,12 +110,7 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
             }
         }
 
-        if (modsMap.containsKey("itlt")) {
-            tryDeleting(modsMap.get("itlt").first);
-        }
-        if (modsMap.containsKey("custommainmenu")) {
-            tryDeleting(modsMap.get("custommainmenu").first);
-        }
+
         if (!dupeMap.isEmpty()) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -125,7 +120,7 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
 
             DesktopManager.open(modsFolder);
             JOptionPane.showMessageDialog(null, "Duplicate mods have been detected! These mods are...\n" +
-                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened. Go to https://inv.wtf/skyclient for more info.", "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
+                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""), "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
             try {
                 Class<?> exitClass = Class.forName("java.lang.Shutdown");
                 Method exit = exitClass.getDeclaredMethod("exit", int.class);
@@ -136,6 +131,14 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
             }
         }
         super.injectIntoClassLoader(classLoader);
+    }
+
+    @SafeVarargs
+    private final <A, B> boolean containsAnyKey(HashMap<A, B> hashMap, A... any) {
+        for (A thing : any) {
+            if (hashMap.containsKey(thing)) return true;
+        }
+        return false;
     }
 
     private String getStringOf(Collection<ArrayList<Triple<File, String, String>>> dupes) {
