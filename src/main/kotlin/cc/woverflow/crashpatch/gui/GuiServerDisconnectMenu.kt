@@ -148,7 +148,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
         x = SiblingConstraint(5f, true)
         y = CenterConstraint()
     } childOf buttonContainer
-    val uploadReport by TextButton("Upload Crash Report", CrashPatchGUI.black, CrashPatchGUI.white, { !hasteFailed }) {
+    val uploadReport by TextButton("Copy Crash Report", CrashPatchGUI.black, CrashPatchGUI.white, { !hasteFailed }) {
         setClipboardString(hasteLink ?: run {
             try {
                 hasteLink = InternetUtils.uploadToHastebin(component.formattedText)

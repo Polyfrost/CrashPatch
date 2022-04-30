@@ -187,7 +187,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
         x = SiblingConstraint(5f, true)
         y = CenterConstraint()
     } childOf buttonContainer
-    val uploadReport by TextButton("Upload Crash Report + Copy Link", black, white, { !hasteFailed }) {
+    val uploadReport by TextButton("Copy Crash Report", black, white, { !hasteFailed }) {
         setClipboardString(hasteLink ?: run {
             try {
                 hasteLink = InternetUtils.uploadToHastebin(report.completeReport)

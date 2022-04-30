@@ -1,9 +1,3 @@
-/*
- *This file is modified based on
- *https://github.com/DimensionalDevelopment/VanillaFix/blob/master/src/main/java/org/dimdev/vanillafix/crashes/mixins/client/MixinMinecraft.java
- *The source file uses the MIT License.
- */
-
 package cc.woverflow.crashpatch.mixin;
 
 import cc.woverflow.crashpatch.crashes.CrashHelper;
