@@ -9,7 +9,6 @@
     "MixinGuiConnecting",
     "MixinGuiDupesFound",
     "MixinMinecraft",
-    "MixinRegionRenderCache",
     "MixinTileEntityRendererDispatcher",
     "MixinWorldRenderer"
   ],

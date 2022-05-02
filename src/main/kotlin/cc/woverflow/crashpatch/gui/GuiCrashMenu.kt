@@ -2,6 +2,7 @@ package cc.woverflow.crashpatch.gui
 
 import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.crashes.CrashHelper
+import cc.woverflow.crashpatch.crashes.CrashScan
 import cc.woverflow.crashpatch.gui.CrashPatchGUI.black
 import cc.woverflow.crashpatch.gui.CrashPatchGUI.focusedScrollBar
 import cc.woverflow.crashpatch.gui.CrashPatchGUI.unfocusedScrollBar
@@ -33,12 +34,8 @@ import java.io.IOException
 
 class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private val init: Boolean = false) : WindowScreen(version = ElementaVersion.V1) {
     private var hasteLink: String? = null
-    private val crashScan by lazy {
-        var yes = CrashHelper.scanReport(report.completeReport)
-        if (yes != null && yes!!.solutions.isEmpty()) {
-            yes = null
-        }
-        yes
+    private val crashScan: CrashScan? by lazy {
+        return@lazy CrashHelper.scanReport(report.completeReport).let { return@let if (it != null && it.solutions.isNotEmpty()) it else null }
     }
     var shouldCrash = false
     private var hasteFailed = false

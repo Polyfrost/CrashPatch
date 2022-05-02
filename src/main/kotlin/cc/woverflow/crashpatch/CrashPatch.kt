@@ -41,7 +41,6 @@ object CrashPatch {
         }
     }
     var stopChecking = false
-    val shouldNotShowFile = File(modDir, "DONTSHOWCONNECTEDTEXTURESCRASH")
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
