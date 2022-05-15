@@ -98,8 +98,27 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
                     Triple<File, String, String> remove = otherIterator.next();
                     ++index;
                     if (index != 1) {
-                        tryDeleting(remove.first);
-                        otherIterator.remove();
+                        if (tryDeleting(remove.first)) {
+                            otherIterator.remove();
+                        } else {
+                            try {
+                                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            DesktopManager.open(modsFolder);
+                            JOptionPane.showMessageDialog(null, "Duplicate mods have been detected! These mods are...\n" +
+                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""), "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
+                            try {
+                                Class<?> exitClass = Class.forName("java.lang.Shutdown");
+                                Method exit = exitClass.getDeclaredMethod("exit", int.class);
+                                exit.setAccessible(true);
+                                exit.invoke(null, 0);
+                            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
                 if (next.size() <= 1) {
@@ -162,14 +181,16 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
         return returnString;
     }
 
-    private void tryDeleting(File file) {
+    private boolean tryDeleting(File file) {
         if (!file.delete()) {
             if (!file.delete()) {
                 if (!file.delete()) {
                     file.deleteOnExit();
+                    return false;
                 }
             }
         }
+        return true;
     }
 
     public static class Triple<A, B, C> {
