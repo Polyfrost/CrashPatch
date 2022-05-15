@@ -101,23 +101,8 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
                         if (tryDeleting(remove.first)) {
                             otherIterator.remove();
                         } else {
-                            try {
-                                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            DesktopManager.open(modsFolder);
-                            JOptionPane.showMessageDialog(null, "Duplicate mods have been detected! These mods are...\n" +
-                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""), "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
-                            try {
-                                Class<?> exitClass = Class.forName("java.lang.Shutdown");
-                                Method exit = exitClass.getDeclaredMethod("exit", int.class);
-                                exit.setAccessible(true);
-                                exit.invoke(null, 0);
-                            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
+                            doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
+                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
                         }
                     }
                 }
@@ -131,25 +116,35 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
 
 
         if (!dupeMap.isEmpty()) {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            DesktopManager.open(modsFolder);
-            JOptionPane.showMessageDialog(null, "Duplicate mods have been detected! These mods are...\n" +
-                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""), "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
-            try {
-                Class<?> exitClass = Class.forName("java.lang.Shutdown");
-                Method exit = exitClass.getDeclaredMethod("exit", int.class);
-                exit.setAccessible(true);
-                exit.invoke(null, 0);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
+                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
         }
         super.injectIntoClassLoader(classLoader);
+    }
+
+    private static void doThatPopupThing(File modsFolder, String message) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JFrame frame = new JFrame();
+        frame.setUndecorated(true);
+        frame.setAlwaysOnTop(true);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
+        DesktopManager.open(modsFolder);
+        JOptionPane.showMessageDialog(frame, message, "Duplicate Mods Detected!", JOptionPane.ERROR_MESSAGE);
+        try {
+            Class<?> exitClass = Class.forName("java.lang.Shutdown");
+            Method exit = exitClass.getDeclaredMethod("exit", int.class);
+            exit.setAccessible(true);
+            exit.invoke(null, 0);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     @SafeVarargs
