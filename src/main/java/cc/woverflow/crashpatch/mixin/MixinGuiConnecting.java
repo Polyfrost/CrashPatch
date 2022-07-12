@@ -1,9 +1,9 @@
 package cc.woverflow.crashpatch.mixin;
 
+import cc.polyfrost.oneconfig.libs.universal.ChatColor;
+import cc.polyfrost.oneconfig.libs.universal.UDesktop;
 import cc.woverflow.crashpatch.CrashPatch;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
-import gg.essential.universal.ChatColor;
-import gg.essential.universal.UDesktop;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.GuiConnecting;

@@ -1,10 +1,10 @@
 package cc.woverflow.crashpatch.hooks;
 
-import cc.woverflow.onecore.tweaker.OneCoreTweaker;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.MalformedJsonException;
+import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
@@ -23,9 +23,14 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ModsCheckerPlugin extends OneCoreTweaker {
+public class ModsCheckerPlugin implements ITweaker {
     private static final JsonParser PARSER = new JsonParser();
     public static final HashMap<String, Triple<File, String, String>> modsMap = new HashMap<>(); //modid : file, version, name
+
+    @Override
+    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
+
+    }
 
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
@@ -119,7 +124,16 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
             doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
                     getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
         }
-        super.injectIntoClassLoader(classLoader);
+    }
+
+    @Override
+    public String getLaunchTarget() {
+        return null;
+    }
+
+    @Override
+    public String[] getLaunchArguments() {
+        return new String[0];
     }
 
     private static void doThatPopupThing(File modsFolder, String message) {
@@ -142,7 +156,8 @@ public class ModsCheckerPlugin extends OneCoreTweaker {
             Method exit = exitClass.getDeclaredMethod("exit", int.class);
             exit.setAccessible(true);
             exit.invoke(null, 0);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                 InvocationTargetException e) {
             e.printStackTrace();
         }
     }

@@ -1,18 +1,8 @@
 package cc.woverflow.crashpatch.crashes
 
-import cc.woverflow.onecore.utils.fetchJsonElement
+import cc.polyfrost.oneconfig.libs.universal.wrappers.message.UTextComponent
+import cc.polyfrost.oneconfig.utils.NetworkUtils
 import com.google.gson.JsonObject
-import gg.essential.api.utils.WebUtil
-import gg.essential.universal.wrappers.message.UTextComponent
-import kotlin.collections.ArrayList
-import kotlin.collections.Map
-import kotlin.collections.MutableList
-import kotlin.collections.arrayListOf
-import kotlin.collections.emptyMap
-import kotlin.collections.filterNot
-import kotlin.collections.forEachIndexed
-import kotlin.collections.linkedMapOf
-import kotlin.collections.map
 import kotlin.collections.set
 
 object CrashHelper {
@@ -22,7 +12,8 @@ object CrashHelper {
     @JvmStatic
     fun loadJson(): Boolean {
         return try {
-            skyclientJson = WebUtil.fetchJsonElement("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json").asJsonObject
+            skyclientJson =
+                NetworkUtils.getJsonElement("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json").asJsonObject
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -73,7 +64,8 @@ object CrashHelper {
         for (solution in fixes) {
             val solutionJson = solution.asJsonObject
             if (solutionJson.has("bot_only")) continue
-            val triggerNumber = if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else issues["default_fix_type"].asInt
+            val triggerNumber =
+                if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else issues["default_fix_type"].asInt
             if (triggersToIgnore.contains(triggerNumber)) {
                 continue
             }
@@ -94,6 +86,7 @@ object CrashHelper {
                             break
                         }
                     }
+
                     "contains_not" -> {
                         if (!theReport.contains(causeJson["value"].asString)) {
                             trigger = true
@@ -102,6 +95,7 @@ object CrashHelper {
                             break
                         }
                     }
+
                     "regex" -> {
                         if (theReport.contains(Regex(causeJson["value"].asString, RegexOption.IGNORE_CASE))) {
                             trigger = true
@@ -110,6 +104,7 @@ object CrashHelper {
                             break
                         }
                     }
+
                     "regex_not" -> {
                         if (!theReport.contains(Regex(causeJson["value"].asString, RegexOption.IGNORE_CASE))) {
                             trigger = true

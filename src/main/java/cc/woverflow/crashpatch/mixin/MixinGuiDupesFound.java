@@ -1,6 +1,6 @@
 package cc.woverflow.crashpatch.mixin;
 
-import gg.essential.universal.UDesktop;
+import cc.polyfrost.oneconfig.libs.universal.UDesktop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
@@ -23,7 +23,8 @@ import java.util.Map;
 @Mixin(GuiDupesFound.class)
 public class MixinGuiDupesFound extends GuiErrorScreen {
 
-    @Shadow private DuplicateModsFoundException dupes;
+    @Shadow
+    private DuplicateModsFoundException dupes;
 
     public MixinGuiDupesFound() {
         super(null, null);
@@ -75,7 +76,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
         str = trimStringNewline(str);
         int y2 = y;
         for (String s : Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(str, wrapWidth)) {
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(s, (float)(x - Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) / 2), (float)y2, textColor);
+            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(s, (float) (x - Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) / 2), (float) y2, textColor);
             y2 += Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT;
         }
         return y2 - y;

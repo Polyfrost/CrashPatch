@@ -11,8 +11,6 @@ import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.hooks.CrashReportHook
 import cc.woverflow.crashpatch.utils.InternetUtils
-import cc.woverflow.onecore.utils.browseURL
-import cc.woverflow.onecore.utils.sendBrandedNotification
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
@@ -31,6 +29,7 @@ import net.minecraft.launchwrapper.Launch
 import java.awt.Color
 import java.io.File
 import java.io.IOException
+import java.net.URI
 
 class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private val init: Boolean = false) : WindowScreen(version = ElementaVersion.V1) {
     private var hasteLink: String? = null
@@ -110,7 +109,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
     init {
         second.onLeftClick {
             if (CrashPatch.isSkyclient) {
-                UDesktop.browseURL("https://discord.gg/eh7tNFezct")
+                UDesktop.browse(URI("https://discord.gg/eh7tNFezct"))
             }
         }
     }
@@ -196,7 +195,7 @@ class GuiCrashMenu @JvmOverloads constructor(val report: CrashReport, private va
             }
             return@run null
         })
-        sendBrandedNotification("CrashPatch", "Copied crash report to clipboard!")
+        //sendBrandedNotification("CrashPatch", "Copied crash report to clipboard!")
     } constrain {
         x = (openCrashReport.getRight() + 5).pixels()
         y = CenterConstraint()

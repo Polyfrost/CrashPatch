@@ -1,6 +1,5 @@
 package cc.woverflow.crashpatch.crashes
 
-import gg.essential.util.crash.StacktraceDeobfuscator
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.Logger
@@ -11,7 +10,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig
 
 class DeobfuscatingRewritePolicy : RewritePolicy {
     override fun rewrite(source: LogEvent): LogEvent {
-        source.thrown?.let { StacktraceDeobfuscator.get()?.deobfuscateThrowable(it) }
+    //    source.thrown?.let { StacktraceDeobfuscator.get()?.deobfuscateThrowable(it) }
         return source
     }
 

@@ -47,4 +47,8 @@ public class MixinTileEntityRendererDispatcher implements StateManager.IResettab
     private void setDrawingBatchFalse(int pass, CallbackInfo ci) {
         drawingBatch = false;
     }
+
+    @Override
+    public void register() {
+    }
 }

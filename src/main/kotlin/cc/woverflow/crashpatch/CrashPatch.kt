@@ -1,19 +1,22 @@
 package cc.woverflow.crashpatch
 
+import cc.polyfrost.oneconfig.libs.universal.ChatColor
+import cc.polyfrost.oneconfig.libs.universal.UDesktop
+import cc.polyfrost.oneconfig.libs.universal.UMinecraft
+import cc.polyfrost.oneconfig.utils.Multithreading
+import cc.polyfrost.oneconfig.utils.commands.CommandManager
+import cc.polyfrost.oneconfig.utils.commands.annotations.Command
+import cc.polyfrost.oneconfig.utils.commands.annotations.Main
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
 import cc.woverflow.crashpatch.hooks.ModsCheckerPlugin
-import cc.woverflow.onecore.utils.Updater
-import cc.woverflow.onecore.utils.command
-import gg.essential.api.EssentialAPI
-import gg.essential.api.utils.Multithreading
-import gg.essential.universal.ChatColor
-import gg.essential.universal.UDesktop
 import net.minecraft.launchwrapper.Launch
+import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.io.File
 
 
@@ -42,20 +45,25 @@ object CrashPatch {
                 logger.warn("CrashHelper failed to preload crash data JSON!")
             }
         }
-        Updater.addToUpdater(e.sourceFile, NAME, MODID, VERSION, "W-OVERFLOW/$MODID")
     }
 
     @Mod.EventHandler
     fun onInit(e: FMLInitializationEvent) {
-        command("reloadcrashpatch", generateHelpCommand = false) {
-            main {
+        CommandManager.INSTANCE.registerCommand(CrashPatchCommand.Companion::class.java)
+    }
+
+    @Command(value = "reloadcrashpatch")
+    class CrashPatchCommand {
+        companion object {
+            @Main
+            fun main() {
                 if (CrashHelper.loadJson()) {
-                    EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Successfully reloaded JSON file!")
+                    UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Successfully reloaded JSON file!"))
                 } else {
-                    EssentialAPI.getMinecraftUtil().sendMessage("${ChatColor.RED}[CrashPatch] ", "Failed to reloaded JSON file!")
+                    UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Failed to reload the JSON file!"))
                 }
             }
         }
     }
 }
-val logger = LogManager.getLogger(CrashPatch)
+val logger: Logger = LogManager.getLogger(CrashPatch)

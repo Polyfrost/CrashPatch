@@ -6,8 +6,6 @@ import cc.woverflow.crashpatch.gui.components.Button
 import cc.woverflow.crashpatch.gui.components.TextButton
 import cc.woverflow.crashpatch.logger
 import cc.woverflow.crashpatch.utils.InternetUtils
-import cc.woverflow.onecore.utils.browseURL
-import cc.woverflow.onecore.utils.sendBrandedNotification
 import gg.essential.elementa.ElementaVersion
 import gg.essential.elementa.WindowScreen
 import gg.essential.elementa.components.ScrollComponent
@@ -26,6 +24,7 @@ import net.minecraft.util.IChatComponent
 import java.awt.Color
 import java.io.File
 import java.io.IOException
+import java.net.URI
 
 class GuiServerDisconnectMenu(private val component: IChatComponent, reason: String, crashScan: CrashScan) : WindowScreen(version = ElementaVersion.V1) {
     private var hasteLink: String? = null
@@ -76,7 +75,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
     init {
         second.onLeftClick {
             if (CrashPatch.isSkyclient) {
-                UDesktop.browseURL("https://discord.gg/eh7tNFezct")
+                UDesktop.browse(URI("https://discord.gg/eh7tNFezct"))
             }
         }
     }
@@ -160,7 +159,7 @@ class GuiServerDisconnectMenu(private val component: IChatComponent, reason: Str
             }
             return@run null
         })
-        sendBrandedNotification("CrashPatch", "Copied crash report to clipboard!")
+        //sendBrandedNotification("CrashPatch", "Copied crash report to clipboard!")
     } constrain {
         x = (openCrashReport.getRight() + 5).pixels()
         y = CenterConstraint()
