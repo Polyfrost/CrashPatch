@@ -199,7 +199,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             // Display the crash screen
 //            crashpatch$runGUILoop(new GuiCrashScreen(report));
-            displayGuiScreen(new CrashGui(report, true));
+            displayGuiScreen(new CrashGui(report));
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);

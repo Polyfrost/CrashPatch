@@ -73,7 +73,8 @@ object CrashPatch {
                 if (!a) {
                     a = true
                     throw Throwable("CrashPatch test crash")
-
+                } else {
+                    a = false
                 }
             }
         }

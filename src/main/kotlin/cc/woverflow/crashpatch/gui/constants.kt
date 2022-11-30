@@ -14,3 +14,10 @@ internal val BLUE_500 = ColorUtils.getColor(25, 103, 255, 255) // brand.primary
 internal val BLUE_600 = ColorUtils.getColor(20, 82, 204, 255) // brand.hover
 
 internal val BLACK_20 = ColorUtils.getColor(0, 0, 0, 12) // brand.hover
+
+internal val TITLE = "Uh-oh. Your game crashed!"
+internal val SUBTITLE_1 = "But, CrashPatch just saved the day! Feel free to ignore this, and"
+internal val SUBTITLE_2 = "continue playing your game despite the crash."
+internal val SUBTITLE_INIT_1 = "To fix this, "
+internal val SUBTITLE_INIT_2 = "follow the tips listed below and / or "
+internal val SUBTITLE_INIT_3 = "join the Discord server and make a support ticket."
