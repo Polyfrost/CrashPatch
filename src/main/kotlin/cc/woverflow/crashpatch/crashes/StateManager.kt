@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference
  */
 object StateManager {
     // Use WeakReference to allow garbage collection, preventing memory leaks
-    private val resettableRefs: MutableSet<WeakReference<IResettable?>> = HashSet()
+    val resettableRefs: MutableSet<WeakReference<IResettable?>> = HashSet()
     fun resetStates() {
         val iterator = resettableRefs.iterator()
         while (iterator.hasNext()) {
@@ -23,11 +23,6 @@ object StateManager {
     }
 
     interface IResettable {
-
-        fun register() {
-            resettableRefs.add(WeakReference(this))
-        }
-
         fun resetState()
     }
 }

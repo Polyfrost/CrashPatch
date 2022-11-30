@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.ref.WeakReference;
+
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer implements StateManager.IResettable {
 
@@ -17,7 +19,7 @@ public abstract class MixinWorldRenderer implements StateManager.IResettable {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInitEnd(int bufferSizeIn, CallbackInfo ci) {
-        register();
+        StateManager.INSTANCE.getResettableRefs().add(new WeakReference<>(this));
     }
 
     @Override

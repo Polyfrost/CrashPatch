@@ -3,9 +3,9 @@ package cc.woverflow.crashpatch.mixin;
 import cc.woverflow.crashpatch.crashes.CrashHelper;
 import cc.woverflow.crashpatch.crashes.CrashScan;
 import cc.woverflow.crashpatch.crashes.StateManager;
-import cc.woverflow.crashpatch.gui.GuiCrashMenu;
-import cc.woverflow.crashpatch.gui.GuiServerDisconnectMenu;
+import cc.woverflow.crashpatch.gui.CrashGui;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
+import cc.woverflow.crashpatch.utils.GuiDisconnectedHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
@@ -177,14 +177,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
     private void onGUIDisplay(GuiScreen i, CallbackInfo ci) {
-        if (i instanceof GuiDisconnected) {
-            AccessorGuiDisconnected gui = ((AccessorGuiDisconnected) i);
-            CrashScan scan = CrashHelper.scanReport(gui.getMessage().getFormattedText(), true);
-            if (scan != null && !scan.getSolutions().isEmpty()) {
-                ci.cancel();
-                displayGuiScreen(new GuiServerDisconnectMenu(gui.getMessage(), gui.getReason(), scan));
-            }
-        }
+        GuiDisconnectedHook.INSTANCE.onGUIDisplay(i, ci);
     }
 
     /**
@@ -206,7 +199,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             // Display the crash screen
 //            crashpatch$runGUILoop(new GuiCrashScreen(report));
-            displayGuiScreen(new GuiCrashMenu(report));
+            displayGuiScreen(new CrashGui(report, true));
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
@@ -297,7 +290,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            crashpatch$runGUILoop(new GuiCrashMenu(report, true));
+            crashpatch$runGUILoop(new CrashGui(report, true));
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
@@ -310,7 +303,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
     /**
      * @author Runemoro
      */
-    private void crashpatch$runGUILoop(GuiCrashMenu screen) throws Throwable {
+    private void crashpatch$runGUILoop(CrashGui screen) throws Throwable {
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
@@ -343,10 +336,11 @@ public abstract class MixinMinecraft implements MinecraftHook {
             int mouseX = Mouse.getX() * width / displayWidth;
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             currentScreen.drawScreen(mouseX, mouseY, 0);
-            if (screen.getShouldCrash()) {
-                crashpatch$letDie = true;
-                throw screen.getReport().getCrashCause();
-            }
+            //todo
+            //if (screen.getShouldCrash()) {
+            //    crashpatch$letDie = true;
+            //    throw screen.getReport().getCrashCause();
+            //}
 
             framebufferMc.unbindFramebuffer();
             GlStateManager.popMatrix();

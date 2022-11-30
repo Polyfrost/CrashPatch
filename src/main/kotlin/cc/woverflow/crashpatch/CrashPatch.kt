@@ -7,6 +7,8 @@ import cc.polyfrost.oneconfig.utils.Multithreading
 import cc.polyfrost.oneconfig.utils.commands.CommandManager
 import cc.polyfrost.oneconfig.utils.commands.annotations.Command
 import cc.polyfrost.oneconfig.utils.commands.annotations.Main
+import cc.polyfrost.oneconfig.utils.commands.annotations.SubCommand
+import cc.polyfrost.oneconfig.utils.dsl.tick
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
 import cc.woverflow.crashpatch.hooks.ModsCheckerPlugin
@@ -20,13 +22,12 @@ import org.apache.logging.log4j.Logger
 import java.io.File
 
 
-@Mod(modid = CrashPatch.MODID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "gg.essential.api.utils.KotlinAdapter")
+@Mod(modid = CrashPatch.MODID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "cc.polyfrost.oneconfig.utils.KotlinLanguageAdapter")
 object CrashPatch {
-    val modDir by lazy { File(File(Launch.minecraftHome, "W-OVERFLOW"), NAME).also { if (!it.exists()) it.mkdirs() } }
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(modDir, "SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
+    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File("./OneConfig/CrashPatch/SKYCLIENT").exists() || File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
     val gameDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
         try {
             if (Launch.minecraftHome.parentFile?.name == (if (UDesktop.isMac) "minecraft" else ".minecraft")) Launch.minecraftHome.parentFile else Launch.minecraftHome
@@ -42,25 +43,37 @@ object CrashPatch {
         Multithreading.runAsync {
             logger.info("Is SkyClient: $isSkyclient")
             if (!CrashHelper.loadJson()) {
-                logger.warn("CrashHelper failed to preload crash data JSON!")
+                logger.error("CrashHelper failed to preload crash data JSON!")
             }
         }
     }
 
     @Mod.EventHandler
     fun onInit(e: FMLInitializationEvent) {
-        CommandManager.INSTANCE.registerCommand(CrashPatchCommand.Companion::class.java)
+        CommandManager.INSTANCE.registerCommand(CrashPatchCommand())
     }
 
     @Command(value = "reloadcrashpatch")
     class CrashPatchCommand {
-        companion object {
-            @Main
-            fun main() {
-                if (CrashHelper.loadJson()) {
-                    UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Successfully reloaded JSON file!"))
-                } else {
-                    UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Failed to reload the JSON file!"))
+        @Main
+        fun main() {
+            if (CrashHelper.loadJson()) {
+                UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Successfully reloaded JSON file!"))
+            } else {
+                UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Failed to reload the JSON file!"))
+            }
+        }
+
+        var a = false //todo we should probably make crashpatch like make things stop thorwing recuresivley or whatever
+
+        @SubCommand
+        fun crash() {
+            UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Crashing..."))
+            tick(1) {
+                if (!a) {
+                    a = true
+                    throw Throwable("CrashPatch test crash")
+
                 }
             }
         }

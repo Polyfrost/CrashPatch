@@ -7,6 +7,7 @@
 package cc.woverflow.crashpatch.mixin;
 
 import cc.woverflow.crashpatch.crashes.ModIdentifier;
+import cc.woverflow.crashpatch.crashes.StacktraceDeobfuscator;
 import cc.woverflow.crashpatch.hooks.CrashReportHook;
 import net.minecraft.crash.CrashReport;
 import net.minecraftforge.fml.common.ModContainer;
@@ -33,5 +34,10 @@ public class MixinCrashReport implements CrashReportHook {
     private void afterPopulateEnvironment(CallbackInfo ci) {
         ModContainer susMod = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
         crashpatch$suspectedMod = (susMod == null ? "None" : susMod.getName());
+    }
+
+    @Inject(method = "populateEnvironment", at = @At("HEAD"))
+    private void beforePopulateEnvironment(CallbackInfo ci) {
+        StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(cause);
     }
 }

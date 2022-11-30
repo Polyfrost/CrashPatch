@@ -1,17 +1,16 @@
 @file:Suppress("UnstableApiUsage")
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import gg.essential.gradle.util.noServerRunConfigs
+import cc.polyfrost.gradle.util.noServerRunConfigs
 
 plugins {
     kotlin("jvm")
-    id("gg.essential.multi-version")
-    id("gg.essential.defaults.repo")
-    id("gg.essential.defaults.java")
-    id("gg.essential.defaults.loom")
+    id("cc.polyfrost.multi-version")
+    id("cc.polyfrost.defaults.repo")
+    id("cc.polyfrost.defaults.java")
+    id("cc.polyfrost.defaults.loom")
     id("com.github.johnrengelman.shadow")
     id("net.kyori.blossom") version "1.3.0"
-    id("io.github.juuxel.loom-quiltflower-mini")
     id("signing")
     java
 }
@@ -45,11 +44,11 @@ loom {
     }
     if (project.platform.isForge) {
         forge {
-            mixinConfig("mixins.${mod_id}.json")
+            mixinConfig("mixin.${mod_id}.json")
             accessTransformer(File("./../../src/main/resources/crashpatch_at.cfg"))
         }
     }
-    mixin.defaultRefmapName.set("mixins.${mod_id}.refmap.json")
+    mixin.defaultRefmapName.set("mixin.${mod_id}.refmap.json")
 }
 
 val shade: Configuration by configurations.creating {
@@ -67,9 +66,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.1.0-alpha26")
-    shade("cc.polyfrost:oneconfig-wrapper-1.8.9-forge:1.0.0-alpha6")
-    compileOnly("gg.essential:essential-1.8.9-forge:1933")
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.1.0-alpha+")
+    shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-alpha+")
+    compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
 
 tasks.processResources {
@@ -85,7 +84,7 @@ tasks.processResources {
     inputs.property("java_level", compatLevel)
     inputs.property("version", mod_version)
     inputs.property("mcVersionStr", project.platform.mcVersionStr)
-    filesMatching(listOf("mcmod.info", "mixins.${mod_id}.json", "mods.toml")) {
+    filesMatching(listOf("mcmod.info", "mixin.${mod_id}.json", "mods.toml")) {
         expand(
             mapOf(
                 "id" to mod_id,
@@ -140,7 +139,7 @@ tasks {
                     "ModSide" to "CLIENT",
                     "ForceLoadAsMod" to true,
                     "TweakOrder" to "0",
-                    "MixinConfigs" to "mixins.${mod_id}.json",
+                    "MixinConfigs" to "mixin.${mod_id}.json",
                     "TweakClass" to "cc.polyfrost.oneconfigwrapper.OneConfigWrapper"
                 )
             )

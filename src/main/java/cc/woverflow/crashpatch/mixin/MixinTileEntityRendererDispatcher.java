@@ -9,14 +9,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.ref.WeakReference;
+
 //TODO: this could be completely useless, check with smarter people
 @Mixin(TileEntityRendererDispatcher.class)
-public class MixinTileEntityRendererDispatcher implements StateManager.IResettable {
+public abstract class MixinTileEntityRendererDispatcher implements StateManager.IResettable {
     private boolean drawingBatch = false;
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void onInit(CallbackInfo ci) {
-        register();
+        StateManager.INSTANCE.getResettableRefs().add(new WeakReference<>(this));
     }
 
     @Override
@@ -46,9 +48,5 @@ public class MixinTileEntityRendererDispatcher implements StateManager.IResettab
     @Inject(method = "drawBatch", at = @At("TAIL"), remap = false)
     private void setDrawingBatchFalse(int pass, CallbackInfo ci) {
         drawingBatch = false;
-    }
-
-    @Override
-    public void register() {
     }
 }
