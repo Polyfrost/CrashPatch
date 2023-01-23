@@ -1,10 +1,10 @@
 package cc.woverflow.crashpatch.mixin;
 
 import cc.polyfrost.oneconfig.libs.universal.UDesktop;
+import cc.woverflow.crashpatch.hooks.McDirUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.client.GuiDupesFound;
 import net.minecraftforge.fml.common.DuplicateModsFoundException;
@@ -40,7 +40,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
-                UDesktop.open(new File(Launch.minecraftHome, "mods"));
+                UDesktop.open(new File(McDirUtil.getMcDir(), "mods"));
                 break;
             case 1:
                 FMLCommonHandler.instance().exitJava(0, false);
@@ -62,7 +62,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
 
         offset += 10;
 
-        drawSplitString(EnumChatFormatting.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + Launch.minecraftHome.getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
+        drawSplitString(EnumChatFormatting.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + McDirUtil.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
 
         for (GuiButton guiButton : this.buttonList) {
             guiButton.drawButton(this.mc, mouseX, mouseY);

@@ -1,5 +1,6 @@
 package cc.woverflow.crashpatch.crashes
 
+import cc.woverflow.crashpatch.hooks.McDirUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -10,7 +11,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlin.collections.set
 
-
 object StacktraceDeobfuscator {
     private const val DEBUG_IN_DEV =
         true // Makes this MCP -> SRG for testing in dev. Don't forget to set to false when done!
@@ -19,7 +19,7 @@ object StacktraceDeobfuscator {
 
     init {
         if (srgMcpMethodMap == null) {
-            val mappings = File("./OneConfig/CrashPatch/mcp_stable_22.csv").also { it.parentFile.mkdirs() }
+            val mappings = File(McDirUtil.getMcDir(), "OneConfig/CrashPatch/mcp_stable_22.csv").also { it.parentFile.mkdirs() }
             // Download the file if necessary
             if (!mappings.exists()) {
                 var connection: HttpURLConnection? = null

@@ -13,7 +13,6 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -24,25 +23,24 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.MinecraftError;
-import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.nio.FloatBuffer;
 
 /**
  * @author Runemoro
@@ -87,25 +85,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
     @Shadow
     public int displayHeight;
 
-    private boolean crashpatch$letDie = false;
-
-    @Shadow
-    protected abstract void startGame() throws LWJGLException;
-
     @Shadow
     public abstract void displayGuiScreen(GuiScreen guiScreenIn);
-
-    @Shadow
-    public abstract CrashReport addGraphicsAndWorldToCrashReport(CrashReport theCrash);
-
-    @Shadow
-    protected abstract void runGameLoop();
-
-    @Shadow
-    public abstract void freeMemory();
-
-    @Shadow
-    public abstract void shutdownMinecraftApplet();
 
     @Shadow
     public abstract void refreshResources();
@@ -118,76 +99,72 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
     @Shadow private int leftClickCounter;
+    @Unique
     private int crashpatch$clientCrashCount = 0;
+    @Unique
     private int crashpatch$serverCrashCount = 0;
+    @Unique
     private boolean recoveredFromCrash = false;
+    @Unique
+    private boolean crashpatch$letDie = false;
 
     @Override
     public boolean hasRecoveredFromCrash() {
         return recoveredFromCrash;
     }
 
-    /**
-     * @author Runemoro
-     * @reason Overwrite Minecraft.run()
-     */
-    @Inject(method = "run", at = @At("HEAD"), cancellable = true)
-    public void run(CallbackInfo ci) {
+    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 0))
+    public void displayInitErrorScreen(Minecraft instance, CrashReport crashReport) {
+        crashpatch$displayInitErrorScreen(crashReport);
+    }
+
+    @Inject(method = "run()V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;crashReporter:Lnet/minecraft/crash/CrashReport;"))
+    private void onRunLoop(CallbackInfo ci) {
+        if (crashReporter != null) {
+            crashReporter = null;
+        }
+    }
+
+    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 1), index = 0)
+    private CrashReport saveFromCrash2(CrashReport crashReport) {
+        crashpatch$serverCrashCount++;
+        crashpatch$saveFromCrash(crashReport);
+        return crashReport;
+    }
+
+    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 2), index = 0)
+    private CrashReport saveFromCrash3(CrashReport crashReport) {
+        crashpatch$clientCrashCount++;
+        crashpatch$saveFromCrash(crashReport);
+        return crashReport;
+    }
+
+    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 3), index = 0)
+    private CrashReport saveFromCrash1(CrashReport crashReport) {
+        crashpatch$clientCrashCount++;
+        crashpatch$saveFromCrash(crashReport);
+        return crashReport;
+    }
+
+    @Unique
+    private void crashpatch$saveFromCrash(CrashReport crashReport) {
+        crashpatch$addInfoToCrash(crashReport);
+        crashpatch$resetGameState();
+        crashpatch$displayCrashScreen(crashReport);
+    }
+
+    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V"), cancellable = true)
+    private void crashpatch$cancelCrash(CallbackInfo ci) {
         ci.cancel();
-        running = true;
-        try {
-            startGame();
-        } catch (Throwable throwable) {
-            CrashReport crashReport = CrashReport.makeCrashReport(throwable, "Initializing game");
-            crashReport.makeCategory("Initialization");
-            crashpatch$displayInitErrorScreen(addGraphicsAndWorldToCrashReport(crashReport));
-            return;
-        }
-        try {
-            while (running) {
-                if (!hasCrashed || crashReporter == null) {
-                    try {
-                        runGameLoop();
-                    } catch (ReportedException e) {
-                        crashpatch$clientCrashCount++;
-                        addGraphicsAndWorldToCrashReport(e.getCrashReport());
-                        crashpatch$addInfoToCrash(e.getCrashReport());
-                        crashpatch$resetGameState();
-                        logger.fatal("Reported exception thrown!", e);
-                        crashpatch$displayCrashScreen(e.getCrashReport());
-                    } catch (Throwable e) {
-                        crashpatch$clientCrashCount++;
-                        CrashReport report = new CrashReport("Unexpected error", e);
-                        addGraphicsAndWorldToCrashReport(report);
-                        crashpatch$addInfoToCrash(report);
-                        crashpatch$resetGameState();
-                        logger.fatal("Unreported exception thrown!", e);
-                        crashpatch$displayCrashScreen(report);
-                    }
-                } else {
-                    crashpatch$serverCrashCount++;
-                    crashpatch$addInfoToCrash(crashReporter);
-                    freeMemory();
-                    crashpatch$displayCrashScreen(crashReporter);
-                    hasCrashed = false;
-                    crashReporter = null;
-                }
-            }
-        } catch (MinecraftError ignored) {
-        } finally {
-            shutdownMinecraftApplet();
-        }
     }
 
     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
-    private void onGUIDisplay(GuiScreen i, CallbackInfo ci) {
+    private void crashpatch$onGUIDisplay(GuiScreen i, CallbackInfo ci) {
         GuiDisconnectedHook.INSTANCE.onGUIDisplay(i, ci);
     }
 
-    /**
-     * @author Runemoro
-     */
-    public void crashpatch$displayCrashScreen(CrashReport report) {
+    @Unique
+    private void crashpatch$displayCrashScreen(CrashReport report) {
         recoveredFromCrash = true;
         try {
             displayCrashReport(report);
@@ -212,15 +189,14 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
     }
 
+    @Unique
     private void crashpatch$addInfoToCrash(CrashReport crashReport) {
         crashReport.getCategory().addCrashSectionCallable("Client Crashes Since Restart", () -> String.valueOf(crashpatch$clientCrashCount));
         crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(crashpatch$serverCrashCount));
     }
 
-    /**
-     * @author Runemoro
-     */
-    public void crashpatch$resetGameState() {
+    @Unique
+    private void crashpatch$resetGameState() {
         try {
             // Free up memory such that this works properly in case of an OutOfMemoryError
             int originalMemoryReserveSize = -1;
@@ -248,7 +224,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
 
              */
-            resetState();
+            crashpatch$resetState();
 
             if (originalMemoryReserveSize != -1) {
                 try {
@@ -261,15 +237,13 @@ public abstract class MixinMinecraft implements MinecraftHook {
             logger.error("Failed to reset state after a crash", t);
             try {
                 StateManager.INSTANCE.resetStates();
-                resetState();
+                crashpatch$resetState();
             } catch (Throwable ignored) {}
         }
     }
 
-    /**
-     * @author Runemoro
-     */
-    public void crashpatch$displayInitErrorScreen(CrashReport report) {
+    @Unique
+    private void crashpatch$displayInitErrorScreen(CrashReport report) {
         displayCrashReport(report);
         try {
             mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
@@ -306,9 +280,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
     }
 
-    /**
-     * @author Runemoro
-     */
+    @Unique
     private void crashpatch$runGUILoop(CrashGui screen) throws Throwable {
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
@@ -364,51 +336,13 @@ public abstract class MixinMinecraft implements MinecraftHook {
     }
 
     @Redirect(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleExit(I)V"))
-    public void redirect(FMLCommonHandler instance, int soafsdg) {
+    private void crashpatch$redirectForgeExit(FMLCommonHandler instance, int soafsdg) {
     }
 
-    public void resetState() {
-        // Clear matrix stack
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(GL11.GL_PROJECTION);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(GL11.GL_TEXTURE);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(GL11.GL_COLOR);
-        GlStateManager.loadIdentity();
-
-        // Clear attribute stacks TODO: Broken, a stack underflow breaks LWJGL
-        // try {
-        //     do GL11.glPopAttrib(); while (GlStateManager.glGetError() == 0);
-        // } catch (Throwable ignored) {}
-        //
-        // try {
-        //     do GL11.glPopClientAttrib(); while (GlStateManager.glGetError() == 0);
-        // } catch (Throwable ignored) {}
-
-        // Reset texture
+    @Unique
+    private void crashpatch$resetState() {
         GlStateManager.bindTexture(0);
         GlStateManager.disableTexture2D();
-
-        // Reset GL lighting
-        GlStateManager.disableLighting();
-        GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, crashpatch$setColorBuffer(0.2F, 0.2F, 0.2F, 1.0F));
-        for (int i = 0; i < 8; ++i) {
-            GlStateManager.disableLight(i);
-            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_AMBIENT, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_POSITION, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-
-            if (i == 0) {
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, crashpatch$setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, crashpatch$setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
-            } else {
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-            }
-        }
-        GlStateManager.disableColorMaterial();
-        GlStateManager.colorMaterial(1032, 5634);
 
         // Reset depth
         GlStateManager.disableDepth();
@@ -421,15 +355,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GlStateManager.tryBlendFuncSeparate(1, 0, 1, 0);
         GL14.glBlendEquation(GL14.GL_FUNC_ADD);
 
-        // Reset fog
-        GlStateManager.disableFog();
-        GlStateManager.setFog(9729);
-        GlStateManager.setFogDensity(1.0F);
-        GlStateManager.setFogStart(0.0F);
-        GlStateManager.setFogEnd(1.0F);
-        GL11.glFog(GL11.GL_FOG_COLOR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
-        if (GLContext.getCapabilities().GL_NV_fog_distance) GL11.glFogi(GL11.GL_FOG_MODE, 34140);
-
         // Reset polygon offset
         GlStateManager.doPolygonOffset(0.0F, 0.0F);
         GlStateManager.disablePolygonOffset();
@@ -437,24 +362,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
         // Reset color logic
         GlStateManager.disableColorLogic();
         GlStateManager.colorLogicOp(5379);
-
-        // Reset texgen TODO: is this correct?
-        GlStateManager.disableTexGenCoord(GlStateManager.TexGen.S);
-        GlStateManager.disableTexGenCoord(GlStateManager.TexGen.T);
-        GlStateManager.disableTexGenCoord(GlStateManager.TexGen.R);
-        GlStateManager.disableTexGenCoord(GlStateManager.TexGen.Q);
-        GlStateManager.texGen(GlStateManager.TexGen.S, 9216);
-        GlStateManager.texGen(GlStateManager.TexGen.T, 9216);
-        GlStateManager.texGen(GlStateManager.TexGen.R, 9216);
-        GlStateManager.texGen(GlStateManager.TexGen.Q, 9216);
-        GlStateManager.texGen(GlStateManager.TexGen.S, 9474, crashpatch$setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.T, 9474, crashpatch$setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.R, 9474, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.Q, 9474, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.S, 9217, crashpatch$setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.T, 9217, crashpatch$setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.R, 9217, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.Q, 9217, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
 
         // Disable lightmap
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
@@ -472,56 +379,18 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, -1000);
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0F);
 
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-        GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_RGB, GL11.GL_MODULATE);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_ALPHA, GL11.GL_MODULATE);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC0_RGB, GL11.GL_TEXTURE);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC1_RGB, GL13.GL_PREVIOUS);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC2_RGB, GL13.GL_CONSTANT);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC0_ALPHA, GL11.GL_TEXTURE);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC1_ALPHA, GL13.GL_PREVIOUS);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC2_ALPHA, GL13.GL_CONSTANT);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND0_RGB, GL11.GL_SRC_COLOR);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND1_RGB, GL11.GL_SRC_COLOR);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND2_RGB, GL11.GL_SRC_ALPHA);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND0_ALPHA, GL11.GL_SRC_ALPHA);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND1_ALPHA, GL11.GL_SRC_ALPHA);
-        GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_OPERAND2_ALPHA, GL11.GL_SRC_ALPHA);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL13.GL_RGB_SCALE, 1.0F);
-        GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_ALPHA_SCALE, 1.0F);
-
-        GlStateManager.disableNormalize();
-        GlStateManager.shadeModel(7425);
-        GlStateManager.disableRescaleNormal();
         GlStateManager.colorMask(true, true, true, true);
         GlStateManager.clearDepth(1.0D);
         GL11.glLineWidth(1.0F);
         GL11.glNormal3f(0.0F, 0.0F, 1.0F);
         GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
         GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
-
         GlStateManager.enableTexture2D();
-        GlStateManager.shadeModel(7425);
         GlStateManager.clearDepth(1.0D);
         GlStateManager.enableDepth();
         GlStateManager.depthFunc(515);
-        GlStateManager.enableAlpha();
-        GlStateManager.alphaFunc(516, 0.1F);
-        GlStateManager.cullFace(1029);
-        GlStateManager.matrixMode(5889);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(5888);
-    }
-
-    private static FloatBuffer crashpatch$colorBuffer = GLAllocation.createDirectFloatBuffer(16);
-
-    @Unique
-    private static FloatBuffer crashpatch$setColorBuffer(float f, float g, float h, float i) {
-        crashpatch$colorBuffer.clear();
-        crashpatch$colorBuffer.put(f).put(g).put(h).put(i);
-        crashpatch$colorBuffer.flip();
-        return crashpatch$colorBuffer;
+        GlStateManager.enableCull();
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
 }

@@ -40,6 +40,7 @@ loom {
         launchConfigs.named("client") {
             arg("--tweakClass", "cc.polyfrost.oneconfigwrapper.OneConfigWrapper")
             property("mixin.debug.export", "true")
+            property("fml.coreMods.load", "cc.woverflow.crashpatch.hooks.ModsCheckerPlugin")
         }
     }
     if (project.platform.isForge) {
@@ -137,6 +138,8 @@ tasks {
                 mapOf(
                     "ModSide" to "CLIENT",
                     "ForceLoadAsMod" to true,
+                    "FMLCorePluginContainsFMLMod" to "Yes, yes it does",
+                    "FMLCorePlugin" to "cc.woverflow.crashpatch.hooks.ModsCheckerPlugin",
                     "TweakOrder" to "0",
                     "MixinConfigs" to "mixin.${mod_id}.json",
                     "TweakClass" to "cc.polyfrost.oneconfigwrapper.OneConfigWrapper"

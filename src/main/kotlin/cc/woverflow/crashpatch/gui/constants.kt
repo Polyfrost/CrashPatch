@@ -1,5 +1,6 @@
 package cc.woverflow.crashpatch.gui
 
+import cc.polyfrost.oneconfig.renderer.font.Font
 import cc.polyfrost.oneconfig.utils.color.ColorUtils
 
 internal val GRAY_800 = ColorUtils.getColor(21, 22, 23, 255) // general background
@@ -32,3 +33,5 @@ internal val OPEN_CRASH_LOG = "Crash log"
 
 internal val SKYCLIENT_DISCORD = "https://inv.wtf/skyclient"
 internal val POLYFROST_DISCORD = "https://polyfrost.cc/discord"
+
+internal val JETBRAINS_MONO = Font("jetbrains-mono-regular", "/assets/crashpatch/fonts/JetbrainsMono-Regular.ttf")

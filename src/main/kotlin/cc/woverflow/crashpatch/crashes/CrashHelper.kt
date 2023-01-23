@@ -2,7 +2,11 @@ package cc.woverflow.crashpatch.crashes
 
 import cc.polyfrost.oneconfig.libs.universal.wrappers.message.UTextComponent
 import cc.polyfrost.oneconfig.utils.NetworkUtils
+import cc.woverflow.crashpatch.CrashPatch
+import cc.woverflow.crashpatch.hooks.McDirUtil
 import com.google.gson.JsonObject
+import net.minecraft.launchwrapper.Launch
+import java.io.File
 import kotlin.collections.set
 
 object CrashHelper {
@@ -23,19 +27,33 @@ object CrashHelper {
 
     @JvmStatic
     fun scanReport(report: String, serverCrash: Boolean = false): CrashScan? {
-        try {
+        return try {
             val responses = getResponses(report, serverCrash)
-
-            if (responses.isEmpty()) return null
-            return CrashScan(responses)
+            CrashScan(responses.also { it["Crash log"] = report.split("\\R".toRegex()) }.toSortedMap { o1, o2 ->
+                if (o1 == "Crash log") {
+                    return@toSortedMap 1
+                }
+                if (o2 == "Crash log") {
+                    return@toSortedMap -1
+                }
+                return@toSortedMap o1.compareTo(o2)
+            }.map { map ->
+                CrashScan.Solution("${map.key} (${map.value.size})", map.value.map {
+                    it.replace("%pathindicator%", "").replace(
+                        "%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(
+                            File.separator
+                        )
+                    ).replace("%profileroot%", File(McDirUtil.getMcDir(), "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
+                }, true)
+            }.toMutableList())
         } catch (e: Throwable) {
             e.printStackTrace()
-            return null
+            null
         }
     }
 
-    private fun getResponses(report: String, serverCrash: Boolean): Map<String, ArrayList<String>> {
-        val issues = skyclientJson ?: return emptyMap()
+    private fun getResponses(report: String, serverCrash: Boolean): MutableMap<String, List<String>> {
+        val issues = skyclientJson ?: return linkedMapOf()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
         val triggersToIgnore = arrayListOf<Int>()
@@ -74,7 +92,7 @@ object CrashHelper {
             for (cause in causes) {
                 val causeJson = cause.asJsonObject
                 var theReport = report
-                if (serverCrash && causeJson.has("unformatted") && causeJson["unformatted"].asBoolean) {
+                if (causeJson.has("unformatted") && causeJson["unformatted"].asBoolean) {
                     theReport = UTextComponent.stripFormatting(theReport)
                 }
                 when (causeJson["method"].asString) {
@@ -120,10 +138,14 @@ object CrashHelper {
             }
 
         }
-        return responses.filterNot { it.value.isEmpty() }
+        return responses.filterNot { it.value.isEmpty() }.toMutableMap()
     }
 }
 
 data class CrashScan(
-    val solutions: Map<String, MutableList<String>>
-)
+    val solutions: MutableList<Solution>
+) {
+    data class Solution(
+        val name: String, val solutions: List<String>, val crashReport: Boolean = false
+    )
+}

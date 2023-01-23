@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.MalformedJsonException;
-import net.minecraft.launchwrapper.ITweaker;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
@@ -23,18 +21,12 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ModsCheckerPlugin implements ITweaker {
+public class ModsCheckerPlugin implements IFMLLoadingPlugin {
     private static final JsonParser PARSER = new JsonParser();
     public static final HashMap<String, Triple<File, String, String>> modsMap = new HashMap<>(); //modid : file, version, name
 
-    @Override
-    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
-
-    }
-
-    @Override
-    public void injectIntoClassLoader(LaunchClassLoader classLoader) {
-        File modsFolder = new File(Launch.minecraftHome, "mods");
+    public ModsCheckerPlugin() {
+        File modsFolder = new File(McDirUtil.getMcDir(), "mods");
         File[] modFolder = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         HashMap<String, ArrayList<Triple<File, String, String>>> dupeMap = new HashMap<>();
         if (modFolder != null) {
@@ -107,7 +99,7 @@ public class ModsCheckerPlugin implements ITweaker {
                             otherIterator.remove();
                         } else {
                             doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(McDirUtil.getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
                         }
                     }
                 }
@@ -122,18 +114,8 @@ public class ModsCheckerPlugin implements ITweaker {
 
         if (!dupeMap.isEmpty()) {
             doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(McDirUtil.getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
         }
-    }
-
-    @Override
-    public String getLaunchTarget() {
-        return null;
-    }
-
-    @Override
-    public String[] getLaunchArguments() {
-        return new String[0];
     }
 
     private static void doThatPopupThing(File modsFolder, String message) {
@@ -201,6 +183,31 @@ public class ModsCheckerPlugin implements ITweaker {
             }
         }
         return true;
+    }
+
+    @Override
+    public String[] getASMTransformerClass() {
+        return new String[0];
+    }
+
+    @Override
+    public String getModContainerClass() {
+        return null;
+    }
+
+    @Override
+    public String getSetupClass() {
+        return null;
+    }
+
+    @Override
+    public void injectData(Map<String, Object> map) {
+
+    }
+
+    @Override
+    public String getAccessTransformerClass() {
+        return null;
     }
 
     public static class Triple<A, B, C> {

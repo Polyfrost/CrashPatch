@@ -5,7 +5,7 @@
 
 ### **[Discord server (CLICK HERE TO GET SUPPORT)](https://discord.gg/woverflow)**
 
-CrashPatch is a Minecraft (1.8.9) modification port of the BetterCrashes Minecraft modification (1.7.10) which is a port of the VanillaFix Minecraft modification (1.12.2).
+CrashPatch is a Minecraft (1.8.9) modification port of the BetterCrashes Minecraft modification (1.7.10) which is a port of the VanillaFix Minecraft modification (1.12.2). It also backports some fixes from NotEnoughCrashes (1.14+)
 
 CrashPatch essentially wraps the game in a try catch which stops the game from closing when something goes wrong (aka a crash).
 

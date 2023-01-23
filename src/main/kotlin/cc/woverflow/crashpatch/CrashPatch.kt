@@ -1,18 +1,18 @@
 package cc.woverflow.crashpatch
 
 import cc.polyfrost.oneconfig.libs.universal.ChatColor
-import cc.polyfrost.oneconfig.libs.universal.UDesktop
 import cc.polyfrost.oneconfig.libs.universal.UMinecraft
 import cc.polyfrost.oneconfig.utils.Multithreading
 import cc.polyfrost.oneconfig.utils.commands.CommandManager
 import cc.polyfrost.oneconfig.utils.commands.annotations.Command
+import cc.polyfrost.oneconfig.utils.commands.annotations.Greedy
 import cc.polyfrost.oneconfig.utils.commands.annotations.Main
 import cc.polyfrost.oneconfig.utils.commands.annotations.SubCommand
 import cc.polyfrost.oneconfig.utils.dsl.tick
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
+import cc.woverflow.crashpatch.hooks.McDirUtil
 import cc.woverflow.crashpatch.hooks.ModsCheckerPlugin
-import net.minecraft.launchwrapper.Launch
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
@@ -27,14 +27,18 @@ object CrashPatch {
     const val MODID = "crashpatch"
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
-    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File("./OneConfig/CrashPatch/SKYCLIENT").exists() || File("./W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
+    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
     val gameDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val file = mcDir
         try {
-            if (Launch.minecraftHome.parentFile?.name == (if (UDesktop.isMac) "minecraft" else ".minecraft")) Launch.minecraftHome.parentFile else Launch.minecraftHome
+            if (file.parentFile?.name?.let { it == ".minecraft" || it == "minecraft" } == true) file.parentFile else file
         } catch (e: Exception) {
             e.printStackTrace()
-            Launch.minecraftHome
+            file
         }
+    }
+    val mcDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        McDirUtil.getMcDir()
     }
 
     @Mod.EventHandler
@@ -67,12 +71,12 @@ object CrashPatch {
         var a = false //todo we should probably make crashpatch like make things stop thorwing recuresivley or whatever
 
         @SubCommand
-        fun crash() {
+        fun crash(@Greedy string: String) {
             UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Crashing..."))
             tick(1) {
                 if (!a) {
                     a = true
-                    throw Throwable("CrashPatch test crash")
+                    throw Throwable(string)
                 } else {
                     a = false
                 }
