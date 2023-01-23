@@ -1,7 +1,9 @@
 package cc.woverflow.crashpatch.mixin;
 
-import cc.woverflow.crashpatch.crashes.CrashHelper;
-import cc.woverflow.crashpatch.crashes.CrashScan;
+import cc.polyfrost.oneconfig.events.EventManager;
+import cc.polyfrost.oneconfig.events.event.RenderEvent;
+import cc.polyfrost.oneconfig.events.event.Stage;
+import cc.polyfrost.oneconfig.utils.gui.GuiUtils;
 import cc.woverflow.crashpatch.crashes.StateManager;
 import cc.woverflow.crashpatch.gui.CrashGui;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
@@ -9,12 +11,11 @@ import cc.woverflow.crashpatch.utils.GuiDisconnectedHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.LanguageManager;
@@ -35,10 +36,13 @@ import org.lwjgl.opengl.*;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.nio.FloatBuffer;
 
 /**
  * @author Runemoro
@@ -282,6 +286,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
             mcSoundHandler = new SoundHandler(mcResourceManager, gameSettings);
             mcResourceManager.registerReloadListener(mcSoundHandler);
 
+            GuiUtils.getDeltaTime(); // make sure static initialization is called
+
             running = true;
             try {
                 //noinspection deprecation
@@ -309,7 +315,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             if (Display.isCreated() && Display.isCloseRequested()) {
                 System.exit(0);
             }
-
+            EventManager.INSTANCE.post(new RenderEvent(Stage.START, 0));
             leftClickCounter = 10000;
             currentScreen.handleInput();
             currentScreen.updateScreen();
@@ -336,11 +342,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
             int mouseX = Mouse.getX() * width / displayWidth;
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             currentScreen.drawScreen(mouseX, mouseY, 0);
-            //todo
-            //if (screen.getShouldCrash()) {
-            //    crashpatch$letDie = true;
-            //    throw screen.getReport().getCrashCause();
-            //}
+            if (screen.getShouldCrash()) {
+                crashpatch$letDie = true;
+                throw screen.getReport().getCrashCause();
+            }
 
             framebufferMc.unbindFramebuffer();
             GlStateManager.popMatrix();
@@ -348,6 +353,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
             GlStateManager.pushMatrix();
             framebufferMc.framebufferRender(displayWidth, displayHeight);
             GlStateManager.popMatrix();
+
+            EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0));
 
             updateDisplay();
             Thread.yield();
@@ -386,18 +393,18 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
         // Reset GL lighting
         GlStateManager.disableLighting();
-        GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, RenderHelper.setColorBuffer(0.2F, 0.2F, 0.2F, 1.0F));
+        GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, crashpatch$setColorBuffer(0.2F, 0.2F, 0.2F, 1.0F));
         for (int i = 0; i < 8; ++i) {
             GlStateManager.disableLight(i);
-            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_AMBIENT, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_POSITION, RenderHelper.setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
+            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_AMBIENT, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+            GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_POSITION, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
 
             if (i == 0) {
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, RenderHelper.setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, RenderHelper.setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
+                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, crashpatch$setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
+                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, crashpatch$setColorBuffer(1.0F, 1.0F, 1.0F, 1.0F));
             } else {
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_DIFFUSE, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+                GL11.glLight(GL11.GL_LIGHT0 + i, GL11.GL_SPECULAR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
             }
         }
         GlStateManager.disableColorMaterial();
@@ -420,7 +427,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GlStateManager.setFogDensity(1.0F);
         GlStateManager.setFogStart(0.0F);
         GlStateManager.setFogEnd(1.0F);
-        GL11.glFog(GL11.GL_FOG_COLOR, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
+        GL11.glFog(GL11.GL_FOG_COLOR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
         if (GLContext.getCapabilities().GL_NV_fog_distance) GL11.glFogi(GL11.GL_FOG_MODE, 34140);
 
         // Reset polygon offset
@@ -440,14 +447,14 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GlStateManager.texGen(GlStateManager.TexGen.T, 9216);
         GlStateManager.texGen(GlStateManager.TexGen.R, 9216);
         GlStateManager.texGen(GlStateManager.TexGen.Q, 9216);
-        GlStateManager.texGen(GlStateManager.TexGen.S, 9474, RenderHelper.setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.T, 9474, RenderHelper.setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.R, 9474, RenderHelper.setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.Q, 9474, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.S, 9217, RenderHelper.setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.T, 9217, RenderHelper.setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.R, 9217, RenderHelper.setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
-        GlStateManager.texGen(GlStateManager.TexGen.Q, 9217, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.S, 9474, crashpatch$setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.T, 9474, crashpatch$setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.R, 9474, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.Q, 9474, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.S, 9217, crashpatch$setColorBuffer(1.0F, 0.0F, 0.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.T, 9217, crashpatch$setColorBuffer(0.0F, 1.0F, 0.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.R, 9217, crashpatch$setColorBuffer(0.0F, 0.0F, 1.0F, 0.0F));
+        GlStateManager.texGen(GlStateManager.TexGen.Q, 9217, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
 
         // Disable lightmap
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
@@ -466,7 +473,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0F);
 
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-        GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
+        GL11.glTexEnv(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_COLOR, crashpatch$setColorBuffer(0.0F, 0.0F, 0.0F, 0.0F));
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_RGB, GL11.GL_MODULATE);
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL13.GL_COMBINE_ALPHA, GL11.GL_MODULATE);
         GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL15.GL_SRC0_RGB, GL11.GL_TEXTURE);
@@ -505,6 +512,16 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
         GlStateManager.matrixMode(5888);
+    }
+
+    private static FloatBuffer crashpatch$colorBuffer = GLAllocation.createDirectFloatBuffer(16);
+
+    @Unique
+    private static FloatBuffer crashpatch$setColorBuffer(float f, float g, float h, float i) {
+        crashpatch$colorBuffer.clear();
+        crashpatch$colorBuffer.put(f).put(g).put(h).put(i);
+        crashpatch$colorBuffer.flip();
+        return crashpatch$colorBuffer;
     }
 
 }

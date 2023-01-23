@@ -45,7 +45,6 @@ loom {
     if (project.platform.isForge) {
         forge {
             mixinConfig("mixin.${mod_id}.json")
-            accessTransformer(File("./../../src/main/resources/crashpatch_at.cfg"))
         }
     }
     mixin.defaultRefmapName.set("mixin.${mod_id}.refmap.json")
@@ -66,7 +65,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.1.0-alpha+")
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.0-alpha+")
     shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-alpha+")
     compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
