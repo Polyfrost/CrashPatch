@@ -10,6 +10,7 @@ import cc.polyfrost.oneconfig.libs.universal.UResolution.windowHeight
 import cc.polyfrost.oneconfig.libs.universal.UResolution.windowWidth
 import cc.polyfrost.oneconfig.platform.Platform
 import cc.polyfrost.oneconfig.renderer.NanoVGHelper
+import cc.polyfrost.oneconfig.renderer.asset.Icon
 import cc.polyfrost.oneconfig.renderer.asset.SVG
 import cc.polyfrost.oneconfig.renderer.font.Font
 import cc.polyfrost.oneconfig.renderer.font.FontHelper
@@ -31,8 +32,23 @@ import net.minecraft.crash.CrashReport
 import java.io.File
 import java.net.URI
 
-class CrashGui @JvmOverloads constructor(private val scanText: String, private val file: File?, private val susThing: String, private val type: GuiType = GuiType.NORMAL, val throwable: Throwable? = null) : OneUIScreen() {
-    @JvmOverloads constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(report.completeReport, report.file, (report as CrashReportHook).suspectedCrashPatchMods, type, report.crashCause)
+class CrashGui @JvmOverloads constructor(
+    private val scanText: String,
+    private val file: File?,
+    private val susThing: String,
+    private val type: GuiType = GuiType.NORMAL,
+    val throwable: Throwable? = null
+) : OneUIScreen() {
+    @JvmOverloads
+    constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
+        report.completeReport,
+        report.file,
+        (report as CrashReportHook).suspectedCrashPatchMods,
+        type,
+        report.crashCause
+    )
+
+    private val crashPatchLogo = Icon("/assets/crashpatch/crashpatch_dark.svg")
 
     private var hasteLink: String? = null
     private val crashScan: CrashScan? by lazy {
@@ -123,7 +139,11 @@ class CrashGui @JvmOverloads constructor(private val scanText: String, private v
             drawSVG("/assets/crashpatch/WarningTriangle.svg", x + 305 + 10, y + 24 + 10, 20, 20)
             drawText(
                 if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE,
-                (windowWidth / 2f / scale) - (getTextWidth(if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE, 24, Fonts.MEDIUM) / 2f),
+                (windowWidth / 2f / scale) - (getTextWidth(
+                    if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE,
+                    24,
+                    Fonts.MEDIUM
+                ) / 2f),
                 y + 56 + 22,
                 WHITE_90,
                 24,
@@ -142,7 +162,11 @@ class CrashGui @JvmOverloads constructor(private val scanText: String, private v
 
             drawText(
                 if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT,
-                (windowWidth / 2f / scale) - (getTextWidth(if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT, 16, Fonts.REGULAR) / 2f),
+                (windowWidth / 2f / scale) - (getTextWidth(
+                    if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT,
+                    16,
+                    Fonts.REGULAR
+                ) / 2f),
                 y + 56 + 87 + 10 + (subtitle.size * (14 * 1.75)),
                 WHITE_80,
                 16,
@@ -286,11 +310,11 @@ class CrashGui @JvmOverloads constructor(private val scanText: String, private v
                     setClipboardString(link)
                     if (UDesktop.browse(URI.create(link))) {
                         Notifications.INSTANCE.send(
-                            "CrashPatch", "Link copied to clipboard and opened in browser"
+                            "CrashPatch", "Link copied to clipboard and opened in browser", crashPatchLogo
                         )
                     } else {
                         Notifications.INSTANCE.send(
-                            "CrashPatch", "Couldn't open link in browser, copied to clipboard instead."
+                            "CrashPatch", "Couldn't open link in browser, copied to clipboard instead.", crashPatchLogo
                         )
                     }
                 }
@@ -299,7 +323,8 @@ class CrashGui @JvmOverloads constructor(private val scanText: String, private v
             if (inputHandler.isAreaClicked(x + 600 - 8 - 11 - 15 - 8 - 11 - 15f, y + 273 + 11f, 15f, 15f)) {
                 selectedSolution?.let { solution ->
                     setClipboardString(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
-                    Notifications.INSTANCE.send("CrashPatch", "Copied to clipboard")
+                    Notifications.INSTANCE.send("CrashPatch", "Copied to clipboard", crashPatchLogo
+                    )
                 }
             }
 
@@ -326,7 +351,11 @@ class CrashGui @JvmOverloads constructor(private val scanText: String, private v
             )
 
             val buttonsWidth =
-                returnToGameButton.width + if (type != GuiType.DISCONNECT) (getTextWidth(OPEN_CRASH_LOG, 14, Fonts.MEDIUM) + 16 + 20) + 10 else 0f
+                returnToGameButton.width + if (type != GuiType.DISCONNECT) (getTextWidth(
+                    OPEN_CRASH_LOG,
+                    14,
+                    Fonts.MEDIUM
+                ) + 16 + 20) + 10 else 0f
             returnToGameButton.update((windowWidth / 2f / scale) - (buttonsWidth / 2), y + 600 - 16 - 36f, inputHandler)
             returnToGameButton.draw(
                 vg, (windowWidth / 2f / scale) - (buttonsWidth / 2), y + 600 - 16 - 36f, inputHandler
