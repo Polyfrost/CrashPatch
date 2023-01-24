@@ -20,13 +20,17 @@ internal val HYPERLINK_BLUE = ColorUtils.getColor(48, 129, 242)
 internal val BLACK_20 = ColorUtils.getColor(0, 0, 0, 12) // brand.hover
 
 internal val TITLE = "Uh-oh. Your game crashed!"
+internal val DISCONNECTED_TITLE = "Uh-oh. You were disconnected from the server!"
 internal val SUBTITLE_1 = "But, CrashPatch just saved the day! Feel free to ignore this, and"
 internal val SUBTITLE_2 = "continue playing your game despite the crash."
+internal val SUBTITLE_DISCONNECTED = "The full reason is below, but"
+internal val SUBTITLE_DISCONNECTED_2 = "you can ignore this and continue playing."
 internal val SUBTITLE_INIT_1 = "To fix this, "
 internal val SUBTITLE_INIT_2 = "follow the tips listed below and / or "
 internal val SUBTITLE_INIT_3 = "join the Discord server and make a support ticket."
 
 internal val CAUSE_TEXT = "This could have been caused by:"
+internal val CAUSE_TEXT_DISCONNECTED = "Reason for disconnect:"
 
 internal val RETURN_TO_GAME = "Return to game"
 internal val OPEN_CRASH_LOG = "Crash log"
