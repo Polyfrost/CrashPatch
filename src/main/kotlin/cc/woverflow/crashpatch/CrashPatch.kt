@@ -57,7 +57,7 @@ object CrashPatch {
     fun onInit(e: FMLInitializationEvent) {
         CommandManager.INSTANCE.registerCommand(CrashPatchCommand())
         CrashPatchConfig
-        //throw Throwable("Lol")
+        //throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules")
     }
 
     @Command(value = "crashpatch")
