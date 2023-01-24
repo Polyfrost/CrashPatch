@@ -5,13 +5,13 @@ import cc.polyfrost.oneconfig.utils.NetworkUtils
 import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.hooks.McDirUtil
 import com.google.gson.JsonObject
-import net.minecraft.launchwrapper.Launch
 import java.io.File
 import kotlin.collections.set
 
 object CrashHelper {
 
     private var skyclientJson: JsonObject? = null
+    val simpleCache = hashMapOf<String, CrashScan>()
 
     @JvmStatic
     fun loadJson(): Boolean {
@@ -28,12 +28,15 @@ object CrashHelper {
     @JvmStatic
     fun scanReport(report: String, serverCrash: Boolean = false): CrashScan? {
         return try {
+            if (simpleCache.containsKey(report)) {
+                return simpleCache[report]
+            }
             val responses = getResponses(report, serverCrash)
-            CrashScan(responses.also { it["Crash log"] = report.split("\\R".toRegex()) }.toSortedMap { o1, o2 ->
-                if (o1 == "Crash log") {
+            CrashScan(responses.also { it[if (serverCrash) "Disconnect reason" else "Crash log"] = report.split("\\R".toRegex()) }.toSortedMap { o1, o2 ->
+                if (o1 == "Crash log" || o1 == "Disconnect reason") {
                     return@toSortedMap 1
                 }
-                if (o2 == "Crash log") {
+                if (o2 == "Crash log" || o2 == "Disconnect reason") {
                     return@toSortedMap -1
                 }
                 return@toSortedMap o1.compareTo(o2)
@@ -45,7 +48,7 @@ object CrashHelper {
                         )
                     ).replace("%profileroot%", File(McDirUtil.getMcDir(), "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
                 }, true)
-            }.toMutableList())
+            }.toMutableList()).also { simpleCache[report] = it }
         } catch (e: Throwable) {
             e.printStackTrace()
             null

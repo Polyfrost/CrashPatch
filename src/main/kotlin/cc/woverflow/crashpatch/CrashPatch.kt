@@ -9,6 +9,7 @@ import cc.polyfrost.oneconfig.utils.commands.annotations.Greedy
 import cc.polyfrost.oneconfig.utils.commands.annotations.Main
 import cc.polyfrost.oneconfig.utils.commands.annotations.SubCommand
 import cc.polyfrost.oneconfig.utils.dsl.tick
+import cc.woverflow.crashpatch.config.CrashPatchConfig
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
 import cc.woverflow.crashpatch.hooks.McDirUtil
@@ -55,28 +56,36 @@ object CrashPatch {
     @Mod.EventHandler
     fun onInit(e: FMLInitializationEvent) {
         CommandManager.INSTANCE.registerCommand(CrashPatchCommand())
+        CrashPatchConfig
+        //throw Throwable("Lol")
     }
 
-    @Command(value = "reloadcrashpatch")
+    @Command(value = "crashpatch")
     class CrashPatchCommand {
         @Main
         fun main() {
+            CrashPatchConfig.openGui()
+        }
+
+        @SubCommand
+        fun reload() {
             if (CrashHelper.loadJson()) {
+                CrashHelper.simpleCache.clear()
                 UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Successfully reloaded JSON file!"))
             } else {
                 UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Failed to reload the JSON file!"))
             }
         }
 
-        var a = false //todo we should probably make crashpatch like make things stop thorwing recuresivley or whatever
+        var a = false
 
         @SubCommand
-        fun crash(@Greedy string: String) {
+        fun crash() {
             UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Crashing..."))
             tick(1) {
                 if (!a) {
                     a = true
-                    throw Throwable(string)
+                    throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules")
                 } else {
                     a = false
                 }

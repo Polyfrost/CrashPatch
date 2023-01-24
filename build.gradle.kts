@@ -70,6 +70,7 @@ dependencies {
     shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     shade("com.github.aternosorg:mclogs-java:v2.2.0")
     compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
 }
 
 tasks.processResources {

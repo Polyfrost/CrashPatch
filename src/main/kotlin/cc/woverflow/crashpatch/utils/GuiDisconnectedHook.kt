@@ -5,6 +5,8 @@ import cc.woverflow.crashpatch.mixin.AccessorGuiDisconnected
 import net.minecraft.client.gui.GuiDisconnected
 import net.minecraft.client.gui.GuiScreen
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
+import cc.polyfrost.oneconfig.utils.dsl.mc
+import cc.woverflow.crashpatch.gui.CrashGui
 
 object GuiDisconnectedHook {
     fun onGUIDisplay(i: GuiScreen?, ci: CallbackInfo) {
@@ -13,9 +15,7 @@ object GuiDisconnectedHook {
             val scan = scanReport(gui.message.formattedText, true)
             if (scan != null && scan.solutions.isNotEmpty()) {
                 ci.cancel()
-
-                //todo
-                //displayGuiScreen(new GuiServerDisconnectMenu(gui.getMessage(), gui.getReason(), scan));
+                mc.displayGuiScreen(CrashGui(gui.message.formattedText, null, gui.reason, CrashGui.GuiType.DISCONNECT))
             }
         }
     }
