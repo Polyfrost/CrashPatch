@@ -50,7 +50,6 @@ class CrashGui @JvmOverloads constructor(
 
     private val crashPatchLogo = Icon("/assets/crashpatch/crashpatch_dark.svg")
 
-    private var hasteLink: String? = null
     private val crashScan: CrashScan? by lazy {
         return@lazy CrashHelper.scanReport(scanText, type == GuiType.DISCONNECT)
             .let { return@let if (it != null && it.solutions.isNotEmpty()) it else null }
@@ -91,9 +90,9 @@ class CrashGui @JvmOverloads constructor(
             NanoVGHelper.INSTANCE.getTextWidth(vg, OPEN_CRASH_LOG, 14f, Fonts.MEDIUM).toInt() + 40 + 5 + 35,
             40,
             OPEN_CRASH_LOG,
-            SVG("/assets/crashpatch/open-external.svg"),
             null,
-            3,
+            SVG("/assets/crashpatch/open-external.svg"),
+            2,
             ColorPalette.TERTIARY
         )
         button.setClickAction {
@@ -102,6 +101,50 @@ class CrashGui @JvmOverloads constructor(
             }
         }
         buttonFontSizeField.setFloat(button, 14f)
+        button
+    }
+
+    private val uploadLogButton by lazy {
+        val button = BasicButton(
+            30,
+            30,
+            SVG("/assets/crashpatch/upload.svg"),
+            2,
+            ColorPalette(GRAY_600, GRAY_700, GRAY_800)
+        )
+        button.setClickAction {
+            selectedSolution?.let { solution ->
+                val link =
+                    InternetUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
+                setClipboardString(link)
+                if (UDesktop.browse(URI.create(link))) {
+                    Notifications.INSTANCE.send(
+                        "CrashPatch", "Link copied to clipboard and opened in browser", crashPatchLogo
+                    )
+                } else {
+                    Notifications.INSTANCE.send(
+                        "CrashPatch", "Couldn't open link in browser, copied to clipboard instead.", crashPatchLogo
+                    )
+                }
+            }
+        }
+        button
+    }
+
+    private val copyLogButton by lazy {
+        val button = BasicButton(
+            30,
+            30,
+            SVG("/assets/crashpatch/copy.svg"),
+            2,
+            ColorPalette(GRAY_600, GRAY_700, GRAY_800)
+        )
+        button.setClickAction {
+            selectedSolution?.let { solution ->
+                setClipboardString(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
+                Notifications.INSTANCE.send("CrashPatch", "Copied to clipboard", crashPatchLogo)
+            }
+        }
         button
     }
 
@@ -178,9 +221,9 @@ class CrashGui @JvmOverloads constructor(
                 ) / 2f), y + 56 + 87 + 10 + (subtitle.size * (14 * 1.75)) + 30, BLUE_400, 18, Fonts.SEMIBOLD
             )
 
-            drawRoundedRect(x + 50, y + 273, 550, 158, 20, GRAY_700)
+            drawRoundedRect(x + 50, y + 273, 550, 158, 12, GRAY_700)
             ScissorHelper.INSTANCE.scissor(vg, x + 50f, y + 273f, 550f, 37f).let {
-                drawRoundedRect(x + 50, y + 273, 550, 158, 20, GRAY_600)
+                drawRoundedRect(x + 50, y + 273, 550, 158, 12, GRAY_600)
                 ScissorHelper.INSTANCE.resetScissor(vg, it)
             }
 
@@ -224,14 +267,14 @@ class CrashGui @JvmOverloads constructor(
                             textWidth,
                             2,
                             1,
-                            BLUE_400
+                            BLUE_600
                         )
-                        ScissorHelper.INSTANCE.scissor(vg, x + 50f + 20f, y + 310f + 16, 550f - 20, 89f)
+                        ScissorHelper.INSTANCE.scissor(vg, x + 50f + 20f, y + 310f, 550f - 20 - 20, 121f)
                             .let { scissor ->
                                 val scrollBarLength = 89 / lastHeight * 89
                                 if (lastHeight > 89) {
                                     scroll = scrollAnimation?.get() ?: scrollTarget
-                                    val dWheel = Platform.getMousePlatform().dWheel.toFloat()
+                                    val dWheel = Platform.getMousePlatform().dWheel.toFloat() * 0.1f
                                     if (dWheel != 0f) {
                                         scrollTarget += dWheel
                                         if (scrollTarget > 0f) scrollTarget =
@@ -251,8 +294,8 @@ class CrashGui @JvmOverloads constructor(
                                     drawWrappedString(
                                         it,
                                         x + 50 + 20,
-                                        y + 310f + 16 + height,
-                                        550 - 20,
+                                        y + 310f + height,
+                                        550 - 20 - 20,
                                         WHITE_60,
                                         12,
                                         1.25f,
@@ -302,31 +345,8 @@ class CrashGui @JvmOverloads constructor(
                     }
                 }
             }
-            drawSVG("/assets/crashpatch/upload.svg", x + 600 - 8 - 11 - 15, y + 273 + 11, 15, 15)
-            if (inputHandler.isAreaClicked(x + 600 - 8 - 11 - 15f, y + 273 + 11f, 15f, 15f)) {
-                selectedSolution?.let { solution ->
-                    val link =
-                        InternetUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
-                    setClipboardString(link)
-                    if (UDesktop.browse(URI.create(link))) {
-                        Notifications.INSTANCE.send(
-                            "CrashPatch", "Link copied to clipboard and opened in browser", crashPatchLogo
-                        )
-                    } else {
-                        Notifications.INSTANCE.send(
-                            "CrashPatch", "Couldn't open link in browser, copied to clipboard instead.", crashPatchLogo
-                        )
-                    }
-                }
-            }
-            drawSVG("/assets/crashpatch/copy.svg", x + 600 - 8 - 11 - 15 - 8 - 11 - 15, y + 273 + 11, 15, 15)
-            if (inputHandler.isAreaClicked(x + 600 - 8 - 11 - 15 - 8 - 11 - 15f, y + 273 + 11f, 15f, 15f)) {
-                selectedSolution?.let { solution ->
-                    setClipboardString(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
-                    Notifications.INSTANCE.send("CrashPatch", "Copied to clipboard", crashPatchLogo
-                    )
-                }
-            }
+            uploadLogButton.draw(vg, x + 600 - 8 - 11 - 30f, y + 273f + 3.5f, inputHandler)
+            copyLogButton.draw(vg, x + 600 - 8 - 11 - 15 - 8 - 11 - 30f, y + 273f + 3.5f, inputHandler)
 
             drawText(
                 "If the solution above doesn't help, join", (windowWidth / 2f / scale) - (getTextWidth(
@@ -383,7 +403,7 @@ class CrashGui @JvmOverloads constructor(
                 (x.toFloat() - 2), (y.toFloat() - size.toFloat()), (length + 4), (size.toFloat() * 2 + 2)
             )
         ) {
-            drawRect(x, y.toFloat() + size.toFloat() / 2, length, 2, HYPERLINK_BLUE)
+            drawRect(x, y.toFloat() + size.toFloat() / 2, length, 2, BLUE_600)
             if (inputHandler.isClicked) {
                 NetworkUtils.browseLink(url)
             }
