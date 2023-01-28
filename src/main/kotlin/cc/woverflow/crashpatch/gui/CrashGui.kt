@@ -181,7 +181,7 @@ class CrashGui @JvmOverloads constructor(
             scale(scale, scale)
             inputHandler.scale(scale.toDouble(), scale.toDouble())
             drawRoundedRect(x, y, 650, 600, 20, GRAY_800)
-            drawSVG("/assets/crashpatch/WarningTriangle.svg", x + 305 + 10, y + 24 + 10, 20, 20)
+            drawSVG("/assets/crashpatch/WarningTriangle.svg", x + 305 + 10, y + 24 + 10, 20, 20, javaClass)
             drawText(
                 if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE,
                 (windowWidth / 2f / scale) - (getTextWidth(

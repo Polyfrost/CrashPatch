@@ -5,12 +5,13 @@
     "description": "Stop crashes from closing your game!",
     "version": "${version}",
     "mcversion": "1.8.9",
-    "url": "https://github.com/W-OVERFLOW/CrashPatch",
-    "updateUrl": "https://github.com/W-OVERFLOW/CrashPatch/releases/latest",
+    "url": "https://github.com/Polyfrost/CrashPatch",
+    "updateUrl": "https://github.com/Polyfrost/CrashPatch/releases/latest",
     "authorList": [
-      "W-OVERFLOW"
+      "Polyfrost",
+      "SkyClient"
     ],
-    "credits": "vfyjxf for the 1.7.10 port of VanillaFix (BetterCrashes), Runemoro for VanillaFix, the SkyClient team for maintaining the crash solution list.",
+    "credits": "vfyjxf for the 1.7.10 port of VanillaFix (BetterCrashes), Runemoro for VanillaFix, natanfudge for NotEnoughCrashes.",
     "screenshots": [],
     "dependencies": []
   }

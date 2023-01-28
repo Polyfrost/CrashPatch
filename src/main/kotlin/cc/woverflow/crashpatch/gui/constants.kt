@@ -38,4 +38,4 @@ internal val OPEN_CRASH_LOG = "Crash log"
 internal val SKYCLIENT_DISCORD = "https://inv.wtf/skyclient"
 internal val POLYFROST_DISCORD = "https://polyfrost.cc/discord"
 
-internal val JETBRAINS_MONO = Font("jetbrains-mono-regular", "/assets/crashpatch/fonts/JetbrainsMono-Regular.ttf")
+internal val JETBRAINS_MONO = Font("jetbrains-mono-regular", "/assets/crashpatch/fonts/JetBrainsMono-Regular.ttf")

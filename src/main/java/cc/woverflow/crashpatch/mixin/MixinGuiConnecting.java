@@ -4,6 +4,7 @@ import cc.polyfrost.oneconfig.libs.universal.ChatColor;
 import cc.polyfrost.oneconfig.libs.universal.UDesktop;
 import cc.woverflow.crashpatch.CrashPatch;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.GuiConnecting;
@@ -21,7 +22,7 @@ public class MixinGuiConnecting extends GuiScreen {
 
     @Inject(method = "drawScreen", at = @At("TAIL"))
     private void drawWarningText(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        if (((MinecraftHook) mc).hasRecoveredFromCrash()) {
+        if (((MinecraftHook) Minecraft.getMinecraft()).hasRecoveredFromCrash()) {
             drawSplitCenteredString(getText(), width / 2, 5, Color.WHITE.getRGB());
         }
     }
@@ -33,7 +34,7 @@ public class MixinGuiConnecting extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (((MinecraftHook) mc).hasRecoveredFromCrash()) {
+        if (((MinecraftHook) Minecraft.getMinecraft()).hasRecoveredFromCrash()) {
             if (mouseButton == 0) {
                 String[] list = wrapFormattedStringToWidth(getText(), width).split("\n");
                 int width = -1;
