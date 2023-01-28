@@ -3,6 +3,7 @@ package cc.woverflow.crashpatch.gui
 import cc.polyfrost.oneconfig.gui.OneConfigGui
 import cc.polyfrost.oneconfig.gui.animations.Animation
 import cc.polyfrost.oneconfig.gui.animations.ColorAnimation
+import cc.polyfrost.oneconfig.gui.animations.EaseInOutQuad
 import cc.polyfrost.oneconfig.gui.animations.EaseOutQuad
 import cc.polyfrost.oneconfig.gui.elements.BasicButton
 import cc.polyfrost.oneconfig.libs.universal.UDesktop
@@ -156,6 +157,7 @@ class CrashGui @JvmOverloads constructor(
             ColorUtils.getColor(55, 59, 69, 255)
         ), 200
     )
+    private var hyperlinkAnimation: EaseInOutQuad? = EaseInOutQuad(200, 0f, 1f, false)
     private var scrollTarget = 0f
     private var scrollTime = 0L
     private var mouseWasDown = false
@@ -259,16 +261,24 @@ class CrashGui @JvmOverloads constructor(
                             scrollAnimation = null
                         }
                     }
+                    val hovered = inputHandler.isAreaHovered(
+                        x + 50 + 24 + (32 * (i - 1)) + (if (i > 1) lastTextWidth else 0f),
+                        y + 273f,
+                        textWidth,
+                        37f,
+                    )
                     lastTextWidth += textWidth
-                    if (selectedSolution == solution) {
+                    if (selectedSolution == solution || hovered) {
                         drawRoundedRect(
                             x + 50 + 24 + (32 * (i - 1)) + (if (i > 1) lastTextWidth - textWidth else 0f),
                             y + 273 + 35,
                             textWidth,
                             2,
                             1,
-                            BLUE_600
+                            if (selectedSolution == solution) BLUE_600 else ColorUtils.setAlpha(BLUE_600, 128)
                         )
+                    }
+                    if (selectedSolution == solution) {
                         ScissorHelper.INSTANCE.scissor(vg, x + 50f + 20f, y + 310f, 550f - 20 - 20, 121f)
                             .let { scissor ->
                                 val scrollBarLength = 89 / lastHeight * 89
@@ -399,14 +409,22 @@ class CrashGui @JvmOverloads constructor(
     private fun VG.drawURL(url: String, x: Number, y: Number, size: Int, font: Font, inputHandler: InputHandler) {
         drawText(url, x, y, HYPERLINK_BLUE, size, font)
         val length = getTextWidth(url, size, font)
-        if (inputHandler.isAreaHovered(
-                (x.toFloat() - 2), (y.toFloat() - size.toFloat()), (length + 4), (size.toFloat() * 2 + 2)
-            )
-        ) {
-            drawRect(x, y.toFloat() + size.toFloat() / 2, length, 2, BLUE_600)
-            if (inputHandler.isClicked) {
+        val hovered = inputHandler.isAreaHovered(
+            (x.toFloat() - 2), (y.toFloat() - size.toFloat()), (length + 4), (size.toFloat() * 2 + 2)
+        )
+        if (hovered || (hyperlinkAnimation != null && (hyperlinkAnimation?.isReversed == false || !hyperlinkAnimation!!.isFinished))) {
+            if (!hovered && hyperlinkAnimation?.isReversed == false) {
+                hyperlinkAnimation = EaseInOutQuad(200, 0f, hyperlinkAnimation!!.get(), true)
+            }
+            if (hyperlinkAnimation == null) {
+                hyperlinkAnimation = EaseInOutQuad(200, 0f, 1f, false)
+            }
+            drawRect(x, y.toFloat() + size.toFloat() / 2, length, 2, ColorUtils.setAlpha(BLUE_600, (hyperlinkAnimation!!.get() * 255).toInt()))
+            if (hovered && inputHandler.isClicked) {
                 NetworkUtils.browseLink(url)
             }
+        } else {
+            hyperlinkAnimation = null
         }
     }
 
