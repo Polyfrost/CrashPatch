@@ -13,7 +13,7 @@ object GuiDisconnectedHook {
         if (i is GuiDisconnected) {
             val gui = i as AccessorGuiDisconnected
             val scan = scanReport(gui.message.formattedText, true)
-            if (scan != null && scan.solutions.isNotEmpty()) {
+            if (scan != null && scan.solutions.size > 1) {
                 ci.cancel()
                 mc.displayGuiScreen(CrashGui(gui.message.formattedText, null, gui.reason, CrashGui.GuiType.DISCONNECT))
             }
