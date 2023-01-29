@@ -284,7 +284,7 @@ class CrashGui @JvmOverloads constructor(
                                 val scrollBarLength = 89 / lastHeight * 89
                                 if (lastHeight > 89) {
                                     scroll = scrollAnimation?.get() ?: scrollTarget
-                                    val dWheel = Platform.getMousePlatform().dWheel.toFloat() * 0.1f
+                                    val dWheel = Platform.getMousePlatform().dWheel.toFloat() * 0.3f
                                     if (dWheel != 0f) {
                                         scrollTarget += dWheel
                                         if (scrollTarget > 0f) scrollTarget =
@@ -414,10 +414,10 @@ class CrashGui @JvmOverloads constructor(
         )
         if (hovered || (hyperlinkAnimation != null && (hyperlinkAnimation?.isReversed == false || !hyperlinkAnimation!!.isFinished))) {
             if (!hovered && hyperlinkAnimation?.isReversed == false) {
-                hyperlinkAnimation = EaseInOutQuad(200, 0f, hyperlinkAnimation!!.get(), true)
+                hyperlinkAnimation = EaseInOutQuad(100, 0f, hyperlinkAnimation!!.get(), true)
             }
             if (hyperlinkAnimation == null) {
-                hyperlinkAnimation = EaseInOutQuad(200, 0f, 1f, false)
+                hyperlinkAnimation = EaseInOutQuad(100, 0f, 1f, false)
             }
             drawRect(x, y.toFloat() + size.toFloat() / 2, length, 2, ColorUtils.setAlpha(BLUE_600, (hyperlinkAnimation!!.get() * 255).toInt()))
             if (hovered && inputHandler.isClicked) {
