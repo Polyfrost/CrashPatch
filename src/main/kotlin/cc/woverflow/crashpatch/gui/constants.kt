@@ -12,12 +12,9 @@ internal val WHITE_80 = ColorUtils.getColor(255, 255, 255, 204) // subtext
 internal val WHITE_60 = ColorUtils.getColor(255, 255, 255, 153) // logs
 
 internal val BLUE_400 = ColorUtils.getColor(77, 135, 229) // yeah
-internal val BLUE_500 = ColorUtils.getColor(25, 103, 255, 255) // brand.primary
 internal val BLUE_600 = ColorUtils.getColor(20, 82, 204, 255) // brand.hover
 
 internal val HYPERLINK_BLUE = ColorUtils.getColor(48, 129, 242)
-
-internal val BLACK_20 = ColorUtils.getColor(0, 0, 0, 12) // brand.hover
 
 internal val TITLE = "Uh-oh. Your game crashed!"
 internal val DISCONNECTED_TITLE = "Uh-oh. You were disconnected from the server!"

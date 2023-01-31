@@ -26,7 +26,7 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
     public static final HashMap<String, Triple<File, String, String>> modsMap = new HashMap<>(); //modid : file, version, name
 
     public ModsCheckerPlugin() {
-        File modsFolder = new File(McDirUtil.getMcDir(), "mods");
+        File modsFolder = new File(getMcDir(), "mods");
         File[] modFolder = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
         HashMap<String, ArrayList<Triple<File, String, String>>> dupeMap = new HashMap<>();
         if (modFolder != null) {
@@ -99,7 +99,7 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
                             otherIterator.remove();
                         } else {
                             doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(McDirUtil.getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
                         }
                     }
                 }
@@ -114,7 +114,7 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
 
         if (!dupeMap.isEmpty()) {
             doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(McDirUtil.getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
         }
     }
 
@@ -311,5 +311,9 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
                 return false;
             }
         }
+    }
+
+    private static File getMcDir() {
+        return new File(System.getProperty("user.dir"));
     }
 }

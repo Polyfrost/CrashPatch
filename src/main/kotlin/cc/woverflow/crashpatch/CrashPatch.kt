@@ -5,14 +5,12 @@ import cc.polyfrost.oneconfig.libs.universal.UMinecraft
 import cc.polyfrost.oneconfig.utils.Multithreading
 import cc.polyfrost.oneconfig.utils.commands.CommandManager
 import cc.polyfrost.oneconfig.utils.commands.annotations.Command
-import cc.polyfrost.oneconfig.utils.commands.annotations.Greedy
 import cc.polyfrost.oneconfig.utils.commands.annotations.Main
 import cc.polyfrost.oneconfig.utils.commands.annotations.SubCommand
 import cc.polyfrost.oneconfig.utils.dsl.tick
 import cc.woverflow.crashpatch.config.CrashPatchConfig
 import cc.woverflow.crashpatch.crashes.CrashHelper
 import cc.woverflow.crashpatch.crashes.DeobfuscatingRewritePolicy
-import cc.woverflow.crashpatch.hooks.McDirUtil
 import cc.woverflow.crashpatch.hooks.ModsCheckerPlugin
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.common.Mod
@@ -29,18 +27,6 @@ object CrashPatch {
     const val NAME = "CrashPatch"
     const val VERSION = "@VERSION@"
     val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
-    val gameDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val file = mcDir
-        try {
-            if (file.parentFile?.name?.let { it == ".minecraft" || it == "minecraft" } == true) file.parentFile else file
-        } catch (e: Exception) {
-            e.printStackTrace()
-            file
-        }
-    }
-    val mcDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        McDirUtil.getMcDir()
-    }
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -95,3 +81,13 @@ object CrashPatch {
     }
 }
 val logger: Logger = LogManager.getLogger(CrashPatch)
+val gameDir: File by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    val file = mcDir
+    try {
+        if (file.parentFile?.name?.let { it == ".minecraft" || it == "minecraft" } == true) file.parentFile else file
+    } catch (e: Exception) {
+        e.printStackTrace()
+        file
+    }
+}
+val mcDir = File(System.getProperty("user.dir"))

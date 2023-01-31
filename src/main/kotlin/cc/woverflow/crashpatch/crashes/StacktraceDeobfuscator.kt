@@ -1,6 +1,6 @@
 package cc.woverflow.crashpatch.crashes
 
-import cc.woverflow.crashpatch.hooks.McDirUtil
+import cc.woverflow.crashpatch.mcDir
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -19,7 +19,7 @@ object StacktraceDeobfuscator {
 
     init {
         if (srgMcpMethodMap == null) {
-            val mappings = File(McDirUtil.getMcDir(), "OneConfig/CrashPatch/mcp_stable_22.csv").also { it.parentFile.mkdirs() }
+            val mappings = File(mcDir, "OneConfig/CrashPatch/mcp_stable_22.csv").also { it.parentFile.mkdirs() }
             // Download the file if necessary
             if (!mappings.exists()) {
                 var connection: HttpURLConnection? = null

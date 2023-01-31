@@ -2,8 +2,8 @@ package cc.woverflow.crashpatch.crashes
 
 import cc.polyfrost.oneconfig.libs.universal.wrappers.message.UTextComponent
 import cc.polyfrost.oneconfig.utils.NetworkUtils
-import cc.woverflow.crashpatch.CrashPatch
-import cc.woverflow.crashpatch.hooks.McDirUtil
+import cc.woverflow.crashpatch.gameDir
+import cc.woverflow.crashpatch.mcDir
 import com.google.gson.JsonObject
 import java.io.File
 import kotlin.collections.set
@@ -43,10 +43,10 @@ object CrashHelper {
             }.map { map ->
                 CrashScan.Solution("${map.key} (${map.value.size})", map.value.map {
                     it.replace("%pathindicator%", "").replace(
-                        "%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(
+                        "%gameroot%", gameDir.absolutePath.removeSuffix(
                             File.separator
                         )
-                    ).replace("%profileroot%", File(McDirUtil.getMcDir(), "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
+                    ).replace("%profileroot%", File(mcDir, "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
                 }, true)
             }.toMutableList()).also { simpleCache[report] = it }
         } catch (e: Throwable) {
