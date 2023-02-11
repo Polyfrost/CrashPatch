@@ -7,8 +7,8 @@
 package cc.woverflow.crashpatch.mixin;
 
 import cc.woverflow.crashpatch.crashes.ModIdentifier;
-import cc.woverflow.crashpatch.crashes.StacktraceDeobfuscator;
 import cc.woverflow.crashpatch.hooks.CrashReportHook;
+import cc.woverflow.crashpatch.hooks.StacktraceDeobfuscator;
 import net.minecraft.crash.CrashReport;
 import net.minecraftforge.fml.common.ModContainer;
 import org.spongepowered.asm.mixin.Final;

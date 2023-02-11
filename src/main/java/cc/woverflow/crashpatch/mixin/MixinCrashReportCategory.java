@@ -1,6 +1,6 @@
 package cc.woverflow.crashpatch.mixin;
 
-import cc.woverflow.crashpatch.crashes.StacktraceDeobfuscator;
+import cc.woverflow.crashpatch.hooks.StacktraceDeobfuscator;
 import net.minecraft.crash.CrashReportCategory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

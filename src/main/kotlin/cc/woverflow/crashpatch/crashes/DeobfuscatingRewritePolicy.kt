@@ -1,6 +1,7 @@
 package cc.woverflow.crashpatch.crashes
 
 import cc.woverflow.crashpatch.config.CrashPatchConfig
+import cc.woverflow.crashpatch.hooks.StacktraceDeobfuscator
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.Logger
@@ -12,7 +13,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig
 class DeobfuscatingRewritePolicy : RewritePolicy {
     override fun rewrite(source: LogEvent): LogEvent {
         if (CrashPatchConfig.deobfuscateCrashLog) {
-            source.thrown?.let { StacktraceDeobfuscator.deobfuscateThrowable(it) }
+            source.thrown?.let { StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(it) }
         }
         return source
     }
