@@ -1,11 +1,10 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenCentral()
         maven("https://repo.polyfrost.cc/releases")
     }
     plugins {
-        val egtVersion = "0.1.23"
+        val egtVersion = "0.1.28"
         id("cc.polyfrost.multi-version.root") version egtVersion
     }
 }

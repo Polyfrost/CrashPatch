@@ -38,7 +38,7 @@ loom {
     noServerRunConfigs()
     if (project.platform.isLegacyForge) {
         launchConfigs.named("client") {
-            arg("--tweakClass", "cc.polyfrost.oneconfigwrapper.OneConfigWrapper")
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
             property("mixin.debug.export", "true")
             property("fml.coreMods.load", "cc.woverflow.crashpatch.hooks.ModsCheckerPlugin")
         }
@@ -67,7 +67,8 @@ repositories {
 
 dependencies {
     compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.0-alpha+")
-    shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-alpha+")
+    shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+    shade("com.github.aternosorg:mclogs-java:v2.2.0")
     compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
 
@@ -142,7 +143,7 @@ tasks {
                     "FMLCorePlugin" to "cc.woverflow.crashpatch.hooks.ModsCheckerPlugin",
                     "TweakOrder" to "0",
                     "MixinConfigs" to "mixin.${mod_id}.json",
-                    "TweakClass" to "cc.polyfrost.oneconfigwrapper.OneConfigWrapper"
+                    "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
                 )
             )
         }
