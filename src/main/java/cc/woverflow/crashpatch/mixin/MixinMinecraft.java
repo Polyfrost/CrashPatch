@@ -3,17 +3,16 @@ package cc.woverflow.crashpatch.mixin;
 import cc.polyfrost.oneconfig.events.EventManager;
 import cc.polyfrost.oneconfig.events.event.RenderEvent;
 import cc.polyfrost.oneconfig.events.event.Stage;
-import cc.polyfrost.oneconfig.utils.Notifications;
 import cc.polyfrost.oneconfig.utils.gui.GuiUtils;
 import cc.woverflow.crashpatch.config.CrashPatchConfig;
 import cc.woverflow.crashpatch.crashes.StateManager;
 import cc.woverflow.crashpatch.gui.CrashGui;
 import cc.woverflow.crashpatch.hooks.MinecraftHook;
-import cc.woverflow.crashpatch.utils.CrashReportPrinter;
 import cc.woverflow.crashpatch.utils.GuiDisconnectedHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -26,9 +25,13 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
+import net.minecraft.util.MinecraftError;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.SplashProgress;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -40,10 +43,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
 import java.util.Objects;
 
 @Mixin(value = Minecraft.class, priority = -9000)
@@ -86,8 +89,26 @@ public abstract class MixinMinecraft implements MinecraftHook {
     @Shadow
     public int displayHeight;
 
+    @Unique
+    private boolean crashpatch$letDie = false;
+
+    @Shadow
+    protected abstract void startGame() throws LWJGLException;
+
     @Shadow
     public abstract void displayGuiScreen(GuiScreen guiScreenIn);
+
+    @Shadow
+    public abstract CrashReport addGraphicsAndWorldToCrashReport(CrashReport theCrash);
+
+    @Shadow
+    protected abstract void runGameLoop();
+
+    @Shadow
+    public abstract void freeMemory();
+
+    @Shadow
+    public abstract void shutdownMinecraftApplet();
 
     @Shadow
     public abstract void refreshResources();
@@ -100,129 +121,90 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
     @Shadow private int leftClickCounter;
-
-    @Shadow public abstract void run();
-
     @Unique
     private int crashpatch$clientCrashCount = 0;
     @Unique
     private int crashpatch$serverCrashCount = 0;
     @Unique
-    private boolean recoveredFromCrash = false;
-    @Unique
-    private boolean crashpatch$letDie = false;
-
-    @Unique
-    private boolean crashpatch$bypassStartup = false;
+    private boolean crashpatch$recoveredFromCrash = false;
 
     @Override
     public boolean hasRecoveredFromCrash() {
-        return recoveredFromCrash;
+        return crashpatch$recoveredFromCrash;
     }
 
-    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 0))
-    public void displayInitErrorScreen(Minecraft instance, CrashReport crashReport) {
-        if (CrashPatchConfig.INSTANCE.getInitCrashPatch()) {
-            crashpatch$displayInitErrorScreen(crashReport);
-        } else {
-            displayCrashReport(crashReport);
-        }
-    }
-
-    @Inject(method = "run()V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;crashReporter:Lnet/minecraft/crash/CrashReport;"))
-    private void onRunLoop(CallbackInfo ci) {
-        if (!CrashPatchConfig.INSTANCE.getInGameCrashPatch()) return;
-        if (crashReporter != null) {
-            crashReporter = null;
-        }
-    }
-
-    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 1), index = 0)
-    private CrashReport saveFromCrash2(CrashReport crashReport) {
-        crashpatch$serverCrashCount++;
-        crashpatch$saveFromCrash(crashReport);
-        return crashReport;
-    }
-
-    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 2), index = 0)
-    private CrashReport saveFromCrash3(CrashReport crashReport) {
-        crashpatch$clientCrashCount++;
-        crashpatch$saveFromCrash(crashReport);
-        return crashReport;
-    }
-
-    @ModifyArg(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 3), index = 0)
-    private CrashReport saveFromCrash1(CrashReport crashReport) {
-        crashpatch$clientCrashCount++;
-        crashpatch$saveFromCrash(crashReport);
-        return crashReport;
-    }
-
-    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;freeMemory()V", ordinal = 1))
-    public void freeMemory(Minecraft instance) {
-        if (CrashPatchConfig.INSTANCE.getInGameCrashPatch()) return;
-        instance.freeMemory();
-    }
-
-    @Redirect(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;freeMemory()V", ordinal = 2))
-    public void freeMemory2(Minecraft instance) {
-        if (CrashPatchConfig.INSTANCE.getInGameCrashPatch()) return;
-        instance.freeMemory();
-    }
-
-    @Unique
-    private void crashpatch$saveFromCrash(CrashReport crashReport) {
-        if (!CrashPatchConfig.INSTANCE.getInGameCrashPatch()) return;
-        if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
-            logger.error("Crash limit reached, exiting");
-            displayCrashReport(crashReport);
-            return;
-        } else {
-            CrashReportPrinter.INSTANCE.displayCrashReport(crashReport);
-        }
-        crashpatch$addInfoToCrash(crashReport);
-        crashpatch$resetGameState();
-        crashpatch$displayCrashScreen(crashReport);
-        crashpatch$bypassStartup = true;
-        hasCrashed = false;
-        crashReporter = null;
-        run();
-    }
-
-    @Inject(method = "startGame", at = @At("HEAD"), cancellable = true)
-    private void crashpatch$onStartGame(CallbackInfo ci) {
-        if (crashpatch$bypassStartup) {
-            crashpatch$bypassStartup = false;
-            ci.cancel();
-        }
-    }
-
-    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 1), cancellable = true)
-    private void crashpatch$cancelCrash(CallbackInfo ci) {
-        if (!CrashPatchConfig.INSTANCE.getInGameCrashPatch()) return;
+    /**
+     * @author Runemoro
+     * @reason Overwrite Minecraft.run()
+     */
+    @Inject(method = "run", at = @At("HEAD"), cancellable = true)
+    public void run(CallbackInfo ci) {
         ci.cancel();
-    }
-
-    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 2), cancellable = true)
-    private void crashpatch$cancelCrash2(CallbackInfo ci) {
-        crashpatch$cancelCrash(ci);
-    }
-
-    @Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;displayCrashReport(Lnet/minecraft/crash/CrashReport;)V", ordinal = 3), cancellable = true)
-    private void crashpatch$cancelCrash3(CallbackInfo ci) {
-        crashpatch$cancelCrash(ci);
+        running = true;
+        try {
+            startGame();
+        } catch (Throwable throwable) {
+            CrashReport crashReport = CrashReport.makeCrashReport(throwable, "Initializing game");
+            crashReport.makeCategory("Initialization");
+            crashpatch$displayInitErrorScreen(addGraphicsAndWorldToCrashReport(crashReport));
+            return;
+        }
+        try {
+            while (running) {
+                if (!hasCrashed || crashReporter == null) {
+                    try {
+                        runGameLoop();
+                    } catch (ReportedException e) {
+                        crashpatch$clientCrashCount++;
+                        addGraphicsAndWorldToCrashReport(e.getCrashReport());
+                        crashpatch$addInfoToCrash(e.getCrashReport());
+                        crashpatch$resetGameState();
+                        logger.fatal("Reported exception thrown!", e);
+                        crashpatch$displayCrashScreen(e.getCrashReport());
+                    } catch (Throwable e) {
+                        crashpatch$clientCrashCount++;
+                        CrashReport report = new CrashReport("Unexpected error", e);
+                        addGraphicsAndWorldToCrashReport(report);
+                        crashpatch$addInfoToCrash(report);
+                        crashpatch$resetGameState();
+                        logger.fatal("Unreported exception thrown!", e);
+                        crashpatch$displayCrashScreen(report);
+                    }
+                } else {
+                    crashpatch$serverCrashCount++;
+                    crashpatch$addInfoToCrash(crashReporter);
+                    freeMemory();
+                    crashpatch$displayCrashScreen(crashReporter);
+                    hasCrashed = false;
+                    crashReporter = null;
+                }
+            }
+        } catch (MinecraftError ignored) {
+        } finally {
+            shutdownMinecraftApplet();
+        }
     }
 
     @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
-    private void crashpatch$onGUIDisplay(GuiScreen i, CallbackInfo ci) {
-        if (!CrashPatchConfig.INSTANCE.getDisconnectCrashPatch()) return;
+    private void onGUIDisplay(GuiScreen i, CallbackInfo ci) {
         GuiDisconnectedHook.INSTANCE.onGUIDisplay(i, ci);
     }
 
-    @Unique
-    private void crashpatch$displayCrashScreen(CrashReport report) {
-        recoveredFromCrash = true;
+    /**
+     * @author Runemoro
+     */
+    public void crashpatch$displayCrashScreen(CrashReport report) {
+        if (CrashPatchConfig.INSTANCE.getInGameCrashPatch()) {
+            crashpatch$letDie = true;
+        }
+        if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
+            logger.error("Crash limit reached, exiting");
+            crashpatch$letDie = true;
+        }
+        displayCrashReport(report);
+        crashpatch$recoveredFromCrash = true;
         try {
+
             // Reset hasCrashed, debugCrashKeyPressTime, and crashIntegratedServerNextTick
             hasCrashed = false;
             debugCrashKeyPressTime = -1;
@@ -243,14 +225,15 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
     }
 
-    @Unique
     private void crashpatch$addInfoToCrash(CrashReport crashReport) {
         crashReport.getCategory().addCrashSectionCallable("Client Crashes Since Restart", () -> String.valueOf(crashpatch$clientCrashCount));
         crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(crashpatch$serverCrashCount));
     }
 
-    @Unique
-    private void crashpatch$resetGameState() {
+    /**
+     * @author Runemoro
+     */
+    public void crashpatch$resetGameState() {
         try {
             // Free up memory such that this works properly in case of an OutOfMemoryError
             int originalMemoryReserveSize = -1;
@@ -296,10 +279,15 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
     }
 
-    @Unique
-    private void crashpatch$displayInitErrorScreen(CrashReport report) {
+    /**
+     * @author Runemoro
+     */
+    public void crashpatch$displayInitErrorScreen(CrashReport report) {
+        if (!CrashPatchConfig.INSTANCE.getInitCrashPatch()) {
+            crashpatch$letDie = true;
+        }
+        displayCrashReport(report);
         try {
-            CrashReportPrinter.INSTANCE.displayCrashReport(report);
             mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
             renderEngine = new TextureManager(mcResourceManager);
             mcResourceManager.registerReloadListener(renderEngine);
@@ -335,11 +323,12 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
             }
             displayCrashReport(report);
-            System.exit(report.getFile() != null ? -1 : -2);
         }
     }
 
-    @Unique
+    /**
+     * @author Runemoro
+     */
     private void crashpatch$runGUILoop(CrashGui screen) throws Throwable {
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
@@ -372,6 +361,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             int height = scaledResolution.getScaledHeight();
             int mouseX = Mouse.getX() * width / displayWidth;
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
+            Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
             currentScreen.drawScreen(mouseX, mouseY, 0);
             if (screen.getShouldCrash()) {
                 crashpatch$letDie = true;
@@ -391,6 +381,13 @@ public abstract class MixinMinecraft implements MinecraftHook {
             Thread.yield();
             Display.sync(60);
             checkGLError("CrashPatch GUI Loop");
+        }
+    }
+
+    @Redirect(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleExit(I)V"))
+    public void redirect(FMLCommonHandler instance, int code) {
+        if (crashpatch$letDie) {
+            instance.handleExit(code);
         }
     }
 
