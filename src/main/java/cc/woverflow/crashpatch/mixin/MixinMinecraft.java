@@ -321,6 +321,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
+                crashpatch$letDie = true;
             }
             displayCrashReport(report);
         }
