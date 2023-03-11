@@ -194,7 +194,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
      * @author Runemoro
      */
     public void crashpatch$displayCrashScreen(CrashReport report) {
-        if (CrashPatchConfig.INSTANCE.getInGameCrashPatch()) {
+        if (!CrashPatchConfig.INSTANCE.getInGameCrashPatch()) {
             crashpatch$letDie = true;
         }
         if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
