@@ -2,8 +2,9 @@ package cc.woverflow.crashpatch.utils
 
 import cc.woverflow.crashpatch.CrashPatch
 import cc.woverflow.crashpatch.config.CrashPatchConfig
-import gs.mclo.java.Log
-import gs.mclo.java.MclogsAPI
+import gs.mclo.api.APIException
+import gs.mclo.api.Log
+import gs.mclo.api.MclogsClient
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
@@ -54,13 +55,12 @@ object InternetUtils {
     }
 
     private fun uploadToMclogs(log: Log): String {
-        MclogsAPI.mcversion = "1.8.9"
-        MclogsAPI.userAgent = "CrashPatch"
-        MclogsAPI.version = CrashPatch.VERSION
-        val response = MclogsAPI.share(log)
-        return if (response.success) {
+        val mcLogs = MclogsClient("CrashPatch", CrashPatch.VERSION, "1.8.9")
+        return try {
+            val response = mcLogs.uploadLog(log)
             response.url
-        } else {
+        } catch (e: APIException) {
+            e.printStackTrace()
             "Failed to upload crash log to mclo.gs"
         }
     }

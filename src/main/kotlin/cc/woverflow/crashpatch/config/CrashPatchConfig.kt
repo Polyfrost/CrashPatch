@@ -63,7 +63,7 @@ object CrashPatchConfig : Config(Mod("CrashPatch", ModType.UTIL_QOL, "/assets/cr
     @Dropdown(
         name = "Log uploader",
         description = "The method used to upload the crash log.",
-        options = ["hst.sh (Default)", "mclo.gs (Aternos)"],
+        options = ["hst.sh", "mclo.gs (Aternos)"],
         subcategory = "Logs"
     )
     var crashLogUploadMethod = 0
@@ -72,8 +72,7 @@ object CrashPatchConfig : Config(Mod("CrashPatch", ModType.UTIL_QOL, "/assets/cr
         name = "Polyfrost support",
         text = "Discord"
     )
-    var supportDiscord: Runnable? =
-        Runnable { browse(URI.create("https://www.polyfrost.cc/discord/")) }
+    var supportDiscord = Runnable { browse(URI.create("https://polyfrost.cc/discord/")) }
 
     init {
         initialize()
