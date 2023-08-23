@@ -154,11 +154,14 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
 
     private String getStringOf(Collection<ArrayList<Triple<File, String, String>>> dupes) {
         StringBuilder builder = new StringBuilder();
+        int index = 0;
         for (ArrayList<Triple<File, String, String>> list : dupes) {
+            ++index;
             builder.append("\n");
             for (Triple<File, String, String> triple : list) {
                 builder.append(" ").append(triple.first.getAbsolutePath());
             }
+            if (index != dupes.size()) builder.append("\nAND");
         }
         return builder.toString().trim();
     }
