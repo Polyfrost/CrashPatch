@@ -35,13 +35,21 @@ object CrashPatchConfig : Config(Mod("CrashPatch", ModType.UTIL_QOL, "/assets/cr
 
     // Limits
     @Info(
-        text = "It's recommended to restart your game after every few crashes, to avoid severe instability",
+        text = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
         type = InfoType.WARNING,
         size = 2,
         subcategory = "Limits"
     )
     var ignored: Boolean = false
 
+    @Slider(
+        name = "World Leave Limit",
+        min = 1f,
+        max = 20f,
+        step = 1,
+        subcategory = "Limits"
+    )
+    var leaveLimit = 3
 
     @Slider(
         name = "Crash Limit",

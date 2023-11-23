@@ -4,6 +4,10 @@ import cc.polyfrost.oneconfig.events.EventManager;
 import cc.polyfrost.oneconfig.events.event.RenderEvent;
 import cc.polyfrost.oneconfig.events.event.Stage;
 import cc.polyfrost.oneconfig.utils.gui.GuiUtils;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.util.ChatComponentText;
 import org.polyfrost.crashpatch.config.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashGui;
@@ -48,6 +52,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.FutureTask;
 
 @Mixin(value = Minecraft.class, priority = -9000)
 public abstract class MixinMinecraft implements MinecraftHook {
@@ -121,6 +127,13 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Shadow public abstract void displayCrashReport(CrashReport crashReportIn);
     @Shadow private int leftClickCounter;
+
+    @Shadow public abstract NetHandlerPlayClient getNetHandler();
+
+    @Shadow public abstract void loadWorld(WorldClient worldClientIn);
+
+    @Shadow public EntityRenderer entityRenderer;
+    @Shadow @Final private Queue<FutureTask<?>> scheduledTasks;
     @Unique
     private int crashpatch$clientCrashCount = 0;
     @Unique
@@ -198,7 +211,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             crashpatch$letDie = true;
         }
         if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
-            logger.error("Crash limit reached, exiting");
+            logger.error("Crash limit reached, exiting game");
             crashpatch$letDie = true;
         }
         displayCrashReport(report);
@@ -208,7 +221,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
             // Reset hasCrashed, debugCrashKeyPressTime, and crashIntegratedServerNextTick
             hasCrashed = false;
             debugCrashKeyPressTime = -1;
-//            crashIntegratedServerNextTick = false;
 
             // Vanilla does this when switching to main menu but not our custom crash screen
             // nor the out of memory screen (see https://bugs.mojang.com/browse/MC-128953)
@@ -247,20 +259,21 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             StateManager.INSTANCE.resetStates();
 
-            /*/
-            if (getNetHandler() != null) {
-                getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
+            if (crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit()) {
+                logger.error("Crash limit reached, exiting world");
+                CrashGui.Companion.setLeaveWorldCrash$CrashPatch_1_8_9_forge(true);
+                if (getNetHandler() != null) {
+                    getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
+                }
+                loadWorld(null);
+
+                if (entityRenderer.isShaderActive()) {
+                    entityRenderer.stopUseShader();
+                }
+
+                scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
             }
-            loadWorld(null);
 
-            if (entityRenderer.isShaderActive()) {
-                entityRenderer.stopUseShader();
-            }
-
-            scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
-
-
-             */
             crashpatch$resetState();
 
             if (originalMemoryReserveSize != -1) {

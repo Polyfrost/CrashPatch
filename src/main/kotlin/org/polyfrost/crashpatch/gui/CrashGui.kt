@@ -7,8 +7,10 @@ import cc.polyfrost.oneconfig.gui.animations.EaseInOutQuad
 import cc.polyfrost.oneconfig.gui.animations.EaseOutQuad
 import cc.polyfrost.oneconfig.gui.elements.BasicButton
 import cc.polyfrost.oneconfig.libs.universal.UDesktop
+import cc.polyfrost.oneconfig.libs.universal.UMatrixStack
 import cc.polyfrost.oneconfig.libs.universal.UResolution.windowHeight
 import cc.polyfrost.oneconfig.libs.universal.UResolution.windowWidth
+import cc.polyfrost.oneconfig.libs.universal.UScreen
 import cc.polyfrost.oneconfig.platform.Platform
 import cc.polyfrost.oneconfig.renderer.NanoVGHelper
 import cc.polyfrost.oneconfig.renderer.asset.Icon
@@ -23,13 +25,12 @@ import cc.polyfrost.oneconfig.utils.Notifications
 import cc.polyfrost.oneconfig.utils.color.ColorPalette
 import cc.polyfrost.oneconfig.utils.color.ColorUtils
 import cc.polyfrost.oneconfig.utils.dsl.*
-import cc.polyfrost.oneconfig.utils.gui.OneUIScreen
+import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.crashpatch.utils.InternetUtils
-import net.minecraft.crash.CrashReport
 import java.io.File
 import java.net.URI
 
@@ -39,7 +40,7 @@ class CrashGui @JvmOverloads constructor(
     private val susThing: String,
     private val type: GuiType = GuiType.NORMAL,
     val throwable: Throwable? = null
-) : OneUIScreen() {
+) : UScreen(false) {
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
         report.completeReport,
@@ -171,7 +172,22 @@ class CrashGui @JvmOverloads constructor(
 
     private var vg = -1L
 
-    override fun draw(vg: Long, partialTicks: Float, inputHandler: InputHandler) {
+    private val inputHandler = InputHandler()
+
+    override fun onDrawScreen(matrixStack: UMatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+        super.onDrawScreen(matrixStack, mouseX, mouseY, partialTicks)
+        if (mc.theWorld == null && leaveWorldCrash) {
+            drawDefaultBackground()
+        }
+        NanoVGHelper.INSTANCE.setupAndDraw { draw(it, inputHandler) }
+    }
+
+    override fun onScreenClose() {
+        super.onScreenClose()
+        leaveWorldCrash = false
+    }
+
+    fun draw(vg: Long, inputHandler: InputHandler) {
         this.vg = vg
         nanoVG(vg) {
             FontHelper.INSTANCE.loadFont(vg, JETBRAINS_MONO)
@@ -430,5 +446,9 @@ class CrashGui @JvmOverloads constructor(
 
     enum class GuiType {
         INIT, NORMAL, DISCONNECT
+    }
+
+    companion object {
+        internal var leaveWorldCrash = false
     }
 }
