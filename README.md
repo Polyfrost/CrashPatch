@@ -1,7 +1,8 @@
 # CrashPatch
 
 <a href="https://github.com/W-OVERFLOW/CrashPatch/releases" target="_blank"></a>
-<img alt="downloads" src="https://img.shields.io/github/downloads/W-OVERFLOW/CrashPatch/total?color=F5C400&style=for-the-badge" /> <img alt="downloads latest" src="https://img.shields.io/github/downloads-pre/W-OVERFLOW/CrashPatch/latest/total?color=F5C400&style=for-the-badge"/> ![OneConfig Supported](https://i.imgur.com/pFqMYWp.png)
+<img alt="downloads" src="https://img.shields.io/github/downloads/W-OVERFLOW/CrashPatch/total?color=F5C400&style=for-the-badge" /> 
+![Compact Powered by OneConfig](https://polyfrost.org/img/compact_vector.svg)
 ![Dev Workflow Status](https://img.shields.io/github/v/release/Polyfrost/CrashPatch.svg?style=for-the-badge&color=1452cc&label=release)
 
 ### Stop crashes from closing your game!
