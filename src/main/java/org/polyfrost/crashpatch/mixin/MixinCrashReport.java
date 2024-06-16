@@ -33,7 +33,7 @@ public class MixinCrashReport implements CrashReportHook {
     @Inject(method = "populateEnvironment", at = @At("TAIL"))
     private void afterPopulateEnvironment(CallbackInfo ci) {
         ModContainer susMod = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
-        crashpatch$suspectedMod = (susMod == null ? "None" : susMod.getName());
+        crashpatch$suspectedMod = (susMod == null ? "Unknown" : susMod.getName());
     }
 
     @Inject(method = "populateEnvironment", at = @At("HEAD"))
