@@ -1,8 +1,6 @@
 # CrashPatch
 
 ![Compact Powered by OneConfig](https://polyfrost.org/img/compact_vector.svg)
-<a href="https://github.com/Polyfrost/CrashPatch/releases" target="_blank"></a>
-<img alt="downloads" src="https://img.shields.io/github/downloads/Polyfrost/CrashPatch/total?color=F5C400&style=for-the-badge" /> 
 ![Dev Workflow Status](https://img.shields.io/github/v/release/Polyfrost/CrashPatch.svg?style=for-the-badge&color=1452cc&label=release)
 
 ### Stop crashes from closing your game!
