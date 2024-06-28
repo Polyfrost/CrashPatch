@@ -1,12 +1,19 @@
 package org.polyfrost.crashpatch.hooks;
 
+import cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.MalformedJsonException;
+import net.minecraft.launchwrapper.ITweaker;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraftforge.fml.relauncher.CoreModManager;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.launch.MixinTweaker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,107 +22,156 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ModsCheckerPlugin implements IFMLLoadingPlugin {
+public class ModsCheckerPlugin extends LaunchWrapperTweaker {
     private static final JsonParser PARSER = new JsonParser();
     public static final HashMap<String, Triple<File, String, String>> modsMap = new HashMap<>(); //modid : file, version, name
 
-    public ModsCheckerPlugin() {
-        File modsFolder = new File(getMcDir(), "mods");
-        File[] modFolder = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
-        HashMap<String, ArrayList<Triple<File, String, String>>> dupeMap = new HashMap<>();
-        if (modFolder != null) {
-            for (File file : modFolder) {
-                try {
-                    try (ZipFile mod = new ZipFile(file)) {
-                        ZipEntry entry = mod.getEntry("mcmod.info");
-                        if (entry != null) {
-                            try (InputStream inputStream = mod.getInputStream(entry)) {
-                                byte[] availableBytes = new byte[inputStream.available()];
-                                inputStream.read(availableBytes, 0, inputStream.available());
-                                JsonObject modInfo = PARSER.parse(new String(availableBytes)).getAsJsonArray().get(0).getAsJsonObject();
-                                if (!modInfo.has("modid") || !modInfo.has("version")) {
-                                    continue;
-                                }
-
-                                String modid = modInfo.get("modid").getAsString();
-                                if (modsMap.containsKey(modid)) {
-                                    if (dupeMap.containsKey(modid)) {
-                                        dupeMap.get(modid).add(new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid));
-                                    } else {
-                                        dupeMap.put(modid, Lists.newArrayList(modsMap.get(modid), new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid)));
+    @Override
+    public void injectIntoClassLoader(LaunchClassLoader classLoader) {
+        try {
+            File modsFolder = new File(getMcDir(), "mods");
+            File[] modFolder = modsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+            HashMap<String, ArrayList<Triple<File, String, String>>> dupeMap = new HashMap<>();
+            if (modFolder != null) {
+                for (File file : modFolder) {
+                    try {
+                        try (ZipFile mod = new ZipFile(file)) {
+                            ZipEntry entry = mod.getEntry("mcmod.info");
+                            if (entry != null) {
+                                try (InputStream inputStream = mod.getInputStream(entry)) {
+                                    byte[] availableBytes = new byte[inputStream.available()];
+                                    inputStream.read(availableBytes, 0, inputStream.available());
+                                    JsonObject modInfo = PARSER.parse(new String(availableBytes)).getAsJsonArray().get(0).getAsJsonObject();
+                                    if (!modInfo.has("modid") || !modInfo.has("version")) {
+                                        continue;
                                     }
-                                } else {
-                                    modsMap.put(modid, new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid));
+
+                                    String modid = modInfo.get("modid").getAsString();
+                                    if (modsMap.containsKey(modid)) {
+                                        if (dupeMap.containsKey(modid)) {
+                                            dupeMap.get(modid).add(new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid));
+                                        } else {
+                                            dupeMap.put(modid, Lists.newArrayList(modsMap.get(modid), new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid)));
+                                        }
+                                    } else {
+                                        modsMap.put(modid, new Triple<>(file, modInfo.get("version").getAsString(), modInfo.has("name") ? modInfo.get("name").getAsString() : modid));
+                                    }
                                 }
                             }
                         }
+                    } catch (MalformedJsonException | IllegalStateException ignored) {
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (MalformedJsonException | IllegalStateException ignored) {
+                }
+            }
+
+            Iterator<ArrayList<Triple<File, String, String>>> iterator = dupeMap.values().iterator();
+
+            boolean isSkyClient = new File(getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore");
+            while (iterator.hasNext()) {
+                try {
+                    ArrayList<Triple<File, String, String>> next = iterator.next();
+                    List<Triple<File, String, String>> blank = next.stream().sorted((a, b) -> {
+                        if (a != null && b != null) {
+                            try {
+                                int value = new DefaultArtifactVersion(substringBeforeAny(a.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")).compareTo(new DefaultArtifactVersion(substringBeforeAny(b.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")));
+                                return -value;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return Long.compare(a.first.lastModified(), b.first.lastModified()) * -1;
+                            }
+                        }
+                        return 0;
+                    }).collect(Collectors.toList());
+                    next.clear();
+                    next.addAll(blank);
+                    ListIterator<Triple<File, String, String>> otherIterator = next.listIterator();
+                    int index = 0;
+                    while (otherIterator.hasNext()) {
+                        Triple<File, String, String> remove = otherIterator.next();
+                        ++index;
+                        if (index != 1) {
+                            if (tryDeleting(remove.first)) {
+                                otherIterator.remove();
+                            } else {
+                                doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
+                                        getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + (isSkyClient ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+                            }
+                        }
+                    }
+                    if (next.size() <= 1) {
+                        iterator.remove();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
+
+            if (!dupeMap.isEmpty()) {
+                doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
+                        getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + (isSkyClient ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        Iterator<ArrayList<Triple<File, String, String>>> iterator = dupeMap.values().iterator();
-
-        while (iterator.hasNext()) {
+        CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
+        if (codeSource != null) {
+            URL location = codeSource.getLocation();
             try {
-                ArrayList<Triple<File, String, String>> next = iterator.next();
-                List<Triple<File, String, String>> blank = next.stream().sorted((a, b) -> {
-                    if (a != null && b != null) {
+                File file = new File(location.toURI());
+                if (file.isFile()) {
+                    CoreModManager.getIgnoredMods().remove(file.getName());
+                    CoreModManager.getReparseableCoremods().add(file.getName());
+                    try {
                         try {
-                            int value = new DefaultArtifactVersion(substringBeforeAny(a.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")).compareTo(new DefaultArtifactVersion(substringBeforeAny(b.second, "-beta", "-alpha", "-pre", "+beta", "+alpha", "+pre")));
-                            return -value;
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            List<String> tweakClasses = (List<String>) Launch.blackboard.get("TweakClasses"); // tweak classes before other mod trolling
+                            if (tweakClasses.contains("org.spongepowered.asm.launch.MixinTweaker")) { // if there's already a mixin tweaker, we'll just load it like "usual"
+                                new MixinTweaker(); // also we might not need to make a new mixin tweawker all the time but im just making sure
+                            } else if (!Launch.blackboard.containsKey("mixin.initialised")) { // if there isnt, we do our own trolling
+                                List<ITweaker> tweaks = (List<ITweaker>) Launch.blackboard.get("Tweaks");
+                                tweaks.add(new MixinTweaker());
+                            }
+                        } catch (Exception ignored) {
+                            // if it fails i *think* we can just ignore it
+                        }
+                        try {
+                            MixinBootstrap.getPlatform().addContainer(location.toURI());
+                        } catch (Exception ignore) {
+                            // fuck you essential
                             try {
-                                String[] array = {a.second, b.second};
-                                Arrays.sort(array);
-                                return array[0].equals(a.second) ? -1 : Objects.equals(a.second, b.second) ? 0 : 1;
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                return 0;
+                                Class<?> containerClass = Class.forName("org.spongepowered.asm.launch.platform.container.IContainerHandle");
+                                Class<?> urlContainerClass = Class.forName("org.spongepowered.asm.launch.platform.container.ContainerHandleURI");
+                                Object container = urlContainerClass.getConstructor(URI.class).newInstance(location.toURI());
+                                MixinBootstrap.getPlatform().getClass().getDeclaredMethod("addContainer", containerClass).invoke(MixinBootstrap.getPlatform(), container);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                throw new RuntimeException("OneConfig's Mixin loading failed. Please contact https://polyfrost.cc/discord to resolve this issue!");
                             }
                         }
-                    }
-                    return 0;
-                }).collect(Collectors.toList());
-                next.clear();
-                next.addAll(blank);
-                ListIterator<Triple<File, String, String>> otherIterator = next.listIterator();
-                int index = 0;
-                while (otherIterator.hasNext()) {
-                    Triple<File, String, String> remove = otherIterator.next();
-                    ++index;
-                    if (index != 1) {
-                        if (tryDeleting(remove.first)) {
-                            otherIterator.remove();
-                        } else {
-                            doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
-                        }
+                    } catch (Exception ignored) {
+
                     }
                 }
-                if (next.size() <= 1) {
-                    iterator.remove();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (URISyntaxException ignored) {}
+        } else {
+            LogManager.getLogger().warn("No CodeSource, if this is not a development environment we might run into problems!");
+            LogManager.getLogger().warn(this.getClass().getProtectionDomain());
         }
 
-
-        if (!dupeMap.isEmpty()) {
-            doThatPopupThing(modsFolder, "Duplicate mods have been detected! These mods are...\n" +
-                    getStringOf(dupeMap.values()) + "\nPlease removes these mods from your mod folder, which is opened." + ((new File(getMcDir(), "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || containsAnyKey(ModsCheckerPlugin.modsMap, "skyclientcosmetics", "scc", "skyclientaddons", "skyblockclientupdater", "skyclientupdater", "skyclientcore")) ? " GO TO https://inv.wtf/skyclient FOR MORE INFORMATION." : ""));
-        }
+        super.injectIntoClassLoader(classLoader);
     }
 
     private static void doThatPopupThing(File modsFolder, String message) {
@@ -186,31 +242,6 @@ public class ModsCheckerPlugin implements IFMLLoadingPlugin {
             }
         }
         return true;
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[0];
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return null;
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> map) {
-
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
     }
 
     public static class Triple<A, B, C> {

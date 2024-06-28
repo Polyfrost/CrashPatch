@@ -12,7 +12,7 @@ plugins {
     id("org.polyfrost.defaults.java")
     id("org.polyfrost.defaults.loom")
     id("com.github.johnrengelman.shadow")
-    id("net.kyori.blossom") version "1.3.1"
+    id("net.kyori.blossom") version "1.3.2"
     id("signing")
     java
 }
@@ -22,11 +22,6 @@ val mod_name: String by project
 val mod_version: String by project
 val mod_id: String by project
 val mod_archives_name: String by project
-
-// Sets up the variables for when we preprocess to other Minecraft versions.
-preprocess {
-    vars.put("MODERN", if (project.platform.mcMinor >= 16) 1 else 0)
-}
 
 // Replaces the variables in `ExampleMod.java` to the ones specified in `gradle.properties`.
 blossom {
@@ -57,8 +52,8 @@ loom {
     if (project.platform.isLegacyForge) {
         runConfigs {
             "client" {
-                programArgs("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-                property("fml.coreMods.load", "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin")
+                programArgs("--tweakClass", "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin")
+                //property("fml.coreMods.load", "")
                 property("mixin.debug.export", "true")
             }
         }
@@ -93,14 +88,14 @@ repositories {
 // Configures the libraries/dependencies for your mod.
 dependencies {
     // Adds the OneConfig library, so we can develop with it.
-    modCompileOnly("cc.polyfrost:oneconfig-$platform:0.2.1-alpha+")
+    modCompileOnly("cc.polyfrost:oneconfig-$platform:0.2.2-alpha+")
 
-    modRuntimeOnly("me.djtheredstoner:DevAuth-${if (platform.isFabric) "fabric" else if (platform.isLegacyForge) "forge-legacy" else "forge-latest"}:1.1.2")
-    shade("com.github.aternosorg:mclogs-java:3.0.1")
+    modRuntimeOnly("me.djtheredstoner:DevAuth-${if (platform.isFabric) "fabric" else if (platform.isLegacyForge) "forge-legacy" else "forge-latest"}:1.2.0")
+    shade("gs.mclo:api:3.0.1")
     // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
     if (platform.isLegacyForge) {
         compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-        shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+        shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
     }
 }
 
@@ -183,11 +178,9 @@ tasks {
             manifest.attributes += mapOf(
                 "ModSide" to "CLIENT", // We aren't developing a server-side mod, so this is fine.
                 "ForceLoadAsMod" to true, // We want to load this jar as a mod, so we force Forge to do so.
-                "FMLCorePluginContainsFMLMod" to "Yes, yes it does",
-                "FMLCorePlugin" to "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin",
                 "TweakOrder" to "0", // Makes sure that the OneConfig launch wrapper is loaded as soon as possible.
                 "MixinConfigs" to "mixin.${mod_id}.json", // We want to use our mixin configuration, so we specify it here.
-                "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker" // Loads the OneConfig launch wrapper.
+                "TweakClass" to "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin" // Loads the OneConfig launch wrapper.
             )
         }
         dependsOn(shadowJar)
