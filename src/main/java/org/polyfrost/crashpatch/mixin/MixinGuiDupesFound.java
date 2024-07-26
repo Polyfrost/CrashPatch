@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
-import cc.polyfrost.oneconfig.libs.universal.UDesktop;
+import org.polyfrost.universal.UDesktop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;

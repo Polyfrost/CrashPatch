@@ -14,7 +14,7 @@ import javax.net.ssl.HttpsURLConnection
 
 
 object InternetUtils {
-    private val sessionIdRegex = Regex("((Session ID is|--accessToken|Your new API key is) (?:\\S+))")
+    private val sessionIdRegex = Regex("((Session ID is|--accessToken|Your new API key is) (\\S+))")
     fun upload(text: String): String {
         val log = Log(text.replace(sessionIdRegex, "[SENSITIVE INFORMATION]"))
         return when (CrashPatchConfig.crashLogUploadMethod) {

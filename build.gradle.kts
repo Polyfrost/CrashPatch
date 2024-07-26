@@ -53,6 +53,8 @@ loom {
         runConfigs {
             "client" {
                 programArgs("--tweakClass", "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin")
+                programArgs("--tweakClass", "org.polyfrost.oneconfig.internal.legacy.OneConfigTweaker")
+                programArgs("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
                 //property("fml.coreMods.load", "")
                 property("mixin.debug.export", "true")
             }
@@ -83,19 +85,25 @@ sourceSets {
 // Adds the Polyfrost maven repository so that we can get the libraries necessary to develop the mod.
 repositories {
     maven("https://repo.polyfrost.org/releases")
+    maven("https://repo.polyfrost.org/snapshots")
 }
 
 // Configures the libraries/dependencies for your mod.
 dependencies {
     // Adds the OneConfig library, so we can develop with it.
-    modCompileOnly("cc.polyfrost:oneconfig-$platform:0.2.2-alpha+")
+    val oneconfig = "1.0.0-alpha.19"
+    implementation("org.polyfrost.oneconfig:config-impl:$oneconfig")
+    implementation("org.polyfrost.oneconfig:commands:$oneconfig")
+    implementation("org.polyfrost.oneconfig:events:$oneconfig")
+    implementation("org.polyfrost.oneconfig:ui:$oneconfig")
+    implementation("org.polyfrost.oneconfig:internal:$oneconfig")
+    modImplementation("org.polyfrost.oneconfig:$platform:$oneconfig")
 
     modRuntimeOnly("me.djtheredstoner:DevAuth-${if (platform.isFabric) "fabric" else if (platform.isLegacyForge) "forge-legacy" else "forge-latest"}:1.2.0")
     shade("gs.mclo:api:3.0.1")
     // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
     if (platform.isLegacyForge) {
         compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-        shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
     }
 }
 

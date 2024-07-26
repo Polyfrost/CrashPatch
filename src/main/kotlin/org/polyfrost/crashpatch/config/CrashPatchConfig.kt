@@ -1,75 +1,71 @@
 package org.polyfrost.crashpatch.config
 
-import cc.polyfrost.oneconfig.config.Config
-import cc.polyfrost.oneconfig.config.annotations.*
-import cc.polyfrost.oneconfig.config.data.InfoType
-import cc.polyfrost.oneconfig.config.data.Mod
-import cc.polyfrost.oneconfig.config.data.ModType
-import cc.polyfrost.oneconfig.libs.universal.UDesktop.browse
+import org.polyfrost.oneconfig.api.config.v1.Config
+import org.polyfrost.oneconfig.api.config.v1.annotations.*
+import org.polyfrost.universal.UDesktop.browse
 import java.net.URI
 
 
-object CrashPatchConfig : Config(Mod("CrashPatch", ModType.UTIL_QOL, "/assets/crashpatch/crashpatch_dark.svg"), "crashpatch.json") {
+object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpatch_dark.svg", "CrashPatch", Category.QOL) {
 
     // Toggles
     @Switch(
-        name = "Catch crashes during gameplay",
+        title = "Catch crashes during gameplay",
         description = "Catch crashes whilst in-game, and prevent the game from closing",
         subcategory = "Patches"
     )
     var inGameCrashPatch = true
 
     @Switch(
-        name = "Patch crashes during launch",
+        title = "Patch crashes during launch",
         description = "Catch crashes during initialization, & display a message.",
         subcategory = "Patches"
     )
     var initCrashPatch = true
 
     @Switch(
-        name = "Display disconnection causes",
+        title = "Display disconnection causes",
         description = "Display a message when a reason is found for a disconnect.",
         subcategory = "Patches"
     )
     var disconnectCrashPatch = true
 
     // Limits
-    @Info(
-        text = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
-        type = InfoType.WARNING,
-        size = 2,
-        subcategory = "Limits"
-    )
-    var ignored: Boolean = false
+    //@Info( // todo
+    //    text = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
+    //    type = InfoType.WARNING,
+    //    size = 2,
+    //    subcategory = "Limits"
+    //)
+    //var ignored: Boolean = false
 
     @Slider(
-        name = "World Leave Limit",
+        title = "World Leave Limit",
         min = 1f,
         max = 20f,
-        step = 1,
+        step = 1F,
         subcategory = "Limits"
     )
     var leaveLimit = 3
 
     @Slider(
-        name = "Crash Limit",
+        title = "Crash Limit",
         min = 1f,
         max = 20f,
-        step = 1,
+        step = 1F,
         subcategory = "Limits"
     )
     var crashLimit = 5
 
     @Switch(
-        name = "Deobfuscate Crash Log",
+        title = "Deobfuscate Crash Log",
         description = "Makes certain class names more readable through deobfuscation",
-        size = 2,
         subcategory = "Logs"
     )
     var deobfuscateCrashLog = true
 
     @Dropdown(
-        name = "Log uploader",
+        title = "Log uploader",
         description = "The method used to upload the crash log.",
         options = ["hst.sh", "mclo.gs (Aternos)"],
         subcategory = "Logs"
@@ -77,12 +73,14 @@ object CrashPatchConfig : Config(Mod("CrashPatch", ModType.UTIL_QOL, "/assets/cr
     var crashLogUploadMethod = 0
 
     @Button(
-        name = "Polyfrost support",
+        title = "Polyfrost support",
         text = "Discord"
     )
     var supportDiscord = Runnable { browse(URI.create("https://polyfrost.cc/discord/")) }
 
-    init {
-        initialize()
-    }
+    @Button(
+        title = "Crash game",
+        text = "Crash"
+    )
+    var crashGame = Runnable { throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules") }
 }

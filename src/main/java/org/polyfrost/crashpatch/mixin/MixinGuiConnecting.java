@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.mixin;
 
-import cc.polyfrost.oneconfig.libs.universal.ChatColor;
-import cc.polyfrost.oneconfig.libs.universal.UDesktop;
+import org.polyfrost.universal.ChatColor;
+import org.polyfrost.universal.UDesktop;
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import net.minecraft.client.Minecraft;

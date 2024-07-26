@@ -1,20 +1,19 @@
 package org.polyfrost.crashpatch.gui
 
-import cc.polyfrost.oneconfig.renderer.font.Font
-import cc.polyfrost.oneconfig.utils.color.ColorUtils
+import org.polyfrost.polyui.utils.rgba
 
-internal val GRAY_800 = ColorUtils.getColor(21, 22, 23, 255) // general background
-internal val GRAY_700 = ColorUtils.getColor(34, 35, 38, 255) // log background
-internal val GRAY_600 = ColorUtils.getColor(42, 44, 48, 255) // log header
+internal val GRAY_800 = rgba(21, 22, 23, 1f) // general background
+internal val GRAY_700 = rgba(34, 35, 38, 1f) // log background
+internal val GRAY_600 = rgba(42, 44, 48, 1f) // log header
 
-internal val WHITE_90 = ColorUtils.getColor(255, 255, 255, 229) // text
-internal val WHITE_80 = ColorUtils.getColor(255, 255, 255, 204) // subtext
-internal val WHITE_60 = ColorUtils.getColor(255, 255, 255, 153) // logs
+internal val WHITE_90 = rgba(255, 255, 255, 229 / 255f) // text
+internal val WHITE_80 = rgba(255, 255, 255, 204 / 255f) // subtext
+internal val WHITE_60 = rgba(255, 255, 255, 153 / 255f) // logs
 
-internal val BLUE_400 = ColorUtils.getColor(77, 135, 229) // yeah
-internal val BLUE_600 = ColorUtils.getColor(20, 82, 204, 255) // brand.hover
+internal val BLUE_400 = rgba(77, 135, 229) // yeah
+internal val BLUE_600 = rgba(20, 82, 204, 1F) // brand.hover
 
-internal val HYPERLINK_BLUE = ColorUtils.getColor(48, 129, 242)
+internal val HYPERLINK_BLUE = rgba(48, 129, 242)
 
 internal val TITLE = "Uh-oh. Your game crashed!"
 internal val DISCONNECTED_TITLE = "Uh-oh. You were disconnected from the server!"
@@ -34,5 +33,3 @@ internal val OPEN_CRASH_LOG = "Crash log"
 
 internal val SKYCLIENT_DISCORD = "https://inv.wtf/skyclient"
 internal val POLYFROST_DISCORD = "https://polyfrost.cc/discord"
-
-internal val JETBRAINS_MONO = Font("jetbrains-mono-regular", "/assets/crashpatch/fonts/JetBrainsMono-Regular.ttf")

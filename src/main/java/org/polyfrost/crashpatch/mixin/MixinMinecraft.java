@@ -1,24 +1,14 @@
 package org.polyfrost.crashpatch.mixin;
 
-import cc.polyfrost.oneconfig.events.EventManager;
-import cc.polyfrost.oneconfig.events.event.RenderEvent;
-import cc.polyfrost.oneconfig.events.event.Stage;
-import cc.polyfrost.oneconfig.utils.gui.GuiUtils;
-import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.util.ChatComponentText;
-import org.polyfrost.crashpatch.config.CrashPatchConfig;
-import org.polyfrost.crashpatch.crashes.StateManager;
-import org.polyfrost.crashpatch.gui.CrashGui;
-import org.polyfrost.crashpatch.hooks.MinecraftHook;
-import org.polyfrost.crashpatch.utils.GuiDisconnectedHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -29,6 +19,7 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.crash.CrashReport;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MinecraftError;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
@@ -41,6 +32,11 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.polyfrost.crashpatch.config.CrashPatchConfig;
+import org.polyfrost.crashpatch.crashes.StateManager;
+import org.polyfrost.crashpatch.gui.CrashGuiRewrite;
+import org.polyfrost.crashpatch.hooks.MinecraftHook;
+import org.polyfrost.crashpatch.utils.GuiDisconnectedHook;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -228,7 +224,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             // Display the crash screen
 //            crashpatch$runGUILoop(new GuiCrashScreen(report));
-            displayGuiScreen(new CrashGui(report));
+            displayGuiScreen(new CrashGuiRewrite(report).create());
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
@@ -261,7 +257,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             if (crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit()) {
                 logger.error("Crash limit reached, exiting world");
-                CrashGui.Companion.setLeaveWorldCrash$CrashPatch_1_8_9_forge(true);
+                CrashGuiRewrite.Companion.setLeaveWorldCrash(true);
                 if (getNetHandler() != null) {
                     getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
                 }
@@ -315,12 +311,13 @@ public abstract class MixinMinecraft implements MinecraftHook {
             mcSoundHandler = new SoundHandler(mcResourceManager, gameSettings);
             mcResourceManager.registerReloadListener(mcSoundHandler);
 
-            try { // this is necessary for some GUI stuff. if it works, cool, if not, it's not a big deal
-                //EventManager.INSTANCE.register(Notifications.INSTANCE);
-                GuiUtils.getDeltaTime(); // make sure static initialization is called
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            //try { // this is necessary for some GUI stuff. if it works, cool, if not, it's not a big deal
+            //    //EventManager.INSTANCE.register(Notifications.INSTANCE);
+            //    GuiUtils.getDeltaTime(); // make sure static initialization is called
+            //} catch (Exception e) {
+            //    e.printStackTrace();
+            //}
+            //todo do we need a polyui equivalent
 
             running = true;
             try {
@@ -330,7 +327,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            crashpatch$runGUILoop(new CrashGui(report, CrashGui.GuiType.INIT));
+            crashpatch$runGUILoop(new CrashGuiRewrite(report, CrashGuiRewrite.GuiType.INIT));
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
@@ -343,13 +340,14 @@ public abstract class MixinMinecraft implements MinecraftHook {
     /**
      * @author Runemoro
      */
-    private void crashpatch$runGUILoop(CrashGui screen) throws Throwable {
+    private void crashpatch$runGUILoop(CrashGuiRewrite crashGui) throws Throwable {
+        GuiScreen screen = crashGui.create();
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
                 System.exit(0);
             }
-            EventManager.INSTANCE.post(new RenderEvent(Stage.START, 0));
+            //EventManager.INSTANCE.post(new RenderEvent.Start()); todo
             leftClickCounter = 10000;
             currentScreen.handleInput();
             currentScreen.updateScreen();
@@ -377,9 +375,9 @@ public abstract class MixinMinecraft implements MinecraftHook {
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
             currentScreen.drawScreen(mouseX, mouseY, 0);
-            if (screen.getShouldCrash()) {
+            if (crashGui.getShouldCrash()) {
                 crashpatch$letDie = true;
-                throw Objects.requireNonNull(screen.getThrowable());
+                throw Objects.requireNonNull(crashGui.getThrowable());
             }
 
             framebufferMc.unbindFramebuffer();
@@ -389,7 +387,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             framebufferMc.framebufferRender(displayWidth, displayHeight);
             GlStateManager.popMatrix();
 
-            EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0));
+            //EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0)); todo
 
             updateDisplay();
             Thread.yield();

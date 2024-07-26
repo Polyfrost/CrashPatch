@@ -1,10 +1,10 @@
 package org.polyfrost.crashpatch.crashes
 
-import cc.polyfrost.oneconfig.libs.universal.wrappers.message.UTextComponent
-import cc.polyfrost.oneconfig.utils.NetworkUtils
+import org.polyfrost.universal.wrappers.message.UTextComponent
 import org.polyfrost.crashpatch.gameDir
 import org.polyfrost.crashpatch.mcDir
 import com.google.gson.JsonObject
+import org.polyfrost.oneconfig.utils.v1.JsonUtils
 import java.io.File
 import kotlin.collections.set
 
@@ -17,7 +17,7 @@ object CrashHelper {
     fun loadJson(): Boolean {
         return try {
             skyclientJson =
-                NetworkUtils.getJsonElement("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json").asJsonObject
+                JsonUtils.parseFromUrl("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")?.asJsonObject ?: return false
             true
         } catch (e: Exception) {
             e.printStackTrace()

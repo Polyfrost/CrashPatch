@@ -1,6 +1,5 @@
 package org.polyfrost.crashpatch.hooks;
 
-import cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -32,9 +31,14 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ModsCheckerPlugin extends LaunchWrapperTweaker {
+public class ModsCheckerPlugin implements ITweaker { //todo
     private static final JsonParser PARSER = new JsonParser();
     public static final HashMap<String, Triple<File, String, String>> modsMap = new HashMap<>(); //modid : file, version, name
+
+    @Override
+    public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
+
+    }
 
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
@@ -127,51 +131,63 @@ public class ModsCheckerPlugin extends LaunchWrapperTweaker {
             e.printStackTrace();
         }
 
-        CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
-        if (codeSource != null) {
-            URL location = codeSource.getLocation();
-            try {
-                File file = new File(location.toURI());
-                if (file.isFile()) {
-                    CoreModManager.getIgnoredMods().remove(file.getName());
-                    CoreModManager.getReparseableCoremods().add(file.getName());
-                    try {
-                        try {
-                            List<String> tweakClasses = (List<String>) Launch.blackboard.get("TweakClasses"); // tweak classes before other mod trolling
-                            if (tweakClasses.contains("org.spongepowered.asm.launch.MixinTweaker")) { // if there's already a mixin tweaker, we'll just load it like "usual"
-                                new MixinTweaker(); // also we might not need to make a new mixin tweawker all the time but im just making sure
-                            } else if (!Launch.blackboard.containsKey("mixin.initialised")) { // if there isnt, we do our own trolling
-                                List<ITweaker> tweaks = (List<ITweaker>) Launch.blackboard.get("Tweaks");
-                                tweaks.add(new MixinTweaker());
-                            }
-                        } catch (Exception ignored) {
-                            // if it fails i *think* we can just ignore it
-                        }
-                        try {
-                            MixinBootstrap.getPlatform().addContainer(location.toURI());
-                        } catch (Exception ignore) {
-                            // fuck you essential
-                            try {
-                                Class<?> containerClass = Class.forName("org.spongepowered.asm.launch.platform.container.IContainerHandle");
-                                Class<?> urlContainerClass = Class.forName("org.spongepowered.asm.launch.platform.container.ContainerHandleURI");
-                                Object container = urlContainerClass.getConstructor(URI.class).newInstance(location.toURI());
-                                MixinBootstrap.getPlatform().getClass().getDeclaredMethod("addContainer", containerClass).invoke(MixinBootstrap.getPlatform(), container);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                throw new RuntimeException("OneConfig's Mixin loading failed. Please contact https://polyfrost.cc/discord to resolve this issue!");
-                            }
-                        }
-                    } catch (Exception ignored) {
+        //todo terrible
 
-                    }
-                }
-            } catch (URISyntaxException ignored) {}
-        } else {
-            LogManager.getLogger().warn("No CodeSource, if this is not a development environment we might run into problems!");
-            LogManager.getLogger().warn(this.getClass().getProtectionDomain());
-        }
+        //CodeSource codeSource = this.getClass().getProtectionDomain().getCodeSource();
+        //if (codeSource != null) {
+        //    URL location = codeSource.getLocation();
+        //    try {
+        //        File file = new File(location.toURI());
+        //        if (file.isFile()) {
+        //            CoreModManager.getIgnoredMods().remove(file.getName());
+        //            CoreModManager.getReparseableCoremods().add(file.getName());
+        //            try {
+        //                try {
+        //                    List<String> tweakClasses = (List<String>) Launch.blackboard.get("TweakClasses"); // tweak classes before other mod trolling
+        //                    if (tweakClasses.contains("org.spongepowered.asm.launch.MixinTweaker")) { // if there's already a mixin tweaker, we'll just load it like "usual"
+        //                        new MixinTweaker(); // also we might not need to make a new mixin tweawker all the time but im just making sure
+        //                    } else if (!Launch.blackboard.containsKey("mixin.initialised")) { // if there isnt, we do our own trolling
+        //                        List<ITweaker> tweaks = (List<ITweaker>) Launch.blackboard.get("Tweaks");
+        //                        tweaks.add(new MixinTweaker());
+        //                    }
+        //                } catch (Exception ignored) {
+        //                    // if it fails i *think* we can just ignore it
+        //                }
+        //                try {
+        //                    MixinBootstrap.getPlatform().addContainer(location.toURI());
+        //                } catch (Exception ignore) {
+        //                    // fuck you essential
+        //                    try {
+        //                        Class<?> containerClass = Class.forName("org.spongepowered.asm.launch.platform.container.IContainerHandle");
+        //                        Class<?> urlContainerClass = Class.forName("org.spongepowered.asm.launch.platform.container.ContainerHandleURI");
+        //                        Object container = urlContainerClass.getConstructor(URI.class).newInstance(location.toURI());
+        //                        MixinBootstrap.getPlatform().getClass().getDeclaredMethod("addContainer", containerClass).invoke(MixinBootstrap.getPlatform(), container);
+        //                    } catch (Exception e) {
+        //                        e.printStackTrace();
+        //                        throw new RuntimeException("OneConfig's Mixin loading failed. Please contact https://polyfrost.cc/discord to resolve this issue!");
+        //                    }
+        //                }
+        //            } catch (Exception ignored) {
+//
+        //            }
+        //        }
+        //    } catch (URISyntaxException ignored) {}
+        //} else {
+        //    LogManager.getLogger().warn("No CodeSource, if this is not a development environment we might run into problems!");
+        //    LogManager.getLogger().warn(this.getClass().getProtectionDomain());
+        //}
+//
+        //super.injectIntoClassLoader(classLoader);
+    }
 
-        super.injectIntoClassLoader(classLoader);
+    @Override
+    public String getLaunchTarget() {
+        return null;
+    }
+
+    @Override
+    public String[] getLaunchArguments() {
+        return new String[0];
     }
 
     private static void doThatPopupThing(File modsFolder, String message) {
