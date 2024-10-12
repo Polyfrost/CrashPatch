@@ -61,7 +61,7 @@ repositories {
 
 // Configures the libraries/dependencies for your mod.
 dependencies {
-    shade("gs.mclo:api:3.0.1")
+    implementation(shade("gs.mclo:api:3.0.1")!!)
     // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
     if (mcData.isLegacyForge) {
         compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
