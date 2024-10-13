@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch.gui
 
-import org.polyfrost.polyui.utils.rgba
+import org.polyfrost.polyui.color.rgba
 
 internal val GRAY_800 = rgba(21, 22, 23, 1f) // general background
 internal val GRAY_700 = rgba(34, 35, 38, 1f) // log background

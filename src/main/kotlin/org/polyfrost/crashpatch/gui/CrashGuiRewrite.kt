@@ -5,20 +5,19 @@ import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
-import org.polyfrost.oneconfig.api.ui.v1.PolyUIBuilder
+import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
 import org.polyfrost.oneconfig.api.ui.v1.UIManager
 import org.polyfrost.polyui.PolyUI
-import org.polyfrost.polyui.component.impl.Block
+import org.polyfrost.polyui.color.rgba
+import org.polyfrost.polyui.component.extensions.named
+import org.polyfrost.polyui.component.extensions.padded
+import org.polyfrost.polyui.component.extensions.setPalette
 import org.polyfrost.polyui.component.impl.Group
 import org.polyfrost.polyui.component.impl.Image
 import org.polyfrost.polyui.component.impl.Text
-import org.polyfrost.polyui.component.named
-import org.polyfrost.polyui.component.padded
-import org.polyfrost.polyui.component.setPalette
 import org.polyfrost.polyui.unit.Align
 import org.polyfrost.polyui.unit.Vec2
 import org.polyfrost.polyui.utils.image
-import org.polyfrost.polyui.utils.rgba
 import java.io.File
 import java.util.function.Consumer
 
@@ -58,13 +57,17 @@ class CrashGuiRewrite @JvmOverloads constructor(
     }
 
     fun create(): GuiScreen {
-        val builder = PolyUIBuilder.builder().blurs().backgroundColor(rgba(21, 21, 21)).atResolution(1920f, 1080f).size(650f, 600f)
+        val builder = OCPolyUIBuilder.create()
+            .atResolution(1920f, 1080f)
+            .blurs()
+            .backgroundColor(rgba(21, 21, 21))
+            .size(650f, 600f)
 
         val onClose: Consumer<PolyUI> = Consumer { _: PolyUI ->
             leaveWorldCrash = false
         }
 
-        builder.onClose(onClose)
+        // builder.onClose(onClose)
 
         val polyUI = builder.make(
             Group(
