@@ -3,7 +3,7 @@
     "modid": "crashpatch",
     "name": "CrashPatch",
     "description": "Stop crashes from closing your game!",
-    "version": "${version}",
+    "version": "${mod_version}",
     "mcversion": "1.8.9",
     "url": "https://github.com/Polyfrost/CrashPatch",
     "updateUrl": "https://github.com/Polyfrost/CrashPatch/releases/latest",
