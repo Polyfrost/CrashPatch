@@ -32,6 +32,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.config.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashGuiRewrite;
@@ -162,6 +163,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
             while (running) {
                 if (!hasCrashed || crashReporter == null) {
                     try {
+                        if (CrashPatch.INSTANCE.getTest()) {
+                            throw new RuntimeException("Test crash");
+                        }
+
                         runGameLoop();
                     } catch (ReportedException e) {
                         crashpatch$clientCrashCount++;

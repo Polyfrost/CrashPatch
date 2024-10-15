@@ -76,11 +76,11 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
         title = "Polyfrost support",
         text = "Discord"
     )
-    var supportDiscord = Runnable { browse(URI.create("https://polyfrost.cc/discord/")) }
+    fun supportDiscord() { browse(URI.create("https://polyfrost.cc/discord/")) }
 
     @Button(
         title = "Crash game",
         text = "Crash"
     )
-    var crashGame = Runnable { throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules") }
+    fun crashGame() { throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules") }
 }

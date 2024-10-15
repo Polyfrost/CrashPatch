@@ -28,21 +28,8 @@ toolkitLoomHelper {
 
     // Adds the tweak class if we are building legacy version of forge as per the documentation (https://docs.polyfrost.org)
     if (mcData.isLegacyForge) {
-        useTweaker("org.polyfrost.crashpatch.hooks.ModsCheckerPlugin", GameSide.CLIENT)
+        useTweaker("org.polyfrost.oneconfig.internal.legacy.OneConfigTweaker", GameSide.CLIENT)
         useForgeMixin(modData.id) // Configures the mixins if we are building for forge, useful for when we are dealing with cross-platform projects.
-    }
-}
-
-loom {
-    if (mcData.isLegacyForge) {
-        runConfigs {
-            "client" {
-                programArgs("--tweakClass", "org.polyfrost.oneconfig.internal.legacy.OneConfigTweaker")
-                programArgs("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
-                property("mixin.debug.export", "true")
-                //property("fml.coreMods.load", "")
-            }
-        }
     }
 }
 

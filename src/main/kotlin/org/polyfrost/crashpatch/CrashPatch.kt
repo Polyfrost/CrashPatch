@@ -8,13 +8,13 @@ import org.polyfrost.oneconfig.api.commands.v1.factories.annotated.Command
 import org.polyfrost.crashpatch.config.CrashPatchConfig
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy
-import org.polyfrost.crashpatch.hooks.ModsCheckerPlugin
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.polyfrost.utils.v1.dsl.openUI
 import java.io.File
 
 
@@ -24,7 +24,9 @@ object CrashPatch {
     const val NAME = "@MOD_NAME@"
     const val VERSION = "@MOD_VERSION@"
     val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(
-        mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() || ModsCheckerPlugin.modsMap.keys.any { it == "skyclientcosmetics" || it == "scc" || it == "skyclientaddons" || it == "skyblockclientupdater" || it == "skyclientupdater" || it == "skyclientcore" } }
+        mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() }
+
+    var test = false
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -42,14 +44,14 @@ object CrashPatch {
         CommandManager.registerCommand(CrashPatchCommand())
         CrashPatchConfig
         // uncomment to test init screen crashes
-        throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules")
+//        throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules")
     }
 
     @Command("crashpatch")
     class CrashPatchCommand {
         @Command
         fun main() {
-            //CrashPatchConfig.openGui()
+            CrashPatchConfig.openUI()
         }
 
         @Command
@@ -60,6 +62,11 @@ object CrashPatch {
             } else {
                 UMinecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("${ChatColor.RED}[CrashPatch] Failed to reload the JSON file!"))
             }
+        }
+
+        @Command
+        fun crash() {
+            test = true
         }
     }
 }
