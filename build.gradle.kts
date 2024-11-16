@@ -15,7 +15,7 @@ plugins {
 
 toolkitLoomHelper {
     // Adds OneConfig to our project
-    useOneConfig(mcData.version, mcData.loader, "commands", "config-impl", "events", "internal", "ui")
+    useOneConfig(mcData, "commands", "config", "config-impl", "events", "internal", "ui")
 
     // Removes the server configs from IntelliJ IDEA, leaving only client runs.
     // If you're developing a server-side mod, you can remove this line.

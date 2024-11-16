@@ -9,12 +9,16 @@ import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
 import org.polyfrost.oneconfig.api.ui.v1.UIManager
 import org.polyfrost.polyui.PolyUI
 import org.polyfrost.polyui.color.rgba
+import org.polyfrost.polyui.component.Component
 import org.polyfrost.polyui.component.extensions.named
+import org.polyfrost.polyui.component.extensions.onClick
 import org.polyfrost.polyui.component.extensions.padded
 import org.polyfrost.polyui.component.extensions.setPalette
+import org.polyfrost.polyui.component.impl.Block
 import org.polyfrost.polyui.component.impl.Group
 import org.polyfrost.polyui.component.impl.Image
 import org.polyfrost.polyui.component.impl.Text
+import org.polyfrost.polyui.data.PolyImage
 import org.polyfrost.polyui.unit.Align
 import org.polyfrost.polyui.unit.Vec2
 import org.polyfrost.polyui.utils.image
@@ -48,6 +52,8 @@ class CrashGuiRewrite @JvmOverloads constructor(
     }
     var shouldCrash = false
 
+    private var selectedSolution: CrashScan.Solution? = null
+
     private val subtitle by lazy {
         when (type) {
             GuiType.INIT -> listOf(SUBTITLE_INIT_1 + (if (crashScan != null) SUBTITLE_INIT_2 else "") + SUBTITLE_INIT_3, "")
@@ -58,20 +64,22 @@ class CrashGuiRewrite @JvmOverloads constructor(
 
     fun create(): GuiScreen {
         val builder = OCPolyUIBuilder.create()
-            .atResolution(1920f, 1080f)
             .blurs()
+            .atResolution(1920f, 1080f)
             .backgroundColor(rgba(21, 21, 21))
             .size(650f, 600f)
+            .renderer(UIManager.INSTANCE.renderer)
 
         val onClose: Consumer<PolyUI> = Consumer { _: PolyUI ->
             leaveWorldCrash = false
         }
 
-        // builder.onClose(onClose)
+//         builder.onClose(onClose)
 
+        println("sigh.")
         val polyUI = builder.make(
             Group(
-                Image("/assets/crashpatch/WarningTriangle.svg".image(Vec2(20F, 20F))).named("WarningTriangle").padded(
+                Image("/assets/crashpatch/WarningTriangle.svg".image().also { PolyImage.setImageSize(it, Vec2(20F, 20F)) }).named("WarningTriangle").padded(
                     0F,
                     34F,
                     0F,
@@ -82,11 +90,20 @@ class CrashGuiRewrite @JvmOverloads constructor(
                 Text(subtitle[1], fontSize = 14F, font = PolyUI.defaultFonts.regular).setPalette { text.secondary }.padded(0f, 0F, 0f, 0f),
                 Text(if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT, fontSize = 16F, font = PolyUI.defaultFonts.regular).setPalette { text.primary }.padded(0f, 24F, 0f, 0f),
                 Text(susThing, fontSize = 18F, font = PolyUI.defaultFonts.semiBold).setPalette { brand.fg }.padded(0f, 8f, 0f, 0f),
-                //Group(
-                //    Block(
-//
-                //    )
-                //).padded(0f, 40f, 0f, 0f),
+                Block(
+                    children = mutableListOf<Component>().apply {
+                        crashScan?.solutions?.forEach { scanSolution ->
+                            add(Group(
+                                Text(scanSolution.name, fontSize = 12F, font = PolyUI.defaultFonts.medium).setPalette { text.primary }.onClick {
+                                    selectedSolution = scanSolution
+                                }
+                            ))
+                        }
+                    }.toTypedArray(),
+                    alignment = Align(mode = Align.Mode.Vertical),
+                    size = Vec2(550f, 158f),
+                    color = GRAY_700
+                ).padded(0f, 40f, 0f, 0f),
                 size = Vec2(650f, 600f),
                 alignment = Align(mode = Align.Mode.Vertical)
             ),

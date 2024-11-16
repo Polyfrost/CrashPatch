@@ -26,7 +26,7 @@ object CrashPatch {
     val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) { File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(
         mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists() }
 
-    var test = false
+    var requestedCrash = false
 
     @Mod.EventHandler
     fun onPreInit(e: FMLPreInitializationEvent) {
@@ -66,7 +66,7 @@ object CrashPatch {
 
         @Command
         fun crash() {
-            test = true
+            requestedCrash = true
         }
     }
 }

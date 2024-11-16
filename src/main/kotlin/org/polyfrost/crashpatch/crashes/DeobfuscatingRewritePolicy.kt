@@ -12,9 +12,9 @@ import org.apache.logging.log4j.core.config.LoggerConfig
 
 class DeobfuscatingRewritePolicy : RewritePolicy {
     override fun rewrite(source: LogEvent): LogEvent {
-        if (CrashPatchConfig.deobfuscateCrashLog) {
-            source.thrown?.let { StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(it) }
-        }
+//        if (CrashPatchConfig.deobfuscateCrashLog) {
+//            source.thrown?.let { StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(it) }
+//        }
         return source
     }
 
