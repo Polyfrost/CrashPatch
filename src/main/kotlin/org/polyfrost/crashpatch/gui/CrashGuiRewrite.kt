@@ -3,24 +3,35 @@ package org.polyfrost.crashpatch.gui
 import dev.deftu.clipboard.Clipboard
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
+import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
+import org.polyfrost.crashpatch.utils.InternetUtils
+import org.polyfrost.oneconfig.api.ui.v1.Notifications
 import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
 import org.polyfrost.oneconfig.api.ui.v1.UIManager
 import org.polyfrost.polyui.PolyUI
+import org.polyfrost.polyui.animate.Animations
+import org.polyfrost.polyui.color.Colors
 import org.polyfrost.polyui.color.PolyColor
 import org.polyfrost.polyui.color.rgba
 import org.polyfrost.polyui.component.Component
 import org.polyfrost.polyui.component.extensions.*
 import org.polyfrost.polyui.component.impl.*
 import org.polyfrost.polyui.data.PolyImage
+import org.polyfrost.polyui.operations.Move
+import org.polyfrost.polyui.operations.Resize
 import org.polyfrost.polyui.unit.Align
 import org.polyfrost.polyui.unit.Vec2
 import org.polyfrost.polyui.unit.Vec4
+import org.polyfrost.polyui.unit.seconds
 import org.polyfrost.polyui.utils.image
 import org.polyfrost.polyui.utils.mapToArray
+import org.polyfrost.universal.UDesktop
+import org.polyfrost.universal.UScreen
 import java.io.File
+import java.net.URI
 import java.util.function.Consumer
 
 class CrashGuiRewrite @JvmOverloads constructor(
@@ -74,7 +85,7 @@ class CrashGuiRewrite @JvmOverloads constructor(
             leaveWorldCrash = false
         }
 
-        var selectedSolution: CrashScan.Solution? = null
+        var selectedSolution: CrashScan.Solution? = crashScan?.solutions?.firstOrNull()
         var block: Block? = null
 
         val polyUI = builder.make(
@@ -86,28 +97,46 @@ class CrashGuiRewrite @JvmOverloads constructor(
                         0F,
                         0F
                     ),
+
                 Text(
                     if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE,
-                    fontSize = 24F,
-                ).setFont { PolyUI.defaultFonts.medium }.padded(0f, 10F, 0f, 0f),
-                Text(subtitle[0], fontSize = 14F).setPalette { text.secondary }
+                    fontSize = 24f,
+                ).setFont { PolyUI.defaultFonts.medium }.padded(0f, 10f, 0f, 0f),
+                Text(subtitle[0], fontSize = 14f).setPalette { text.secondary }
                     .padded(0f, 16f, 0f, 0f),
-                Text(subtitle[1], fontSize = 14F).setPalette { text.secondary }
+                Text(subtitle[1], fontSize = 14f).setPalette { text.secondary }
                     .padded(0f, 0F, 0f, 0f),
                 Text(
                     if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT,
-                    fontSize = 16F
-                ).padded(0f, 24F, 0f, 0f),
-                Text(susThing, fontSize = 18F).setFont { PolyUI.defaultFonts.semiBold }.setPalette { brand.fg }
+                    fontSize = 16f
+                ).padded(0f, 24f, 0f, 0f),
+                Text(susThing, fontSize = 18f).setFont { PolyUI.defaultFonts.semiBold }.setPalette { brand.fg }
                     .padded(0f, 8f, 0f, 0f),
+
                 Block(
                     Block(
+                        // Selector
+                        Block(
+                            color = BLUE_600,
+                            size = Vec2(0f, 2f)
+                        ).ignoreLayout().radius(2f).afterParentInit(Int.MAX_VALUE) {
+                            selectedSolution?.let { solution ->
+                                this.y = parent.y + parent.height - 2f
+
+                                val index = crashScan?.solutions?.indexOf(solution) ?: 0
+                                val component = parent[1][index]
+
+                                this.width = component.width
+                                this.x = component.x
+                            }
+                        },
+
                         // Tabs
                         Group(
-                            children = crashScan?.solutions?.mapToArray { solution ->
+                            children = (crashScan?.solutions?.mapToArray { solution ->
                                 val rightPad = when {
                                     solution == crashScan?.solutions?.last() -> 0f
-                                    else -> 32f
+                                    else -> 24f
                                 }
 
                                 Text(solution.name)
@@ -115,27 +144,57 @@ class CrashGuiRewrite @JvmOverloads constructor(
                                     .padded(0f, 0f, rightPad, 0f)
                                     .onClick {
                                         selectedSolution = solution
-                                        block?.set(
-                                            1,
-                                            Text(
-                                                solution.solutions.joinToString("\n"),
-                                                fontSize = 12f,
-                                                visibleSize = Vec2(550f, 121f),
-                                            ).padded(16f, 8f)
-                                        )
+
+                                        parent.parent[0].let { selector ->
+                                            Resize(
+                                                drawable = selector,
+                                                width = width,
+                                                add = false,
+                                                animation = Animations.EaseInQuad.create(0.15.seconds)
+                                            ).add()
+
+                                            Move(
+                                                drawable = selector,
+                                                x = x,
+                                                add = false,
+                                                animation = Animations.EaseInQuad.create(0.15.seconds)
+                                            ).add()
+                                        }
+
+                                        block?.get(1)?.let { group ->
+                                            group[0] = createSolutionText(solution)
+                                        }
 
                                         true
                                     }
-                            } ?: arrayOf(),
-                        ).padded(24f, 0f, 0f, 0f),
+                            } ?: arrayOf()),
+                        ).padded(12f, 0f, 0f, 0f),
 
                         // Buttons
                         Group(
                             Button(leftImage = "/assets/crashpatch/copy.svg".image()).onClick {
-                                selectedSolution?.solutions?.joinToString("\n")?.let(Clipboard.getInstance()::setString)
+                                selectedSolution?.solutions?.joinToString("\n")?.let(Clipboard.getInstance()::setString).also { copyState ->
+                                    if (copyState == true) {
+                                        Notifications.enqueue(Notifications.Type.Success, CrashPatch.NAME, "Copied to clipboard!")
+                                    }
+                                }
+
                                 selectedSolution != null
-                            }.setPalette { component.bg },
-                            Button(leftImage = "/assets/crashpatch/upload.svg".image()).padded(8f, 0f, 0f, 0f),
+                            }.setPalette { createCustomButtonPalette(GRAY_600) },
+                            Button(leftImage = "/assets/crashpatch/upload.svg".image()).onClick {
+                                selectedSolution?.let { solution ->
+                                    val link = InternetUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
+                                    Clipboard.getInstance().setString(link)
+
+                                    if (UDesktop.browse(URI.create(link))) {
+                                        Notifications.enqueue(Notifications.Type.Success, CrashPatch.NAME, "Link copied to clipboard and opened in browser")
+                                    } else {
+                                        Notifications.enqueue(Notifications.Type.Warning, CrashPatch.NAME, "Couldn't open link in browser, copied to clipboard instead.")
+                                    }
+                                }
+
+                                selectedSolution != null
+                            }.setPalette { createCustomButtonPalette(GRAY_600) },
                         ),
 
                         alignment = Align(
@@ -148,7 +207,11 @@ class CrashGuiRewrite @JvmOverloads constructor(
                     ).radii(8f, 8f, 0f, 0f),
 
                     // Selected solution goes here...
-                    Group().padded(16f, 8f),
+                    Group(
+                        children = (selectedSolution?.let { arrayOf(createSolutionText(it)) } ?: arrayOf()),
+                        alignment = Align(pad = Vec2.ZERO, mode = Align.Mode.Vertical),
+                        size = Vec2(518f, 105f),
+                    ).padded(16f, 8f),
 
                     alignment = Align(
                         main = Align.Main.Start,
@@ -160,6 +223,34 @@ class CrashGuiRewrite @JvmOverloads constructor(
                     color = GRAY_700
                 ).also { block = it }.padded(0f, 40f, 0f, 0f),
 
+                Text(DISCORD_PROMPT, fontSize = 16f).padded(0f, 25f, 0f, 0f),
+                Group(
+                    Image("/assets/crashpatch/discord.svg".image(), size = Vec2(28f, 28f)),
+                    Text(POLYFROST_DISCORD, fontSize = 16f).setPalette { brand.fg }.padded(4f, 0f, 0f, 0f),
+                ).onClick {
+                    UDesktop.browse(URI.create(POLYFROST_DISCORD))
+                    true
+                },
+
+                // Buttons
+                Group(
+                    Button(text = RETURN_TO_GAME, padding = Vec2(14f, 14f)).onClick {
+                        if (type == GuiType.INIT) {
+                            shouldCrash = true
+                        } else {
+                            UScreen.displayScreen(null)
+                        }
+                    }.setPalette { brand.fg },
+                    Button(
+                        text = OPEN_CRASH_LOG,
+                        rightImage = "/assets/crashpatch/open-external.svg".image(),
+                        padding = Vec2(14f, 14f)
+                    ).onClick {
+                        file?.let { UDesktop.open(it) }
+                        true
+                    }.setPalette { createCustomButtonPalette(rgba(21, 21, 21)) },
+                ).padded(0f, 32f, 0f, 0f),
+
                 size = Vec2(650f, 600f),
                 alignment = Align(pad = Vec2.ZERO, mode = Align.Mode.Vertical)
             ),
@@ -169,6 +260,18 @@ class CrashGuiRewrite @JvmOverloads constructor(
             UIManager.INSTANCE.createPolyUIScreen(polyUI, 1920f, 1080f, false, true, onClose)
         polyUI.window = UIManager.INSTANCE.createWindow()
         return screen as GuiScreen
+    }
+
+    private fun createSolutionText(solution: CrashScan.Solution): Text {
+        return Text(
+            solution.solutions.joinToString("\n"),
+            fontSize = 12f,
+            visibleSize = Vec2(518f, 105f),
+        ).setFont { PolyUI.monospaceFont }.padded(16f, 8f)
+    }
+
+    private fun createCustomButtonPalette(normal: PolyColor): Colors.Palette {
+        return Colors.Palette(normal, GRAY_700, GRAY_700, PolyColor.BLACK)
     }
 
     enum class GuiType {

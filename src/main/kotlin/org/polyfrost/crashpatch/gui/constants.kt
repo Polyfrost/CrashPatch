@@ -31,5 +31,7 @@ internal val CAUSE_TEXT_DISCONNECTED = "Reason for disconnect:"
 internal val RETURN_TO_GAME = "Return to game"
 internal val OPEN_CRASH_LOG = "Crash log"
 
+internal val DISCORD_PROMPT = "If the solution above doesn't help, join"
+
 internal val SKYCLIENT_DISCORD = "https://inv.wtf/skyclient"
 internal val POLYFROST_DISCORD = "https://polyfrost.cc/discord"
