@@ -16,15 +16,12 @@ import org.polyfrost.polyui.animate.Animations
 import org.polyfrost.polyui.color.Colors
 import org.polyfrost.polyui.color.PolyColor
 import org.polyfrost.polyui.color.rgba
-import org.polyfrost.polyui.component.Component
 import org.polyfrost.polyui.component.extensions.*
 import org.polyfrost.polyui.component.impl.*
-import org.polyfrost.polyui.data.PolyImage
 import org.polyfrost.polyui.operations.Move
 import org.polyfrost.polyui.operations.Resize
 import org.polyfrost.polyui.unit.Align
 import org.polyfrost.polyui.unit.Vec2
-import org.polyfrost.polyui.unit.Vec4
 import org.polyfrost.polyui.unit.seconds
 import org.polyfrost.polyui.utils.image
 import org.polyfrost.polyui.utils.mapToArray
@@ -61,27 +58,15 @@ class CrashGuiRewrite @JvmOverloads constructor(
     }
     var shouldCrash = false
 
-    private val subtitle by lazy {
-        when (type) {
-            GuiType.INIT -> listOf(
-                SUBTITLE_INIT_1 + (if (crashScan != null) SUBTITLE_INIT_2 else "") + SUBTITLE_INIT_3,
-                ""
-            )
-
-            GuiType.NORMAL -> listOf(SUBTITLE_1, SUBTITLE_2)
-            GuiType.DISCONNECT -> listOf(SUBTITLE_DISCONNECTED, SUBTITLE_DISCONNECTED_2)
-        }
-    }
-
     fun create(): GuiScreen {
         val builder = OCPolyUIBuilder.create()
             .blurs()
             .atResolution(1920f, 1080f)
             .backgroundColor(rgba(21, 21, 21))
             .size(650f, 600f)
-            .renderer(UIManager.INSTANCE.renderer)
+            .renderer(UIManager.INSTANCE.renderer).translatorDelegate("assets/crashpatch")
 
-        val onClose: Consumer<PolyUI> = Consumer { _: PolyUI ->
+        val onClose = Consumer { _: PolyUI ->
             leaveWorldCrash = false
         }
 
@@ -98,16 +83,13 @@ class CrashGuiRewrite @JvmOverloads constructor(
                         0F
                     ),
 
+                Text(type.title, fontSize = 24f).setFont { PolyUI.defaultFonts.medium }.padded(0f, 10f, 0f, 0f),
+                Text("${type.title}.desc.1", fontSize = 14f).setPalette { text.secondary }
+                    .padded(0f, if (type != GuiType.INIT || crashScan != null) 16 + 14f else 16f, 0f, 0f),
+                if (type != GuiType.INIT || crashScan != null) Text("${type.title}.desc.2", fontSize = 14f).setPalette { text.secondary }
+                else null,
                 Text(
-                    if (type == GuiType.DISCONNECT) DISCONNECTED_TITLE else TITLE,
-                    fontSize = 24f,
-                ).setFont { PolyUI.defaultFonts.medium }.padded(0f, 10f, 0f, 0f),
-                Text(subtitle[0], fontSize = 14f).setPalette { text.secondary }
-                    .padded(0f, 16f, 0f, 0f),
-                Text(subtitle[1], fontSize = 14f).setPalette { text.secondary }
-                    .padded(0f, 0F, 0f, 0f),
-                Text(
-                    if (type == GuiType.DISCONNECT) CAUSE_TEXT_DISCONNECTED else CAUSE_TEXT,
+                    if (type == GuiType.DISCONNECT) "crashpatch.disconnect.cause" else "crashpatch.crash.cause",
                     fontSize = 16f
                 ).padded(0f, 24f, 0f, 0f),
                 Text(susThing, fontSize = 18f).setFont { PolyUI.defaultFonts.semiBold }.setPalette { brand.fg }
@@ -116,10 +98,8 @@ class CrashGuiRewrite @JvmOverloads constructor(
                 Block(
                     Block(
                         // Selector
-                        Block(
-                            color = BLUE_600,
-                            size = Vec2(0f, 2f)
-                        ).ignoreLayout().radius(2f).afterParentInit(Int.MAX_VALUE) {
+                        Block(size = Vec2(0f, 2f)).ignoreLayout().radius(2f).afterParentInit(Int.MAX_VALUE) {
+                            palette = polyUI.colors.brand.fg
                             selectedSolution?.let { solution ->
                                 this.y = parent.y + parent.height - 2f
 
@@ -223,18 +203,18 @@ class CrashGuiRewrite @JvmOverloads constructor(
                     color = GRAY_700
                 ).also { block = it }.padded(0f, 40f, 0f, 0f),
 
-                Text(DISCORD_PROMPT, fontSize = 16f).padded(0f, 25f, 0f, 0f),
+                Text("crashpatch.discord.prompt", fontSize = 16f).padded(0f, 25f, 0f, 0f),
                 Group(
                     Image("/assets/crashpatch/discord.svg".image(), size = Vec2(28f, 28f)),
-                    Text(POLYFROST_DISCORD, fontSize = 16f).setPalette { brand.fg }.padded(4f, 0f, 0f, 0f),
+                    Text("crashpatch.link.discord.polyfrost", fontSize = 16f).setPalette { brand.fg }.padded(4f, 0f, 0f, 0f),
                 ).onClick {
-                    UDesktop.browse(URI.create(POLYFROST_DISCORD))
+                    UDesktop.browse(URI.create("crashpatch.link.discord.polyfrost"))
                     true
                 },
 
                 // Buttons
                 Group(
-                    Button(text = RETURN_TO_GAME, padding = Vec2(14f, 14f)).onClick {
+                    Button(text = "crashpatch.continue", padding = Vec2(14f, 14f)).onClick {
                         if (type == GuiType.INIT) {
                             shouldCrash = true
                         } else {
@@ -242,7 +222,7 @@ class CrashGuiRewrite @JvmOverloads constructor(
                         }
                     }.setPalette { brand.fg },
                     Button(
-                        text = OPEN_CRASH_LOG,
+                        text = "crashpatch.log",
                         rightImage = "/assets/crashpatch/open-external.svg".image(),
                         padding = Vec2(14f, 14f)
                     ).onClick {
@@ -256,25 +236,20 @@ class CrashGuiRewrite @JvmOverloads constructor(
             ),
         )
 
-        val screen =
-            UIManager.INSTANCE.createPolyUIScreen(polyUI, 1920f, 1080f, false, true, onClose)
+        val screen = UIManager.INSTANCE.createPolyUIScreen(polyUI, 1920f, 1080f, false, true, onClose)
         polyUI.window = UIManager.INSTANCE.createWindow()
         return screen as GuiScreen
     }
 
-    private fun createSolutionText(solution: CrashScan.Solution): Text {
-        return Text(
-            solution.solutions.joinToString("\n"),
-            fontSize = 12f,
-            visibleSize = Vec2(518f, 105f),
-        ).setFont { PolyUI.monospaceFont }.padded(16f, 8f)
-    }
+    private fun createSolutionText(solution: CrashScan.Solution) = Text(
+        solution.solutions.joinToString("\n"),
+        fontSize = 12f,
+        visibleSize = Vec2(518f, 105f),
+    ).setFont { PolyUI.monospaceFont }.padded(16f, 8f)
 
-    private fun createCustomButtonPalette(normal: PolyColor): Colors.Palette {
-        return Colors.Palette(normal, GRAY_700, GRAY_700, PolyColor.BLACK)
-    }
+    private fun createCustomButtonPalette(normal: PolyColor) = Colors.Palette(normal, GRAY_700, GRAY_700, PolyColor.TRANSPARENT)
 
-    enum class GuiType {
-        INIT, NORMAL, DISCONNECT
+    enum class GuiType(val title: String) {
+        INIT("crashpatch.init"), NORMAL("crashpatch.crash"), DISCONNECT("crashpatch.disconnect")
     }
 }
