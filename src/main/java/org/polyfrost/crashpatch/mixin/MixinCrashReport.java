@@ -10,7 +10,6 @@ import org.polyfrost.crashpatch.identifier.ModIdentifier;
 import org.polyfrost.crashpatch.hooks.CrashReportHook;
 import org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator;
 import net.minecraft.crash.CrashReport;
-import net.minecraftforge.fml.common.ModContainer;
 import org.polyfrost.crashpatch.identifier.ModMetadata;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

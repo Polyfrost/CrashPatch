@@ -2,6 +2,7 @@
     "compatibilityLevel": "JAVA_8",
     "minVersion": "0.7",
     "package": "org.polyfrost.crashpatch.mixin",
+    "plugin": "org.polyfrost.crashpatch.mixins.MixinPlugin",
     "refmap": "mixin.crashpatch.refmap.json",
     "injectors": {
         "maxShiftBy": 5
@@ -11,9 +12,7 @@
       "MixinCrashReport",
       "MixinCrashReportCategory",
       "MixinGuiConnecting",
-      "MixinGuiDupesFound",
       "MixinMinecraft",
-      "MixinTileEntityRendererDispatcher",
       "MixinWorldRenderer"
     ],
     "verbose": true

@@ -34,7 +34,11 @@ public class MixinGuiConnecting extends GuiScreen {
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton)
+            //#if FORGE
+            throws IOException
+            //#endif
+    {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         if (((MinecraftHook) Minecraft.getMinecraft()).hasRecoveredFromCrash()) {
             if (mouseButton == 0) {

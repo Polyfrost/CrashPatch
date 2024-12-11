@@ -1,5 +1,10 @@
 package org.polyfrost.crashpatch.mixin;
 
+//#if FORGE
+import net.minecraftforge.fml.client.SplashProgress;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+//#endif
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.FontRenderer;
@@ -23,8 +28,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MinecraftError;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.SplashProgress;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
@@ -328,8 +331,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             this.running = true;
             try {
+                //#if FORGE
                 //noinspection deprecation
                 SplashProgress.pause();// Disable the forge splash progress screen
+                //#endif
                 GlStateManager.disableTexture2D();
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
@@ -403,12 +408,14 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
     }
 
+    //#if FORGE
     @Redirect(method = "displayCrashReport", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/common/FMLCommonHandler;handleExit(I)V"))
     public void redirect(FMLCommonHandler instance, int code) {
         if (crashpatch$letDie) {
             instance.handleExit(code);
         }
     }
+    //#endif
 
     @Unique
     private void crashpatch$resetState() {

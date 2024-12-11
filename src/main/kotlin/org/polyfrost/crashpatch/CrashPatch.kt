@@ -64,7 +64,7 @@ object CrashPatch
     }
 
     fun initialize() {
-        CommandManager.registerCommand(CrashPatchCommand)
+        CommandManager.registerCommand(CrashPatchCommand())
         CrashPatchConfig // Initialize the config
     }
 

@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//#if FORGE
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.universal.UDesktop;
 import net.minecraft.client.Minecraft;
@@ -93,3 +94,4 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     }
 
 }
+//#endif

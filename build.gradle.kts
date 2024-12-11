@@ -52,5 +52,7 @@ dependencies {
     // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
     if (mcData.isLegacyForge) {
         compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    } else if (mcData.isFabric) {
+        modImplementation("net.fabricmc:fabric-language-kotlin:${mcData.dependencies.fabric.fabricLanguageKotlinVersion}")
     }
 }

@@ -8,7 +8,7 @@ import org.polyfrost.universal.ChatColor
 import org.polyfrost.universal.UMinecraft
 
 @Command(CrashPatch.ID)
-object CrashPatchCommand {
+class CrashPatchCommand {
 
     @Command
     fun main() {
