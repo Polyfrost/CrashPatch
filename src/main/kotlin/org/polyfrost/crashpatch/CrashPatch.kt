@@ -10,8 +10,7 @@ import org.apache.logging.log4j.LogManager
 //#endif
 
 import java.io.File
-import org.polyfrost.crashpatch.config.CrashPatchConfig
-import org.polyfrost.crashpatch.crashes.CrashHelper
+import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.Multithreading
@@ -35,6 +34,17 @@ object CrashPatch
         File(System.getProperty("user.dir"))
     }
 
+    val gameDir by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        try {
+            if (mcDir.parentFile?.name?.let { name ->
+                name == ".minecraft" || name == "minecraft"
+            } == true) mcDir.parentFile else mcDir
+        } catch (e: Exception) {
+            e.printStackTrace()
+            mcDir
+        }
+    }
+
     val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) {
         File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists()
     }
@@ -45,7 +55,7 @@ object CrashPatch
         DeobfuscatingRewritePolicy.install()
         Multithreading.submit {
             logger.info("Is SkyClient: $isSkyclient")
-            if (!CrashHelper.loadJson()) {
+            if (!CrashScanStorage.downloadJson()) {
                 logger.error("CrashHelper failed to preload crash data JSON!")
             }
         }

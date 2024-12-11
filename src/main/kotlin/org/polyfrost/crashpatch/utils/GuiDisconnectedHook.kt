@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch.utils
 
-import org.polyfrost.crashpatch.crashes.CrashHelper.scanReport
+import org.polyfrost.crashpatch.crashes.CrashScanStorage.scanReport
 import org.polyfrost.crashpatch.mixin.AccessorGuiDisconnected
 import net.minecraft.client.gui.GuiDisconnected
 import net.minecraft.client.gui.GuiScreen

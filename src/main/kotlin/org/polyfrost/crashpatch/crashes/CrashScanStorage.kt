@@ -2,51 +2,63 @@ package org.polyfrost.crashpatch.crashes
 
 import org.polyfrost.universal.wrappers.message.UTextComponent
 import com.google.gson.JsonObject
+import org.apache.logging.log4j.LogManager
+import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.oneconfig.utils.v1.JsonUtils
 import java.io.File
 import kotlin.collections.set
 
-object CrashHelper {
+object CrashScanStorage {
 
-    private var skyclientJson: JsonObject? = null
-    val simpleCache = hashMapOf<String, CrashScan>()
+    private val logger = LogManager.getLogger()
+
+    private val cacheFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        File(CrashPatch.mcDir, "OneConfig/CrashPatch/cache.json")
+    }
+
+    private val String.mappedPlaceholders: String
+        get() = this
+            .replace("%pathindicator%", "")
+            .replace("%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(File.separator))
+            .replace("%profileroot%", File(CrashPatch.mcDir, "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
+
+    private var skyclientData: JsonObject? = null
 
     @JvmStatic
-    fun loadJson(): Boolean {
+    fun downloadJson(): Boolean {
         return try {
-            skyclientJson =
-                JsonUtils.parseFromUrl("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")?.asJsonObject ?: return false
+            skyclientData = JsonUtils.parseFromUrl("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")
+                ?.asJsonObject ?: return false
+            cacheFile.writeText(skyclientData.toString())
             true
         } catch (e: Exception) {
-            e.printStackTrace()
-            false
+            logger.error("Failed to download crash data JSON!", e)
+            cacheFile.takeIf { it.exists() }?.let {
+                logger.info("Attempting to load cached crash data JSON...")
+                skyclientData = JsonUtils.parseOrNull(it.readText())?.asJsonObject
+
+                skyclientData != null
+            } ?: false
         }
     }
 
     @JvmStatic
     fun scanReport(report: String, serverCrash: Boolean = false): CrashScan? {
         return try {
-            if (simpleCache.containsKey(report)) {
-                return simpleCache[report]
-            }
             val responses = getResponses(report, serverCrash)
             CrashScan(responses.also { it[if (serverCrash) "Disconnect reason" else "Crash log"] = report.split("\\R".toRegex()) }.toSortedMap { o1, o2 ->
                 if (o1 == "Crash log" || o1 == "Disconnect reason") {
                     return@toSortedMap 1
                 }
+
                 if (o2 == "Crash log" || o2 == "Disconnect reason") {
                     return@toSortedMap -1
                 }
+
                 return@toSortedMap o1.compareTo(o2)
             }.map { map ->
-                CrashScan.Solution("${map.key} (${map.value.size})", map.value.map {
-                    it.replace("%pathindicator%", "").replace(
-                        "%gameroot%", gameDir.absolutePath.removeSuffix(
-                            File.separator
-                        )
-                    ).replace("%profileroot%", File(mcDir, "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
-                }, true)
-            }.toMutableList()).also { simpleCache[report] = it }
+                CrashScan.Solution("${map.key} (${map.value.size})", map.value.map { entry -> entry.mappedPlaceholders }, true)
+            }.toMutableList())
         } catch (e: Throwable) {
             e.printStackTrace()
             null
@@ -54,7 +66,7 @@ object CrashHelper {
     }
 
     private fun getResponses(report: String, serverCrash: Boolean): MutableMap<String, List<String>> {
-        val issues = skyclientJson ?: return linkedMapOf()
+        val issues = skyclientData ?: return linkedMapOf()
         val responses = linkedMapOf<String, ArrayList<String>>()
 
         val triggersToIgnore = arrayListOf<Int>()
@@ -74,6 +86,7 @@ object CrashHelper {
             } else {
                 triggersToIgnore.add(index)
             }
+
             responses[type["name"].asString] = arrayListOf()
         }
 
@@ -83,11 +96,13 @@ object CrashHelper {
         for (solution in fixes) {
             val solutionJson = solution.asJsonObject
             if (solutionJson.has("bot_only")) continue
+
             val triggerNumber =
                 if (solutionJson.has("fixtype")) solutionJson["fixtype"].asInt else issues["default_fix_type"].asInt
             if (triggersToIgnore.contains(triggerNumber)) {
                 continue
             }
+
             val causes = solutionJson["causes"].asJsonArray
             var trigger = false
             for (cause in causes) {
@@ -96,6 +111,7 @@ object CrashHelper {
                 if (causeJson.has("unformatted") && causeJson["unformatted"].asBoolean) {
                     theReport = UTextComponent.stripFormatting(theReport)
                 }
+
                 when (causeJson["method"].asString) {
                     "contains" -> {
                         if (theReport.contains(causeJson["value"].asString)) {
@@ -134,11 +150,12 @@ object CrashHelper {
                     }
                 }
             }
+
             if (trigger) {
                 responses[responseCategories[triggerNumber]]?.add(solutionJson["fix"].asString)
             }
-
         }
+
         return responses.filterNot { it.value.isEmpty() }.toMutableMap()
     }
 }

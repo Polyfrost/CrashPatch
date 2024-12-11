@@ -4,7 +4,7 @@ import dev.deftu.clipboard.Clipboard
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.CrashPatch
-import org.polyfrost.crashpatch.crashes.CrashHelper
+import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.crashpatch.utils.UploadUtils
@@ -53,7 +53,7 @@ class CrashUI @JvmOverloads constructor(
     }
 
     private val crashScan: CrashScan? by lazy {
-        return@lazy CrashHelper.scanReport(scanText, type == GuiType.DISCONNECT)
+        return@lazy CrashScanStorage.scanReport(scanText, type == GuiType.DISCONNECT)
             .let { return@let if (it != null && it.solutions.isNotEmpty()) it else null }
     }
     var shouldCrash = false
