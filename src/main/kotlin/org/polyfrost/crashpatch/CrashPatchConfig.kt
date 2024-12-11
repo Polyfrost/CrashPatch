@@ -1,10 +1,9 @@
-package org.polyfrost.crashpatch.config
+package org.polyfrost.crashpatch
 
 import org.polyfrost.oneconfig.api.config.v1.Config
 import org.polyfrost.oneconfig.api.config.v1.annotations.*
-import org.polyfrost.universal.UDesktop.browse
+import org.polyfrost.universal.UDesktop
 import java.net.URI
-
 
 object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpatch_dark.svg", "CrashPatch", Category.QOL) {
 
@@ -67,20 +66,21 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
     @Dropdown(
         title = "Log uploader",
         description = "The method used to upload the crash log.",
-        options = ["hst.sh", "mclo.gs (Aternos)"],
         subcategory = "Logs"
     )
-    var crashLogUploadMethod = 0
+    var crashLogUploadMethod = UploadMethod.HASTEBIN
 
     @Button(
         title = "Polyfrost support",
         text = "Discord"
     )
-    fun supportDiscord() { browse(URI.create("https://polyfrost.cc/discord/")) }
+    fun supportDiscord() {
+        UDesktop.browse(URI.create("https://polyfrost.org/discord"))
+    }
 
-    @Button(
-        title = "Crash game",
-        text = "Crash"
-    )
-    fun crashGame() { throw Throwable("java.lang.NoClassDefFoundError: xyz/matthewtgm/requisite/keybinds/KeyBind at lumien.custommainmenu.configuration.ConfigurationLoader.load(ConfigurationLoader.java:142) club.sk1er.bossbarcustomizer.BossbarMod.loadConfig cc.woverflow.hytils.handlers.chat.modules.modifiers.DefaultChatRestyler Failed to login: null The Hypixel Alpha server is currently closed! net.kdt.pojavlaunch macromodmodules") }
+    enum class UploadMethod(val text: String) {
+        HASTEBIN("hst.sh"),
+        MCLOGS("mclo.gs (Aternos)")
+    }
+
 }

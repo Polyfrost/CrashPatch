@@ -1,26 +1,31 @@
 package org.polyfrost.crashpatch.utils
 
 import org.polyfrost.crashpatch.CrashPatch
-import org.polyfrost.crashpatch.config.CrashPatchConfig
 import gs.mclo.api.APIException
 import gs.mclo.api.Log
 import gs.mclo.api.MclogsClient
+import org.polyfrost.crashpatch.CrashPatchConfig
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
-import java.net.URL
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.HttpsURLConnection
 
+object UploadUtils {
 
-object InternetUtils {
+    private val mclogsClient by lazy {
+        MclogsClient("CrashPatch", CrashPatch.VERSION, "1.8.9")
+    }
+
     private val sessionIdRegex = Regex("((Session ID is|--accessToken|Your new API key is) (\\S+))")
+
     fun upload(text: String): String {
-        val log = Log(text.replace(sessionIdRegex, "[SENSITIVE INFORMATION]"))
+        val sanitizedText = text.replace(sessionIdRegex, "[SENSITIVE INFORMATION]")
+        val log = Log(sanitizedText)
         return when (CrashPatchConfig.crashLogUploadMethod) {
-            0 -> uploadToHastebin(log.content)
-            1 -> uploadToMclogs(log)
-            else -> uploadToHastebin(log.content)
+            CrashPatchConfig.UploadMethod.HASTEBIN -> uploadToHastebin(log.content)
+            CrashPatchConfig.UploadMethod.MCLOGS -> uploadToMclogs(log)
         }
     }
 
@@ -29,7 +34,7 @@ object InternetUtils {
         val postDataLength = postData.size
 
         val requestURL = "https://hst.sh/documents"
-        val url = URL(requestURL)
+        val url = URI.create(requestURL).toURL()
         val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
         conn.doOutput = true
         conn.instanceFollowRedirects = false
@@ -55,13 +60,12 @@ object InternetUtils {
     }
 
     private fun uploadToMclogs(log: Log): String {
-        val mcLogs = MclogsClient("CrashPatch", CrashPatch.VERSION, "1.8.9")
         return try {
-            val response = mcLogs.uploadLog(log)
-            response.url
+            mclogsClient.uploadLog(log).url
         } catch (e: APIException) {
             e.printStackTrace()
             "Failed to upload crash log to mclo.gs"
         }
     }
+
 }

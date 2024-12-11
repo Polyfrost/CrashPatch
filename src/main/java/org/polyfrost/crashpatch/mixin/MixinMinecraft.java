@@ -35,7 +35,7 @@ import org.lwjgl.opengl.GL14;
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.config.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
-import org.polyfrost.crashpatch.gui.CrashGuiRewrite;
+import org.polyfrost.crashpatch.gui.CrashUI;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import org.polyfrost.crashpatch.utils.GuiDisconnectedHook;
 import org.spongepowered.asm.mixin.Final;
@@ -230,7 +230,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             // Display the crash screen
 //            crashpatch$runGUILoop(new GuiCrashScreen(report));
-            displayGuiScreen(new CrashGuiRewrite(report).create());
+            displayGuiScreen(new CrashUI(report).create());
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
@@ -263,7 +263,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             if (crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit()) {
                 logger.error("Crash limit reached, exiting world");
-                CrashGuiRewrite.Companion.setLeaveWorldCrash(true);
+                CrashUI.Companion.setLeaveWorldCrash(true);
                 if (getNetHandler() != null) {
                     getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
                 }
@@ -333,7 +333,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            crashpatch$runGUILoop(new CrashGuiRewrite(report, CrashGuiRewrite.GuiType.INIT));
+            crashpatch$runGUILoop(new CrashUI(report, CrashUI.GuiType.INIT));
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
@@ -346,8 +346,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
     /**
      * @author Runemoro
      */
-    private void crashpatch$runGUILoop(CrashGuiRewrite crashGui) throws Throwable {
-        GuiScreen screen = crashGui.create();
+    private void crashpatch$runGUILoop(CrashUI crashUI) throws Throwable {
+        GuiScreen screen = crashUI.create();
         displayGuiScreen(screen);
         while (running && currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
@@ -381,9 +381,9 @@ public abstract class MixinMinecraft implements MinecraftHook {
             int mouseY = height - Mouse.getY() * height / displayHeight - 1;
             Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
             currentScreen.drawScreen(mouseX, mouseY, 0);
-            if (crashGui.getShouldCrash()) {
+            if (crashUI.getShouldCrash()) {
                 crashpatch$letDie = true;
-                throw Objects.requireNonNull(crashGui.getThrowable());
+                throw Objects.requireNonNull(crashUI.getThrowable());
             }
 
             framebufferMc.unbindFramebuffer();

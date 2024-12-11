@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//#if FORGE
 import org.polyfrost.crashpatch.crashes.StateManager;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
@@ -50,3 +51,4 @@ public abstract class MixinTileEntityRendererDispatcher implements StateManager.
         drawingBatch = false;
     }
 }
+//#endif

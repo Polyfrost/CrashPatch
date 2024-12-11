@@ -9,7 +9,7 @@ import net.minecraftforge.fml.client.GuiDupesFound;
 import net.minecraftforge.fml.common.DuplicateModsFoundException;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
-import org.polyfrost.crashpatch.CrashPatchKt;
+import org.polyfrost.crashpatch.CrashPatchOldKt;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +40,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
-                UDesktop.open(new File(CrashPatchKt.getMcDir(), "mods"));
+                UDesktop.open(new File(CrashPatchOldKt.getMcDir(), "mods"));
                 break;
             case 1:
                 FMLCommonHandler.instance().exitJava(0, false);
@@ -62,7 +62,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
 
         offset += 10;
 
-        drawSplitString(EnumChatFormatting.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatchKt.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
+        drawSplitString(EnumChatFormatting.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatchOldKt.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
 
         for (GuiButton guiButton : this.buttonList) {
             guiButton.drawButton(this.mc, mouseX, mouseY);

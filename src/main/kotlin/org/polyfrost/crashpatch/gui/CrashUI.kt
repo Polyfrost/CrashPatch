@@ -7,7 +7,7 @@ import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
-import org.polyfrost.crashpatch.utils.InternetUtils
+import org.polyfrost.crashpatch.utils.UploadUtils
 import org.polyfrost.oneconfig.api.ui.v1.Notifications
 import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
 import org.polyfrost.oneconfig.api.ui.v1.UIManager
@@ -31,7 +31,7 @@ import java.io.File
 import java.net.URI
 import java.util.function.Consumer
 
-class CrashGuiRewrite @JvmOverloads constructor(
+class CrashUI @JvmOverloads constructor(
     private val scanText: String,
     private val file: File?,
     private val susThing: String,
@@ -163,7 +163,7 @@ class CrashGuiRewrite @JvmOverloads constructor(
                             }.setPalette { createCustomButtonPalette(GRAY_600) },
                             Button(leftImage = "/assets/crashpatch/upload.svg".image()).onClick {
                                 selectedSolution?.let { solution ->
-                                    val link = InternetUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
+                                    val link = UploadUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
                                     Clipboard.getInstance().setString(link)
 
                                     if (UDesktop.browse(URI.create(link))) {

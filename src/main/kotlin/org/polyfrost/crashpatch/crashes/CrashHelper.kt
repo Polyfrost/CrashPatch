@@ -1,8 +1,6 @@
 package org.polyfrost.crashpatch.crashes
 
 import org.polyfrost.universal.wrappers.message.UTextComponent
-import org.polyfrost.crashpatch.gameDir
-import org.polyfrost.crashpatch.mcDir
 import com.google.gson.JsonObject
 import org.polyfrost.oneconfig.utils.v1.JsonUtils
 import java.io.File
