@@ -41,10 +41,11 @@ public class MixinGuiConnecting extends GuiScreen {
                 String[] list = crashpatch$wrapFormattedStringToWidth(crashpatch$getText(), width).split("\n");
                 int width = -1;
                 for (String text : list) {
-                    width = Math.max(width, fontRendererObj.getStringWidth(text));
+                    width = Math.max(width, this.fontRendererObj.getStringWidth(text));
                 }
+
                 int left = (this.width / 2) - width / 2;
-                if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.length - 1) * (fontRendererObj.FONT_HEIGHT + 2)))) {
+                if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.length - 1) * (this.fontRendererObj.FONT_HEIGHT + 2)))) {
                     UDesktop.browse(URI.create("https://discord.gg/eh7tNFezct"));
                 }
             }
@@ -54,8 +55,8 @@ public class MixinGuiConnecting extends GuiScreen {
     @Unique
     public void crashpatch$drawSplitCenteredString(String text, int x, int y, int color) {
         for (String line : crashpatch$wrapFormattedStringToWidth(text, width).split("\n")) {
-            drawCenteredString(fontRendererObj, line, x, y, color);
-            y += fontRendererObj.FONT_HEIGHT + 2;
+            drawCenteredString(this.fontRendererObj, line, x, y, color);
+            y += this.fontRendererObj.FONT_HEIGHT + 2;
         }
     }
 
@@ -91,7 +92,7 @@ public class MixinGuiConnecting extends GuiScreen {
                 case ' ':
                     l = k;
                 default:
-                    j += fontRendererObj.getCharWidth(c0);
+                    j += this.fontRendererObj.getCharWidth(c0);
 
                     if (flag) {
                         ++j;

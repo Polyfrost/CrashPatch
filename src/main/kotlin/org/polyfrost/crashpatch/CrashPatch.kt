@@ -4,12 +4,12 @@ package org.polyfrost.crashpatch
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import org.apache.logging.log4j.LogManager
 //#else
 //$$ import net.fabricmc.api.ClientModInitializer
 //#endif
 
 import java.io.File
+import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
@@ -30,10 +30,12 @@ object CrashPatch
 
     private val logger = LogManager.getLogger()
 
+    @JvmStatic
     val mcDir by lazy(LazyThreadSafetyMode.PUBLICATION) {
         File(System.getProperty("user.dir"))
     }
 
+    @JvmStatic
     val gameDir by lazy(LazyThreadSafetyMode.PUBLICATION) {
         try {
             if (mcDir.parentFile?.name?.let { name ->

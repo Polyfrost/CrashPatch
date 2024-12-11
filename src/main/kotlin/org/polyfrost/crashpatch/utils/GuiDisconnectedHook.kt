@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiScreen
 import org.polyfrost.crashpatch.CrashPatchConfig
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import org.polyfrost.crashpatch.gui.CrashUI
-import org.polyfrost.utils.v1.dsl.mc
+import org.polyfrost.oneconfig.utils.v1.dsl.mc
 
 object GuiDisconnectedHook {
 

@@ -6,11 +6,12 @@
 
 package org.polyfrost.crashpatch.mixin;
 
-import org.polyfrost.crashpatch.crashes.ModIdentifier;
+import org.polyfrost.crashpatch.identifier.ModIdentifier;
 import org.polyfrost.crashpatch.hooks.CrashReportHook;
 import org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator;
 import net.minecraft.crash.CrashReport;
 import net.minecraftforge.fml.common.ModContainer;
+import org.polyfrost.crashpatch.identifier.ModMetadata;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,7 +33,7 @@ public class MixinCrashReport implements CrashReportHook {
 
     @Inject(method = "populateEnvironment", at = @At("TAIL"))
     private void afterPopulateEnvironment(CallbackInfo ci) {
-        ModContainer susMod = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
+        ModMetadata susMod = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
         crashpatch$suspectedMod = (susMod == null ? "Unknown" : susMod.getName());
     }
 

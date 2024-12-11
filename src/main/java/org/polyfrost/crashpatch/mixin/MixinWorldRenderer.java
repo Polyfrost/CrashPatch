@@ -24,6 +24,8 @@ public abstract class MixinWorldRenderer implements StateManager.IResettable {
 
     @Override
     public void resetState() {
-        if (isDrawing) finishDrawing();
+        if (this.isDrawing) {
+            finishDrawing();
+        }
     }
 }

@@ -33,7 +33,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.polyfrost.crashpatch.CrashPatch;
-import org.polyfrost.crashpatch.config.CrashPatchConfig;
+import org.polyfrost.crashpatch.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashUI;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
@@ -52,6 +52,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
+@SuppressWarnings("AccessStaticViaInstance")
 @Mixin(value = Minecraft.class, priority = -9000)
 public abstract class MixinMinecraft implements MinecraftHook {
 
@@ -161,7 +162,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
         try {
             while (running) {
-                if (!hasCrashed || crashReporter == null) {
+                if (!this.hasCrashed || this.crashReporter == null) {
                     try {
                         if (CrashPatch.INSTANCE.getRequestedCrash()) {
                             CrashPatch.INSTANCE.setRequestedCrash(false);
@@ -174,7 +175,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                         addGraphicsAndWorldToCrashReport(e.getCrashReport());
                         crashpatch$addInfoToCrash(e.getCrashReport());
                         crashpatch$resetGameState();
-                        logger.fatal("Reported exception thrown!", e);
+                        this.logger.fatal("Reported exception thrown!", e);
                         crashpatch$displayCrashScreen(e.getCrashReport());
                     } catch (Throwable e) {
                         crashpatch$clientCrashCount++;
@@ -182,16 +183,16 @@ public abstract class MixinMinecraft implements MinecraftHook {
                         addGraphicsAndWorldToCrashReport(report);
                         crashpatch$addInfoToCrash(report);
                         crashpatch$resetGameState();
-                        logger.fatal("Unreported exception thrown!", e);
+                        this.logger.fatal("Unreported exception thrown!", e);
                         crashpatch$displayCrashScreen(report);
                     }
                 } else {
                     crashpatch$serverCrashCount++;
-                    crashpatch$addInfoToCrash(crashReporter);
+                    crashpatch$addInfoToCrash(this.crashReporter);
                     freeMemory();
-                    crashpatch$displayCrashScreen(crashReporter);
-                    hasCrashed = false;
-                    crashReporter = null;
+                    crashpatch$displayCrashScreen(this.crashReporter);
+                    this.hasCrashed = false;
+                    this.crashReporter = null;
                 }
             }
         } catch (MinecraftError ignored) {
@@ -213,7 +214,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             crashpatch$letDie = true;
         }
         if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
-            logger.error("Crash limit reached, exiting game");
+            this.logger.error("Crash limit reached, exiting game");
             crashpatch$letDie = true;
         }
         displayCrashReport(report);
@@ -221,19 +222,19 @@ public abstract class MixinMinecraft implements MinecraftHook {
         try {
 
             // Reset hasCrashed, debugCrashKeyPressTime, and crashIntegratedServerNextTick
-            hasCrashed = false;
-            debugCrashKeyPressTime = -1;
+            this.hasCrashed = false;
+            this.debugCrashKeyPressTime = -1;
 
             // Vanilla does this when switching to main menu but not our custom crash screen
             // nor the out of memory screen (see https://bugs.mojang.com/browse/MC-128953)
-            gameSettings.showDebugInfo = false;
+            this.gameSettings.showDebugInfo = false;
 
             // Display the crash screen
 //            crashpatch$runGUILoop(new GuiCrashScreen(report));
             displayGuiScreen(new CrashUI(report).create());
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
-            logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
+            this.logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
             displayCrashReport(report);
             System.exit(report.getFile() != null ? -1 : -2);
         }
@@ -252,9 +253,9 @@ public abstract class MixinMinecraft implements MinecraftHook {
             // Free up memory such that this works properly in case of an OutOfMemoryError
             int originalMemoryReserveSize = -1;
             try { // In case another mod actually deletes the memoryReserve field
-                if (memoryReserve != null) {
-                    originalMemoryReserveSize = memoryReserve.length;
-                    memoryReserve = new byte[0];
+                if (this.memoryReserve != null) {
+                    originalMemoryReserveSize = this.memoryReserve.length;
+                    this.memoryReserve = new byte[0];
                 }
             } catch (Throwable ignored) {
             }
@@ -262,31 +263,31 @@ public abstract class MixinMinecraft implements MinecraftHook {
             StateManager.INSTANCE.resetStates();
 
             if (crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit()) {
-                logger.error("Crash limit reached, exiting world");
+                this.logger.error("Crash limit reached, exiting world");
                 CrashUI.Companion.setLeaveWorldCrash(true);
                 if (getNetHandler() != null) {
                     getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
                 }
                 loadWorld(null);
 
-                if (entityRenderer.isShaderActive()) {
-                    entityRenderer.stopUseShader();
+                if (this.entityRenderer.isShaderActive()) {
+                    this.entityRenderer.stopUseShader();
                 }
 
-                scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
+                this.scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
             }
 
             crashpatch$resetState();
 
             if (originalMemoryReserveSize != -1) {
                 try {
-                    memoryReserve = new byte[originalMemoryReserveSize];
+                    this.memoryReserve = new byte[originalMemoryReserveSize];
                 } catch (Throwable ignored) {
                 }
             }
             System.gc();
         } catch (Throwable t) {
-            logger.error("Failed to reset state after a crash", t);
+            this.logger.error("Failed to reset state after a crash", t);
             try {
                 StateManager.INSTANCE.resetStates();
                 crashpatch$resetState();
@@ -303,19 +304,19 @@ public abstract class MixinMinecraft implements MinecraftHook {
         }
         displayCrashReport(report);
         try {
-            mcResourceManager = new SimpleReloadableResourceManager(metadataSerializer_);
-            renderEngine = new TextureManager(mcResourceManager);
-            mcResourceManager.registerReloadListener(renderEngine);
+            this.mcResourceManager = new SimpleReloadableResourceManager(this.metadataSerializer_);
+            this.renderEngine = new TextureManager(this.mcResourceManager);
+            this.mcResourceManager.registerReloadListener(this.renderEngine);
 
-            mcLanguageManager = new LanguageManager(metadataSerializer_, gameSettings.language);
-            mcResourceManager.registerReloadListener(mcLanguageManager);
+            this.mcLanguageManager = new LanguageManager(this.metadataSerializer_, this.gameSettings.language);
+            this.mcResourceManager.registerReloadListener(this.mcLanguageManager);
 
             refreshResources(); // TODO: Why is this necessary?
-            fontRendererObj = new FontRenderer(gameSettings, new ResourceLocation("textures/font/ascii.png"), renderEngine, false);
-            mcResourceManager.registerReloadListener(fontRendererObj);
+            this.fontRendererObj = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
+            this.mcResourceManager.registerReloadListener(this.fontRendererObj);
 
-            mcSoundHandler = new SoundHandler(mcResourceManager, gameSettings);
-            mcResourceManager.registerReloadListener(mcSoundHandler);
+            this.mcSoundHandler = new SoundHandler(this.mcResourceManager, this.gameSettings);
+            this.mcResourceManager.registerReloadListener(this.mcSoundHandler);
 
             //try { // this is necessary for some GUI stuff. if it works, cool, if not, it's not a big deal
             //    //EventManager.INSTANCE.register(Notifications.INSTANCE);
@@ -325,7 +326,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             //}
             //todo do we need a polyui equivalent
 
-            running = true;
+            this.running = true;
             try {
                 //noinspection deprecation
                 SplashProgress.pause();// Disable the forge splash progress screen
@@ -336,7 +337,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             crashpatch$runGUILoop(new CrashUI(report, CrashUI.GuiType.INIT));
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
-                logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
+                this.logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
                 crashpatch$letDie = true;
             }
             displayCrashReport(report);
@@ -349,21 +350,21 @@ public abstract class MixinMinecraft implements MinecraftHook {
     private void crashpatch$runGUILoop(CrashUI crashUI) throws Throwable {
         GuiScreen screen = crashUI.create();
         displayGuiScreen(screen);
-        while (running && currentScreen != null) {
+        while (this.running && this.currentScreen != null) {
             if (Display.isCreated() && Display.isCloseRequested()) {
                 System.exit(0);
             }
             //EventManager.INSTANCE.post(new RenderEvent.Start()); todo
-            leftClickCounter = 10000;
-            currentScreen.handleInput();
-            currentScreen.updateScreen();
+            this.leftClickCounter = 10000;
+            this.currentScreen.handleInput();
+            this.currentScreen.updateScreen();
 
             GlStateManager.pushMatrix();
             GlStateManager.clear(16640);
-            framebufferMc.bindFramebuffer(true);
+            this.framebufferMc.bindFramebuffer(true);
             GlStateManager.enableTexture2D();
 
-            GlStateManager.viewport(0, 0, displayWidth, displayHeight);
+            GlStateManager.viewport(0, 0, this.displayWidth, this.displayHeight);
 
             ScaledResolution scaledResolution = new ScaledResolution(((Minecraft) (Object) this));
             GlStateManager.clear(256);
@@ -377,20 +378,20 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             int width = scaledResolution.getScaledWidth();
             int height = scaledResolution.getScaledHeight();
-            int mouseX = Mouse.getX() * width / displayWidth;
-            int mouseY = height - Mouse.getY() * height / displayHeight - 1;
+            int mouseX = Mouse.getX() * width / this.displayWidth;
+            int mouseY = height - Mouse.getY() * height / this.displayHeight - 1;
             Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
-            currentScreen.drawScreen(mouseX, mouseY, 0);
+            this.currentScreen.drawScreen(mouseX, mouseY, 0);
             if (crashUI.getShouldCrash()) {
                 crashpatch$letDie = true;
                 throw Objects.requireNonNull(crashUI.getThrowable());
             }
 
-            framebufferMc.unbindFramebuffer();
+            this.framebufferMc.unbindFramebuffer();
             GlStateManager.popMatrix();
 
             GlStateManager.pushMatrix();
-            framebufferMc.framebufferRender(displayWidth, displayHeight);
+            this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
             GlStateManager.popMatrix();
 
             //EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0)); todo
