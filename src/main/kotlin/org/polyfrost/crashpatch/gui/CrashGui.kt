@@ -317,7 +317,14 @@ class CrashGui @JvmOverloads constructor(
                                 translate(0f, scroll)
                                 solution.solutions.forEach {
                                     height += 12 * 1.25f
-                                    drawWrappedString(
+                                    Minecraft.getMinecraft().fontRendererObj.drawString(
+                                        it,
+                                        x + 50 + 20,
+                                        y + 310 + height,
+                                        WHITE_60.rgb
+                                    )
+                                    // this crashes the game
+                                    /*drawWrappedString(
                                         it,
                                         x + 50 + 20,
                                         y + 310f + height,
@@ -326,7 +333,7 @@ class CrashGui @JvmOverloads constructor(
                                         12,
                                         1.25f,
                                         JETBRAINS_MONO
-                                    )
+                                    )*/
                                     height += NanoVGHelper.INSTANCE.getWrappedStringHeight(
                                         vg, it, 550F, 12F, 1.25f, JETBRAINS_MONO
                                     )
