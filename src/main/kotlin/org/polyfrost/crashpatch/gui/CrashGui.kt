@@ -30,6 +30,8 @@ import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.crashpatch.crashes.CrashHelper
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
+import org.polyfrost.crashpatch.hooks.MinecraftHook
+import org.polyfrost.crashpatch.logger
 import org.polyfrost.crashpatch.utils.InternetUtils
 import java.io.File
 import java.net.URI
@@ -179,7 +181,15 @@ class CrashGui @JvmOverloads constructor(
         if (mc.theWorld == null && leaveWorldCrash) {
             drawDefaultBackground()
         }
-        NanoVGHelper.INSTANCE.setupAndDraw { draw(it, inputHandler) }
+        NanoVGHelper.INSTANCE.setupAndDraw {
+            try {
+                draw(it, inputHandler)
+            } catch (t: Throwable) {
+                (mc as MinecraftHook).`crashPatch$die`()
+                logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t)
+                throw throwable ?: t
+            }
+        }
     }
 
     override fun onScreenClose() {

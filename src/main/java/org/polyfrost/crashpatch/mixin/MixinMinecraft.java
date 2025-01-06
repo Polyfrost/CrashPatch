@@ -54,6 +54,7 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
+import java.util.function.Supplier;
 
 @Mixin(value = Minecraft.class, priority = -9000)
 public abstract class MixinMinecraft implements MinecraftHook {
@@ -232,6 +233,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         } catch (Throwable t) {
             // The crash screen has crashed. Report it normally instead.
             logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
+            crashpatch$letDie = true;
             displayCrashReport(report);
             System.exit(report.getFile() != null ? -1 : -2);
         }
@@ -330,7 +332,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 GlStateManager.enableTexture2D();
             } catch (Throwable ignored) {
             }
-            crashpatch$runGUILoop(new CrashGui(report, CrashGui.GuiType.INIT));
+            crashpatch$runGUILoop(() -> new CrashGui(report, CrashGui.GuiType.INIT));
         } catch (Throwable t) {
             if (!crashpatch$letDie) {
                 logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
@@ -343,58 +345,80 @@ public abstract class MixinMinecraft implements MinecraftHook {
     /**
      * @author Runemoro
      */
-    private void crashpatch$runGUILoop(CrashGui screen) throws Throwable {
-        displayGuiScreen(screen);
-        while (running && currentScreen != null) {
-            if (Display.isCreated() && Display.isCloseRequested()) {
-                System.exit(0);
-            }
-            EventManager.INSTANCE.post(new RenderEvent(Stage.START, 0));
-            leftClickCounter = 10000;
-            currentScreen.handleInput();
-            currentScreen.updateScreen();
-
-            GlStateManager.pushMatrix();
-            GlStateManager.clear(16640);
-            framebufferMc.bindFramebuffer(true);
-            GlStateManager.enableTexture2D();
-
-            GlStateManager.viewport(0, 0, displayWidth, displayHeight);
-
-            ScaledResolution scaledResolution = new ScaledResolution(((Minecraft) (Object) this));
-            GlStateManager.clear(256);
-            GlStateManager.matrixMode(5889);
-            GlStateManager.loadIdentity();
-            GlStateManager.ortho(0.0D, scaledResolution.getScaledWidth_double(), scaledResolution.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
-            GlStateManager.matrixMode(5888);
-            GlStateManager.loadIdentity();
-            GlStateManager.translate(0.0F, 0.0F, -2000.0F);
-            GlStateManager.clear(256);
-
-            int width = scaledResolution.getScaledWidth();
-            int height = scaledResolution.getScaledHeight();
-            int mouseX = Mouse.getX() * width / displayWidth;
-            int mouseY = height - Mouse.getY() * height / displayHeight - 1;
-            Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
-            currentScreen.drawScreen(mouseX, mouseY, 0);
-            if (screen.getShouldCrash()) {
+    private void crashpatch$runGUILoop(Supplier<CrashGui> guiSupplier) throws Throwable {
+        CrashGui screen = null;
+        try {
+            screen = guiSupplier.get();
+            displayGuiScreen(screen);
+        } catch (Throwable t) {
+            if (!crashpatch$letDie) {
+                logger.error("An uncaught exception occured while displaying the crash screen, making normal report instead", t);
                 crashpatch$letDie = true;
-                throw Objects.requireNonNull(screen.getThrowable());
             }
+            if (screen != null && screen.getThrowable() != null) {
+                throw screen.getThrowable();
+            } else {
+                displayCrashReport(new CrashReport("An uncaught exception occured while displaying the crash screen", t));
+                return;
+            }
+        }
+        while (running && currentScreen != null) {
+            try {
+                if (Display.isCreated() && Display.isCloseRequested()) {
+                    System.exit(0);
+                }
+                EventManager.INSTANCE.post(new RenderEvent(Stage.START, 0));
+                leftClickCounter = 10000;
+                currentScreen.handleInput();
+                currentScreen.updateScreen();
 
-            framebufferMc.unbindFramebuffer();
-            GlStateManager.popMatrix();
+                GlStateManager.pushMatrix();
+                GlStateManager.clear(16640);
+                framebufferMc.bindFramebuffer(true);
+                GlStateManager.enableTexture2D();
 
-            GlStateManager.pushMatrix();
-            framebufferMc.framebufferRender(displayWidth, displayHeight);
-            GlStateManager.popMatrix();
+                GlStateManager.viewport(0, 0, displayWidth, displayHeight);
 
-            EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0));
+                ScaledResolution scaledResolution = new ScaledResolution(((Minecraft) (Object) this));
+                GlStateManager.clear(256);
+                GlStateManager.matrixMode(5889);
+                GlStateManager.loadIdentity();
+                GlStateManager.ortho(0.0D, scaledResolution.getScaledWidth_double(), scaledResolution.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
+                GlStateManager.matrixMode(5888);
+                GlStateManager.loadIdentity();
+                GlStateManager.translate(0.0F, 0.0F, -2000.0F);
+                GlStateManager.clear(256);
 
-            updateDisplay();
-            Thread.yield();
-            Display.sync(60);
-            checkGLError("CrashPatch GUI Loop");
+                int width = scaledResolution.getScaledWidth();
+                int height = scaledResolution.getScaledHeight();
+                int mouseX = Mouse.getX() * width / displayWidth;
+                int mouseY = height - Mouse.getY() * height / displayHeight - 1;
+                Gui.drawRect(0, 0, width, height, Color.WHITE.getRGB()); // DO NOT REMOVE THIS! FOR SOME REASON NANOVG DOESN'T RENDER WITHOUT IT
+                currentScreen.drawScreen(mouseX, mouseY, 0);
+                if (screen.getShouldCrash()) {
+                    crashpatch$letDie = true;
+                    throw Objects.requireNonNull(screen.getThrowable());
+                }
+
+                framebufferMc.unbindFramebuffer();
+                GlStateManager.popMatrix();
+
+                GlStateManager.pushMatrix();
+                framebufferMc.framebufferRender(displayWidth, displayHeight);
+                GlStateManager.popMatrix();
+
+                EventManager.INSTANCE.post(new RenderEvent(Stage.END, 0));
+
+                updateDisplay();
+                Thread.yield();
+                Display.sync(60);
+                checkGLError("CrashPatch GUI Loop");
+            } catch (Throwable t) {
+                // If the crash screen crashes, just give up lol
+                crashpatch$letDie = true;
+                logger.error("An uncaught exception occured while displaying the init error screen, making normal report instead", t);
+                throw screen.getThrowable() == null ? t : screen.getThrowable();
+            }
         }
     }
 
@@ -459,6 +483,10 @@ public abstract class MixinMinecraft implements MinecraftHook {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
+    @Override
+    public void crashPatch$die() {
+        crashpatch$letDie = true;
+    }
 }
 
 

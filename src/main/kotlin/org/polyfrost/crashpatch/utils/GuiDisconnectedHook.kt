@@ -15,8 +15,12 @@ object GuiDisconnectedHook {
             val gui = i as AccessorGuiDisconnected
             val scan = scanReport(gui.message.formattedText, true)
             if (scan != null && scan.solutions.size > 1) {
-                ci.cancel()
-                mc.displayGuiScreen(CrashGui(gui.message.formattedText, null, gui.reason, CrashGui.GuiType.DISCONNECT))
+                try {
+                    mc.displayGuiScreen(CrashGui(gui.message.formattedText, null, gui.reason, CrashGui.GuiType.DISCONNECT))
+                    ci.cancel()
+                } catch (t: Throwable) {
+                    t.printStackTrace()
+                }
             }
         }
     }
