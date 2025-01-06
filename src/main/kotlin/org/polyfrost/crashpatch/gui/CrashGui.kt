@@ -25,6 +25,7 @@ import cc.polyfrost.oneconfig.utils.Notifications
 import cc.polyfrost.oneconfig.utils.color.ColorPalette
 import cc.polyfrost.oneconfig.utils.color.ColorUtils
 import cc.polyfrost.oneconfig.utils.dsl.*
+import net.minecraft.client.Minecraft
 import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.crashpatch.crashes.CrashHelper
@@ -320,8 +321,8 @@ class CrashGui @JvmOverloads constructor(
                                     Minecraft.getMinecraft().fontRendererObj.drawString(
                                         it,
                                         x + 50 + 20,
-                                        y + 310 + height,
-                                        WHITE_60.rgb
+                                        (y + 310 + height).toInt(),
+                                        WHITE_60
                                     )
                                     // this crashes the game
                                     /*drawWrappedString(
