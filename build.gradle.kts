@@ -47,3 +47,9 @@ toolkitLoomHelper {
 dependencies {
     implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
 }
+
+tasks {
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}

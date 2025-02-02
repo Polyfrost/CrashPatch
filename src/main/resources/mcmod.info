@@ -8,8 +8,7 @@
     "url": "https://github.com/Polyfrost/CrashPatch",
     "updateUrl": "https://github.com/Polyfrost/CrashPatch/releases/latest",
     "authorList": [
-      "Polyfrost",
-      "SkyClient"
+      "Polyfrost"
     ],
     "credits": "vfyjxf for the 1.7.10 port of VanillaFix (BetterCrashes), Runemoro for VanillaFix, natanfudge for NotEnoughCrashes.",
     "screenshots": [],
