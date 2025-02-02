@@ -2,7 +2,7 @@
     "compatibilityLevel": "JAVA_8",
     "minVersion": "0.7",
     "package": "org.polyfrost.crashpatch.mixin",
-    "plugin": "org.polyfrost.crashpatch.mixins.MixinPlugin",
+    "plugin": "org.polyfrost.crashpatch.plugin.MixinPlugin",
     "refmap": "mixin.crashpatch.refmap.json",
     "injectors": {
         "maxShiftBy": 5

@@ -1,11 +1,9 @@
-package org.polyfrost.crashpatch.mixins
-
-//#if MC >= 1.16.5 || FABRIC
-//$$ import org.objectweb.asm.tree.ClassNode
-//#endif
+package org.polyfrost.crashpatch.plugin
 
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo
+
+import org.objectweb.asm.tree.ClassNode
 
 class MixinPlugin : IMixinConfigPlugin {
 
@@ -33,11 +31,7 @@ class MixinPlugin : IMixinConfigPlugin {
 
     override fun preApply(
         targetClassName: String,
-        //#if MC >= 1.16.5 || FABRIC
-        //$$ targetClass: ClassNode,
-        //#else
-        targetClass: org.spongepowered.asm.lib.tree.ClassNode,
-        //#endif
+        targetClass: ClassNode,
         mixinClassName: String,
         mixinInfo: IMixinInfo
     ) {
@@ -46,11 +40,7 @@ class MixinPlugin : IMixinConfigPlugin {
 
     override fun postApply(
         targetClassName: String,
-        //#if MC >= 1.16.5 || FABRIC
-        //$$ targetClass: ClassNode,
-        //#else
-        targetClass: org.spongepowered.asm.lib.tree.ClassNode,
-        //#endif
+        targetClass: ClassNode,
         mixinClassName: String,
         mixinInfo: IMixinInfo
     ) {
