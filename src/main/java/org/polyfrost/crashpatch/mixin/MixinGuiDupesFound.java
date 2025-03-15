@@ -1,8 +1,8 @@
 package org.polyfrost.crashpatch.mixin;
 
 //#if FORGE
+import dev.deftu.omnicore.client.OmniDesktop;
 import org.polyfrost.crashpatch.CrashPatch;
-import org.polyfrost.universal.UDesktop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
@@ -42,7 +42,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
-                UDesktop.open(new File(CrashPatch.getMcDir(), "mods"));
+                OmniDesktop.open(new File(CrashPatch.getMcDir(), "mods"));
                 break;
             case 1:
                 FMLCommonHandler.instance().exitJava(0, false);

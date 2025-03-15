@@ -1,6 +1,8 @@
 package org.polyfrost.crashpatch.gui
 
 import dev.deftu.clipboard.Clipboard
+import dev.deftu.omnicore.client.OmniDesktop
+import dev.deftu.omnicore.client.OmniScreen
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.CrashPatch
@@ -25,8 +27,6 @@ import org.polyfrost.polyui.unit.Vec2
 import org.polyfrost.polyui.unit.seconds
 import org.polyfrost.polyui.utils.image
 import org.polyfrost.polyui.utils.mapToArray
-import org.polyfrost.universal.UDesktop
-import org.polyfrost.universal.UScreen
 import java.io.File
 import java.net.URI
 import java.util.function.Consumer
@@ -166,7 +166,7 @@ class CrashUI @JvmOverloads constructor(
                                     val link = UploadUtils.upload(solution.solutions.joinToString(separator = "") { it + "\n" } + "\n\n" + (if (!solution.crashReport) scanText else ""))
                                     Clipboard.getInstance().setString(link)
 
-                                    if (UDesktop.browse(URI.create(link))) {
+                                    if (OmniDesktop.browse(URI.create(link))) {
                                         Notifications.enqueue(Notifications.Type.Success, CrashPatch.NAME, "Link copied to clipboard and opened in browser")
                                     } else {
                                         Notifications.enqueue(Notifications.Type.Warning, CrashPatch.NAME, "Couldn't open link in browser, copied to clipboard instead.")
@@ -208,7 +208,7 @@ class CrashUI @JvmOverloads constructor(
                     Image("/assets/crashpatch/discord.svg".image(), size = Vec2(28f, 28f)),
                     Text("crashpatch.link.discord.polyfrost", fontSize = 16f).setPalette { brand.fg }.padded(4f, 0f, 0f, 0f),
                 ).onClick {
-                    UDesktop.browse(URI.create("crashpatch.link.discord.polyfrost"))
+                    OmniDesktop.browse(URI.create("crashpatch.link.discord.polyfrost"))
                     true
                 },
 
@@ -218,7 +218,7 @@ class CrashUI @JvmOverloads constructor(
                         if (type == GuiType.INIT) {
                             shouldCrash = true
                         } else {
-                            UScreen.displayScreen(null)
+                            OmniScreen.closeScreen()
                         }
                     }.setPalette { brand.fg },
                     Button(
@@ -226,7 +226,7 @@ class CrashUI @JvmOverloads constructor(
                         rightImage = "/assets/crashpatch/open-external.svg".image(),
                         padding = Vec2(14f, 14f)
                     ).onClick {
-                        file?.let { UDesktop.open(it) }
+                        file?.let { OmniDesktop.open(it) }
                         true
                     }.setPalette { createCustomButtonPalette(rgba(21, 21, 21)) },
                 ).padded(0f, 32f, 0f, 0f),

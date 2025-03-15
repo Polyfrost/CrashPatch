@@ -8,12 +8,16 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 //$$ import net.fabricmc.api.ClientModInitializer
 //#endif
 
+import dev.deftu.omnicore.client.OmniClientCommands
+import dev.deftu.textile.minecraft.MinecraftTextFormat
+
 import java.io.File
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.Multithreading
+import org.polyfrost.oneconfig.utils.v1.dsl.openUI
 
 //#if FORGE
 @Mod(modid = CrashPatch.ID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "org.polyfrost.oneconfig.utils.v1.forge.KotlinLanguageAdapter")
@@ -64,7 +68,27 @@ object CrashPatch
     }
 
     fun initialize() {
-        CommandManager.registerCommand(CrashPatchCommand())
+        OmniClientCommands.initialize()
+
+        val command = CommandManager.literal(ID)
+        command.executes {
+            CrashPatchConfig.openUI()
+            1
+        }
+        command.then(CommandManager.literal("reload").executes { ctx ->
+            if (CrashScanStorage.downloadJson()) {
+                ctx.source.showMessage("${MinecraftTextFormat.GREEN}[CrashPatch] Successfully reloaded JSON file!")
+            } else {
+                ctx.source.showMessage("${MinecraftTextFormat.RED}[CrashPatch] Failed to reload the JSON file!")
+            }
+            1
+        })
+        command.then(CommandManager.literal("crash").executes { ctx ->
+            requestedCrash = true
+            1
+        })
+        CommandManager.register(command)
+
         CrashPatchConfig // Initialize the config
     }
 

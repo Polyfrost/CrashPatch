@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.mixin;
 
-import org.polyfrost.universal.ChatColor;
-import org.polyfrost.universal.UDesktop;
+import dev.deftu.omnicore.client.OmniDesktop;
+import dev.deftu.textile.minecraft.MinecraftTextFormat;
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import net.minecraft.client.Minecraft;
@@ -30,7 +30,7 @@ public class MixinGuiConnecting extends GuiScreen {
 
     @Unique
     private String crashpatch$getText() {
-        return ChatColor.RED + "If Minecraft is stuck on this screen, please force close the game" + (CrashPatch.INSTANCE.isSkyclient() ? " and go to https://discord.gg/eh7tNFezct for support" : "") + ".";
+        return MinecraftTextFormat.RED + "If Minecraft is stuck on this screen, please force close the game" + (CrashPatch.INSTANCE.isSkyclient() ? " and go to https://discord.gg/eh7tNFezct for support" : "") + ".";
     }
 
     @Override
@@ -50,7 +50,7 @@ public class MixinGuiConnecting extends GuiScreen {
 
                 int left = (this.width / 2) - width / 2;
                 if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.length - 1) * (this.fontRendererObj.FONT_HEIGHT + 2)))) {
-                    UDesktop.browse(URI.create("https://discord.gg/eh7tNFezct"));
+                    OmniDesktop.browse(URI.create("https://discord.gg/eh7tNFezct"));
                 }
             }
         }
