@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.mixin;
 
 import dev.deftu.omnicore.client.OmniDesktop;
-import dev.deftu.textile.minecraft.MinecraftTextFormat;
+import dev.deftu.textile.minecraft.MCTextFormat;
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import net.minecraft.client.Minecraft;
@@ -30,7 +30,7 @@ public class MixinGuiConnecting extends GuiScreen {
 
     @Unique
     private String crashpatch$getText() {
-        return MinecraftTextFormat.RED + "If Minecraft is stuck on this screen, please force close the game" + (CrashPatch.INSTANCE.isSkyclient() ? " and go to https://discord.gg/eh7tNFezct for support" : "") + ".";
+        return MCTextFormat.RED + "If Minecraft is stuck on this screen, please force close the game" + (CrashPatch.INSTANCE.isSkyclient() ? " and go to https://discord.gg/eh7tNFezct for support" : "") + ".";
     }
 
     @Override

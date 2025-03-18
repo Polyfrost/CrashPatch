@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.crashes
 
 import com.google.gson.JsonObject
-import dev.deftu.textile.minecraft.MinecraftTextFormat
+import dev.deftu.textile.minecraft.MCTextFormat
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatch
 import org.polyfrost.oneconfig.utils.v1.JsonUtils
@@ -109,7 +109,7 @@ object CrashScanStorage {
                 val causeJson = cause.asJsonObject
                 var theReport = report
                 if (causeJson.has("unformatted") && causeJson["unformatted"].asBoolean) {
-                    theReport = MinecraftTextFormat.strip(theReport)
+                    theReport = MCTextFormat.strip(theReport)
                 }
 
                 when (causeJson["method"].asString) {

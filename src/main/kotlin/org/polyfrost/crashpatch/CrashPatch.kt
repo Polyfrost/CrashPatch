@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 //#endif
 
 import dev.deftu.omnicore.client.OmniClientCommands
-import dev.deftu.textile.minecraft.MinecraftTextFormat
+import dev.deftu.textile.minecraft.MCTextFormat
 
 import java.io.File
 import org.apache.logging.log4j.LogManager
@@ -77,9 +77,9 @@ object CrashPatch
         }
         command.then(CommandManager.literal("reload").executes { ctx ->
             if (CrashScanStorage.downloadJson()) {
-                ctx.source.showMessage("${MinecraftTextFormat.GREEN}[CrashPatch] Successfully reloaded JSON file!")
+                ctx.source.displayMessage("${MCTextFormat.GREEN}[CrashPatch] Successfully reloaded JSON file!")
             } else {
-                ctx.source.showMessage("${MinecraftTextFormat.RED}[CrashPatch] Failed to reload the JSON file!")
+                ctx.source.displayMessage("${MCTextFormat.RED}[CrashPatch] Failed to reload the JSON file!")
             }
             1
         })
