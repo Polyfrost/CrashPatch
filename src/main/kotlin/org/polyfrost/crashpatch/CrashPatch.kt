@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 //#endif
 
 import dev.deftu.omnicore.client.OmniClientCommands
+import dev.deftu.textile.minecraft.MCSimpleTextHolder
 import dev.deftu.textile.minecraft.MCTextFormat
 
 import java.io.File
@@ -70,24 +71,28 @@ object CrashPatch
     fun initialize() {
         OmniClientCommands.initialize()
 
-        val command = CommandManager.literal(ID)
-        command.executes {
-            CrashPatchConfig.openUI()
-            1
-        }
-        command.then(CommandManager.literal("reload").executes { ctx ->
-            if (CrashScanStorage.downloadJson()) {
-                ctx.source.displayMessage("${MCTextFormat.GREEN}[CrashPatch] Successfully reloaded JSON file!")
-            } else {
-                ctx.source.displayMessage("${MCTextFormat.RED}[CrashPatch] Failed to reload the JSON file!")
+        CommandManager.register(with(CommandManager.literal(ID)) {
+            executes {
+                CrashPatchConfig.openUI()
+                1
             }
-            1
+
+            then(CommandManager.literal("reload").executes { ctx ->
+                val text = if (CrashScanStorage.downloadJson()) {
+                    MCSimpleTextHolder("[${NAME}] Successfully reloaded JSON file!").withFormatting(MCTextFormat.GREEN)
+                } else {
+                    MCSimpleTextHolder("[${NAME}] Failed to reload JSON file!").withFormatting(MCTextFormat.RED)
+                }
+
+                ctx.source.displayMessage(text)
+                1
+            })
+
+            then(CommandManager.literal("crash").executes { ctx ->
+                requestedCrash = true
+                1
+            })
         })
-        command.then(CommandManager.literal("crash").executes { ctx ->
-            requestedCrash = true
-            1
-        })
-        CommandManager.register(command)
 
         CrashPatchConfig // Initialize the config
     }
