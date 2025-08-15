@@ -1,12 +1,12 @@
 package org.polyfrost.crashpatch.mixin;
 
 //#if FORGE
+import dev.deftu.omnicore.client.OmniClient;
 import dev.deftu.omnicore.client.OmniDesktop;
+import dev.deftu.textile.minecraft.MCTextFormat;
 import org.polyfrost.crashpatch.CrashPatch;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.client.GuiDupesFound;
 import net.minecraftforge.fml.common.DuplicateModsFoundException;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -32,8 +32,14 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
         super(null, null);
     }
 
+    //#if MC < 1.12
     @Inject(method = "initGui", at = @At("RETURN"))
     private void onInit(CallbackInfo ci) {
+    //#else
+    //$$ @Override
+    //$$ public void initGui() {
+    //$$ super.initGui();
+    //#endif
         this.buttonList.add(new GuiButton(0, width / 2 - 100, height - 50, "Open Folder"));
         this.buttonList.add(new GuiButton(1, width / 2 - 100, height - 30, "Quit Game"));
     }
@@ -64,10 +70,14 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
 
         offset += 10;
 
-        crashpatch$drawSplitString(EnumChatFormatting.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatch.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
+        crashpatch$drawSplitString(MCTextFormat.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatch.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
 
         for (GuiButton guiButton : this.buttonList) {
-            guiButton.drawButton(this.mc, mouseX, mouseY);
+            guiButton.drawButton(this.mc, mouseX, mouseY
+                    //#if MC >= 1.12
+                    //$$ , partialTicks
+                    //#endif
+                    );
         }
         for (net.minecraft.client.gui.GuiLabel guiLabel : this.labelList) {
             guiLabel.drawLabel(this.mc, mouseX, mouseY);
@@ -78,9 +88,9 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     private static int crashpatch$drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {
         str = crashpatch$trimStringNewline(str);
         int y2 = y;
-        for (String s : Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(str, wrapWidth)) {
-            Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(s, (float) (x - Minecraft.getMinecraft().fontRendererObj.getStringWidth(s) / 2), (float) y2, textColor);
-            y2 += Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT;
+        for (String s : OmniClient.getFontRenderer().listFormattedStringToWidth(str, wrapWidth)) {
+            OmniClient.getFontRenderer().drawStringWithShadow(s, (float) (x - OmniClient.getFontRenderer().getStringWidth(s) / 2), (float) y2, textColor);
+            y2 += OmniClient.getFontRenderer().FONT_HEIGHT;
         }
         return y2 - y;
     }

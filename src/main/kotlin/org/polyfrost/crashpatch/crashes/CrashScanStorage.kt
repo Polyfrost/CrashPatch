@@ -27,7 +27,7 @@ object CrashScanStorage {
     @JvmStatic
     fun downloadJson(): Boolean {
         return try {
-            skyclientData = JsonUtils.parseFromUrl("https://raw.githubusercontent.com/SkyblockClient/CrashData/main/crashes.json")
+            skyclientData = JsonUtils.parseFromUrl("https://raw.githubusercontent.com/Polyfrost/CrashData/main/crashes.json")
                 ?.asJsonObject ?: return false
             cacheFile.writeText(skyclientData.toString())
             true

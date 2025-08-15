@@ -29,14 +29,13 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
     )
     var disconnectCrashPatch = true
 
-    // Limits
-    //@Info( // todo
-    //    text = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
-    //    type = InfoType.WARNING,
-    //    size = 2,
-    //    subcategory = "Limits"
-    //)
-    //var ignored: Boolean = false
+    @Info(
+        title = "polyui.warning",
+        description = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
+        icon = "polyui/warning.svg",
+        subcategory = "Limits"
+    )
+    var ignored: Boolean = false
 
     @Slider(
         title = "World Leave Limit",

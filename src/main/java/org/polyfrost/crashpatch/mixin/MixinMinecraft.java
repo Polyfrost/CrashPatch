@@ -15,7 +15,6 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.LanguageManager;
@@ -32,19 +31,14 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL14;
 import org.polyfrost.crashpatch.CrashPatch;
 import org.polyfrost.crashpatch.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashUI;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
+import org.polyfrost.crashpatch.utils.GlUtil;
 import org.polyfrost.crashpatch.utils.GuiDisconnectedHook;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -110,9 +104,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
     @Shadow
     protected abstract void runGameLoop();
-
-    @Shadow
-    public abstract void freeMemory();
 
     @Shadow
     public abstract void shutdownMinecraftApplet();
@@ -248,10 +239,14 @@ public abstract class MixinMinecraft implements MinecraftHook {
         crashReport.getCategory().addCrashSectionCallable("Integrated Server Crashes Since Restart", () -> String.valueOf(crashpatch$serverCrashCount));
     }
 
+    public void crashpatch$resetGameState() {
+        crashpatch$resetGameState(false);
+    }
+
     /**
      * @author Runemoro
      */
-    public void crashpatch$resetGameState() {
+    public void crashpatch$resetGameState(boolean freeingMemory) {
         try {
             // Free up memory such that this works properly in case of an OutOfMemoryError
             int originalMemoryReserveSize = -1;
@@ -265,9 +260,18 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
             StateManager.INSTANCE.resetStates();
 
-            if (crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit()) {
+            boolean shouldCrash = crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit();
+
+            if (shouldCrash && !freeingMemory) {
                 this.logger.error("Crash limit reached, exiting world");
                 CrashUI.Companion.setLeaveWorldCrash(true);
+            }
+
+            if (shouldCrash || freeingMemory
+                    //#if MC > 1.12
+                    //$$ || true
+                    //#endif
+            ) {
                 if (getNetHandler() != null) {
                     getNetHandler().getNetworkManager().closeChannel(new ChatComponentText("[CrashPatch] Client crashed"));
                 }
@@ -280,7 +284,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 this.scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
             }
 
-            crashpatch$resetState();
+            GlUtil.INSTANCE.resetState();
 
             if (originalMemoryReserveSize != -1) {
                 try {
@@ -293,9 +297,23 @@ public abstract class MixinMinecraft implements MinecraftHook {
             this.logger.error("Failed to reset state after a crash", t);
             try {
                 StateManager.INSTANCE.resetStates();
-                crashpatch$resetState();
+                GlUtil.INSTANCE.resetState();
             } catch (Throwable ignored) {}
         }
+    }
+
+    /**
+     * @reason Disconnect from the current world and free memory, using a memory reserve
+     * to make sure that an OutOfMemory doesn't happen while doing this.
+     * <p>
+     * Bugs Fixed:
+     * - https://bugs.mojang.com/browse/MC-128953
+     * - Memory reserve not recreated after out-of memory
+     * @author Runemoro
+     */
+    @Overwrite
+    public void freeMemory() {
+        crashpatch$resetGameState(true);
     }
 
     /**
@@ -417,59 +435,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
     }
     //#endif
 
-    @Unique
-    private void crashpatch$resetState() {
-        GlStateManager.bindTexture(0);
-        GlStateManager.disableTexture2D();
-
-        // Reset depth
-        GlStateManager.disableDepth();
-        GlStateManager.depthFunc(513);
-        GlStateManager.depthMask(true);
-
-        // Reset blend mode
-        GlStateManager.disableBlend();
-        GlStateManager.blendFunc(1, 0);
-        GlStateManager.tryBlendFuncSeparate(1, 0, 1, 0);
-        GL14.glBlendEquation(GL14.GL_FUNC_ADD);
-
-        // Reset polygon offset
-        GlStateManager.doPolygonOffset(0.0F, 0.0F);
-        GlStateManager.disablePolygonOffset();
-
-        // Reset color logic
-        GlStateManager.disableColorLogic();
-        GlStateManager.colorLogicOp(5379);
-
-        // Disable lightmap
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.disableTexture2D();
-
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-
-        // Reset texture parameters
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST_MIPMAP_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, 1000);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LOD, 1000);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, -1000);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, 0.0F);
-
-        GlStateManager.colorMask(true, true, true, true);
-        GlStateManager.clearDepth(1.0D);
-        GL11.glLineWidth(1.0F);
-        GL11.glNormal3f(0.0F, 0.0F, 1.0F);
-        GL11.glPolygonMode(GL11.GL_FRONT, GL11.GL_FILL);
-        GL11.glPolygonMode(GL11.GL_BACK, GL11.GL_FILL);
-        GlStateManager.enableTexture2D();
-        GlStateManager.clearDepth(1.0D);
-        GlStateManager.enableDepth();
-        GlStateManager.depthFunc(515);
-        GlStateManager.enableCull();
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
-    }
 
 }
 

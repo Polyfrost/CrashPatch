@@ -17,15 +17,15 @@ plugins {
 
 toolkitLoomHelper {
     useOneConfig {
-        version = "1.0.0-alpha.106"
-        loaderVersion = "1.1.0-alpha.46"
+        version = "1.0.0-alpha.134"
+        loaderVersion = "1.1.0-alpha.48"
 
         usePolyMixin = true
-        polyMixinVersion = "0.8.4+build.2"
+        polyMixinVersion = "0.8.4+build.6"
 
         applyLoaderTweaker = true
 
-        for (module in arrayOf("commands", "config", "config-impl", "events", "internal", "ui", "utils")) {
+        for (module in arrayOf("commands", "config", "config-impl", "events", "internal", "hud", "ui", "utils")) {
             +module
         }
     }

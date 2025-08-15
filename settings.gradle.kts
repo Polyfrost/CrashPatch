@@ -24,7 +24,7 @@ pluginManagement {
 
     plugins {
         kotlin("jvm") version("2.0.0")
-        id("dev.deftu.gradle.multiversion-root") version("2.34.0")
+        id("dev.deftu.gradle.multiversion-root") version("2.49.0")
     }
 }
 
@@ -42,6 +42,8 @@ rootProject.buildFileName = "root.gradle.kts"
 listOf(
     "1.8.9-forge",
     "1.8.9-fabric",
+    "1.12.2-forge",
+    "1.12.2-fabric"
 ).forEach { version ->
     include(":$version")
     project(":$version").apply {

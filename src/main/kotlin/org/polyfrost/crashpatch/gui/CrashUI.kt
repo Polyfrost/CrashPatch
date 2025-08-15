@@ -179,7 +179,7 @@ class CrashUI @JvmOverloads constructor(
 
                         alignment = Align(
                             pad = Vec2.ZERO,
-                            main = Align.Main.SpaceBetween,
+                            main = Align.Content.SpaceBetween,
                             mode = Align.Mode.Horizontal
                         ),
                         size = Vec2(550f, 37f),
@@ -194,8 +194,8 @@ class CrashUI @JvmOverloads constructor(
                     ).padded(16f, 8f),
 
                     alignment = Align(
-                        main = Align.Main.Start,
-                        cross = Align.Cross.Start,
+                        main = Align.Content.Start,
+                        cross = Align.Content.Start,
                         mode = Align.Mode.Vertical,
                         pad = Vec2.ZERO
                     ),

@@ -17,8 +17,13 @@ import java.lang.ref.WeakReference;
 @Mixin(TileEntityRendererDispatcher.class)
 public abstract class MixinTileEntityRendererDispatcher implements StateManager.IResettable {
 
+    //#if MC < 1.12
     @Unique
     private boolean crashpatch$drawingBatch = false;
+    //#else
+    //$$ @org.spongepowered.asm.mixin.Shadow
+    //$$ private boolean drawingBatch;
+    //#endif
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     public void onInit(CallbackInfo ci) {
@@ -27,8 +32,14 @@ public abstract class MixinTileEntityRendererDispatcher implements StateManager.
 
     @Override
     public void resetState() {
+        //#if MC < 1.12
         if (crashpatch$drawingBatch) crashpatch$drawingBatch = false;
+        //#else
+        //$$ if (drawingBatch) drawingBatch = false;
+        //#endif
     }
+
+    //#if MC < 1.12
 
     @Redirect(method = "renderTileEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/tileentity/TileEntity;hasFastRenderer()Z"))
     private boolean isNotFastRenderOrDrawing(TileEntity instance) {
@@ -54,5 +65,6 @@ public abstract class MixinTileEntityRendererDispatcher implements StateManager.
         crashpatch$drawingBatch = false;
     }
 
+    //#endif
 }
 //#endif
