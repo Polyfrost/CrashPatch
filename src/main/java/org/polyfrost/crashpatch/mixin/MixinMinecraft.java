@@ -37,7 +37,6 @@ import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashUI;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import org.polyfrost.crashpatch.utils.GlUtil;
-import org.polyfrost.crashpatch.utils.GuiDisconnectedHook;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -193,11 +192,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
         } finally {
             shutdownMinecraftApplet();
         }
-    }
-
-    @Inject(method = "displayGuiScreen", at = @At("HEAD"), cancellable = true)
-    private void onGUIDisplay(GuiScreen i, CallbackInfo ci) {
-        GuiDisconnectedHook.INSTANCE.onGUIDisplay(i, ci);
     }
 
     /**

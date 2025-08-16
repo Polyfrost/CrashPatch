@@ -217,7 +217,11 @@ class CrashUI @JvmOverloads constructor(
                 Group(
                     Button(text = "crashpatch.continue", padding = Vec2(14f, 14f)).onClick {
                         if (type == GuiType.INIT) {
+                            //#if MC < 1.13
                             shouldCrash = true
+                            //#else
+                            //$$ throw throwable!!
+                            //#endif
                         } else {
                             OmniScreen.closeScreen()
                         }
