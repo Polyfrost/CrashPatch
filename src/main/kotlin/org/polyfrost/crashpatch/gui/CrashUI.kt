@@ -42,8 +42,17 @@ class CrashUI @JvmOverloads constructor(
 
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
-        report.completeReport,
-        report.file,
+        report
+            //#if MC < 1.21
+            .completeReport,
+            //#else
+            //$$ .getFriendlyReport(net.minecraft.ReportType.CRASH),
+            //#endif
+        report.file
+        //#if MC >= 1.21
+        //$$ ?.toFile()
+        //#endif
+        ,
         (report as CrashReportHook).suspectedCrashPatchMods,
         type,
         report.crashCause

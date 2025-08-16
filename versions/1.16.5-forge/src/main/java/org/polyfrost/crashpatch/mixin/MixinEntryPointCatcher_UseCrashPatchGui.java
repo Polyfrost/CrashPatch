@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(value = EntryPointCatcher.class)
 public class MixinEntryPointCatcher_UseCrashPatchGui {
 
-    @Shadow private static CrashReport crashReport;
+    @Shadow(remap = false) private static CrashReport crashReport;
 
     @ModifyArg(method = "displayInitErrorScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"), index = 0)
     private static Screen useCrashPatchGui(Screen screen) {

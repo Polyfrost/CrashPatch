@@ -29,7 +29,13 @@ public class MixinGuiConnecting extends Screen {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void drawWarningText(PoseStack arg, int i, int j, float f, CallbackInfo ci) {
+    private void drawWarningText(
+            //#if MC<1.20
+            PoseStack arg,
+            //#else
+            //$$ net.minecraft.client.gui.DrawContext arg,
+            //#endif
+            int i, int j, float f, CallbackInfo ci) {
         if (((MinecraftHook) Minecraft.getInstance()).hasRecoveredFromCrash()) {
             crashpatch$drawSplitCenteredString(arg, crashpatch$getText(), width / 2, 5, Color.WHITE.getRGB());
         }
@@ -65,9 +71,20 @@ public class MixinGuiConnecting extends Screen {
     }
 
     @Unique
-    public void crashpatch$drawSplitCenteredString(PoseStack stack, String text, int x, int y, int color) {
+    public void crashpatch$drawSplitCenteredString(
+                                                   //#if MC<1.20
+                                                   PoseStack stack,
+                                                   //#else
+                                                   //$$ net.minecraft.client.gui.DrawContext ctx,
+                                                   //#endif
+                                                   String text, int x, int y, int color) {
         for (FormattedCharSequence line : this.font.split(FormattedText.of(text), width)) {
-            this.font.drawShadow(stack, line, (float) (x - this.font.width(line) / 2), (float) y, color);
+            //#if MC<1.20
+            this.font.drawShadow(stack,
+            //#else
+            //$$ ctx.drawTextWithShadow(this.textRenderer,
+            //#endif
+                    line, (int) (x - ((float) this.font.width(line) / 2)), y, color);
             y += this.font.lineHeight + 2;
         }
     }
