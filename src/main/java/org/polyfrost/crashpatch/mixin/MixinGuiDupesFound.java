@@ -1,10 +1,10 @@
 package org.polyfrost.crashpatch.mixin;
 
-//#if FORGE
+//#if FORGE && MC<1.13
 import dev.deftu.omnicore.client.OmniClient;
 import dev.deftu.omnicore.client.OmniDesktop;
 import dev.deftu.textile.minecraft.MCTextFormat;
-import org.polyfrost.crashpatch.CrashPatch;
+import org.polyfrost.crashpatch.client.CrashPatchClient;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
 import net.minecraftforge.fml.client.GuiDupesFound;
@@ -48,7 +48,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0:
-                OmniDesktop.open(new File(CrashPatch.getMcDir(), "mods"));
+                OmniDesktop.open(new File(CrashPatchClient.getMcDir(), "mods"));
                 break;
             case 1:
                 FMLCommonHandler.instance().exitJava(0, false);
@@ -70,7 +70,7 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
 
         offset += 10;
 
-        crashpatch$drawSplitString(MCTextFormat.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatch.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
+        crashpatch$drawSplitString(MCTextFormat.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatchClient.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
 
         for (GuiButton guiButton : this.buttonList) {
             guiButton.drawButton(this.mc, mouseX, mouseY

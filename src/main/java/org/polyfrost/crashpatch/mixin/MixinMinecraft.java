@@ -1,5 +1,5 @@
 package org.polyfrost.crashpatch.mixin;
-
+//#if MC<1.13
 //#if FORGE
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.polyfrost.crashpatch.CrashPatch;
+import org.polyfrost.crashpatch.client.CrashPatchClient;
 import org.polyfrost.crashpatch.CrashPatchConfig;
 import org.polyfrost.crashpatch.crashes.StateManager;
 import org.polyfrost.crashpatch.gui.CrashUI;
@@ -158,8 +158,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
             while (running) {
                 if (!this.hasCrashed || this.crashReporter == null) {
                     try {
-                        if (CrashPatch.INSTANCE.getRequestedCrash()) {
-                            CrashPatch.INSTANCE.setRequestedCrash(false);
+                        if (CrashPatchClient.INSTANCE.getRequestedCrash()) {
+                            CrashPatchClient.INSTANCE.setRequestedCrash(false);
                             throw new RuntimeException("Crash requested by CrashPatch");
                         }
 
@@ -438,5 +438,4 @@ public abstract class MixinMinecraft implements MinecraftHook {
 
 }
 
-
-
+//#endif

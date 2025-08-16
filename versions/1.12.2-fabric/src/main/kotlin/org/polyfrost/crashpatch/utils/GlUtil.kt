@@ -1,5 +1,5 @@
 package org.polyfrost.crashpatch.utils
-
+//#if MC<1.13
 import com.mojang.blaze3d.platform.GLX
 import com.mojang.blaze3d.platform.GlStateManager
 import net.minecraft.client.render.DiffuseLighting
@@ -202,3 +202,4 @@ object GlUtil {
         GlStateManager.matrixMode(5888)
     }
 }
+//#endif

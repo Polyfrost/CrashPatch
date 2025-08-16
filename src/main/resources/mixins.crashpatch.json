@@ -15,5 +15,8 @@
     "MixinMinecraft",
     "MixinWorldRenderer"
   ],
-  "verbose": true
+  "verbose": true,
+  "client": [
+    "MixinMinecraft_PreInitialize"
+  ]
 }

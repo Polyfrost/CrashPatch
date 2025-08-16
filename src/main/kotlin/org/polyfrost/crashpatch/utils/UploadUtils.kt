@@ -1,10 +1,10 @@
 package org.polyfrost.crashpatch.utils
 
-import org.polyfrost.crashpatch.CrashPatch
 import gs.mclo.api.APIException
 import gs.mclo.api.Log
 import gs.mclo.api.MclogsClient
 import org.polyfrost.crashpatch.CrashPatchConfig
+import org.polyfrost.crashpatch.CrashPatchConstants
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
@@ -15,7 +15,7 @@ import javax.net.ssl.HttpsURLConnection
 object UploadUtils {
 
     private val mclogsClient by lazy {
-        MclogsClient("CrashPatch", CrashPatch.VERSION, "1.8.9")
+        MclogsClient("CrashPatch", CrashPatchConstants.VERSION, "1.8.9")
     }
 
     private val sessionIdRegex = Regex("((Session ID is|--accessToken|Your new API key is) (\\S+))")
@@ -39,7 +39,7 @@ object UploadUtils {
         conn.doOutput = true
         conn.instanceFollowRedirects = false
         conn.requestMethod = "POST"
-        conn.setRequestProperty("User-Agent", "CrashPatch/${CrashPatch.VERSION}")
+        conn.setRequestProperty("User-Agent", "CrashPatch/${CrashPatchConstants.VERSION}")
         conn.setRequestProperty("Content-Length", postDataLength.toString())
         conn.useCaches = false
 

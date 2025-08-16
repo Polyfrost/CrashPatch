@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//#if MC < 1.13
 //#if FORGE
 import org.polyfrost.crashpatch.crashes.StateManager;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -67,4 +68,5 @@ public abstract class MixinTileEntityRendererDispatcher implements StateManager.
 
     //#endif
 }
+//#endif
 //#endif

@@ -1,5 +1,5 @@
 package org.polyfrost.crashpatch.mixin;
-
+//#if MC < 1.13
 import org.polyfrost.crashpatch.crashes.StateManager;
 import net.minecraft.client.renderer.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,3 +29,4 @@ public abstract class MixinWorldRenderer implements StateManager.IResettable {
         }
     }
 }
+//#endif

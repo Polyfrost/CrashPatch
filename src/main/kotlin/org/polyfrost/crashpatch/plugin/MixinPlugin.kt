@@ -10,7 +10,7 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun getMixins(): MutableList<String> {
         val result = mutableListOf<String>()
 
-        //#if FORGE
+        //#if FORGE && MC<1.13
         result.add("MixinGuiDupesFound")
         result.add("MixinTileEntityRendererDispatcher")
         //#endif

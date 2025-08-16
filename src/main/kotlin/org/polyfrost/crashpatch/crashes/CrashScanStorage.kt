@@ -3,7 +3,7 @@ package org.polyfrost.crashpatch.crashes
 import com.google.gson.JsonObject
 import dev.deftu.textile.minecraft.MCTextFormat
 import org.apache.logging.log4j.LogManager
-import org.polyfrost.crashpatch.CrashPatch
+import org.polyfrost.crashpatch.client.CrashPatchClient
 import org.polyfrost.oneconfig.utils.v1.JsonUtils
 import java.io.File
 import kotlin.collections.set
@@ -13,14 +13,14 @@ object CrashScanStorage {
     private val logger = LogManager.getLogger()
 
     private val cacheFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        File(CrashPatch.mcDir, "OneConfig/CrashPatch/cache.json")
+        File(CrashPatchClient.mcDir, "OneConfig/CrashPatch/cache.json")
     }
 
     private val String.mappedPlaceholders: String
         get() = this
             .replace("%pathindicator%", "")
-            .replace("%gameroot%", CrashPatch.gameDir.absolutePath.removeSuffix(File.separator))
-            .replace("%profileroot%", File(CrashPatch.mcDir, "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
+            .replace("%gameroot%", CrashPatchClient.gameDir.absolutePath.removeSuffix(File.separator))
+            .replace("%profileroot%", File(CrashPatchClient.mcDir, "OneConfig").parentFile.absolutePath.removeSuffix(File.separator))
 
     private var skyclientData: JsonObject? = null
 

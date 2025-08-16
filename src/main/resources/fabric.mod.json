@@ -4,8 +4,7 @@
     "version": "${mod_version}",
     "name": "${mod_name}",
     "authors": [
-        "Polyfrost",
-        "SkyClient"
+        "Polyfrost"
     ],
     "contact": {
         "issues": "https://github.com/Polyfrost/${mod_name}/issues",
@@ -16,8 +15,7 @@
     "entrypoints": {
         "client": [
             {
-                "adapter": "kotlin",
-                "value": "org.polyfrost.crashpatch.CrashPatch"
+                "value": "org.polyfrost.crashpatch.CrashPatchEntrypoint"
             }
         ]
     },

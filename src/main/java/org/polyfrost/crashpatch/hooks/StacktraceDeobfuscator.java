@@ -1,5 +1,7 @@
 package org.polyfrost.crashpatch.hooks;
 
+//#if MC<1.13
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
@@ -110,3 +112,4 @@ public class StacktraceDeobfuscator {
         return mcpName != null ? mcpName : srgName;
     }
 }
+//#endif

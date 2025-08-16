@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL12
 import org.lwjgl.opengl.GL14
 
-// Replaced in 1.12.2 source set
+// Replaced in 1.12.2-fabric source set, removed in 1.16 and later
 object GlUtil {
 
     fun resetState() {

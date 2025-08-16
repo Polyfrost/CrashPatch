@@ -1,37 +1,18 @@
-package org.polyfrost.crashpatch
-
-//#if FORGE
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-//#else
-//$$ import net.fabricmc.api.ClientModInitializer
-//#endif
+package org.polyfrost.crashpatch.client
 
 import dev.deftu.omnicore.client.OmniClientCommands
 import dev.deftu.textile.minecraft.MCSimpleTextHolder
 import dev.deftu.textile.minecraft.MCTextFormat
-
-import java.io.File
 import org.apache.logging.log4j.LogManager
+import org.polyfrost.crashpatch.CrashPatchConfig
+import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
-import org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.Multithreading
 import org.polyfrost.oneconfig.utils.v1.dsl.openUI
+import java.io.File
 
-//#if FORGE
-@Mod(modid = CrashPatch.ID, version = CrashPatch.VERSION, name = CrashPatch.NAME, modLanguageAdapter = "org.polyfrost.oneconfig.utils.v1.forge.KotlinLanguageAdapter")
-//#endif
-object CrashPatch
-    //#if FABRIC
-    //$$ : ClientModInitializer
-    //#endif
-{
-
-    const val ID = "@MOD_ID@"
-    const val NAME = "@MOD_NAME@"
-    const val VERSION = "@MOD_VERSION@"
+object CrashPatchClient {
 
     private val logger = LogManager.getLogger()
 
@@ -59,7 +40,9 @@ object CrashPatch
     var requestedCrash = false
 
     fun preInitialize() {
-        DeobfuscatingRewritePolicy.install()
+        //#if MC<1.13
+        org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy.install()
+        //#endif
         Multithreading.submit {
             logger.info("Is SkyClient: $isSkyclient")
             if (!CrashScanStorage.downloadJson()) {
@@ -71,7 +54,7 @@ object CrashPatch
     fun initialize() {
         OmniClientCommands.initialize()
 
-        CommandManager.register(with(CommandManager.literal(ID)) {
+        CommandManager.register(with(CommandManager.literal(CrashPatchConstants.ID)) {
             executes {
                 CrashPatchConfig.openUI()
                 1
@@ -79,9 +62,9 @@ object CrashPatch
 
             then(CommandManager.literal("reload").executes { ctx ->
                 val text = if (CrashScanStorage.downloadJson()) {
-                    MCSimpleTextHolder("[${NAME}] Successfully reloaded JSON file!").withFormatting(MCTextFormat.GREEN)
+                    MCSimpleTextHolder("[${CrashPatchConstants.NAME}] Successfully reloaded JSON file!").withFormatting(MCTextFormat.Companion.GREEN)
                 } else {
-                    MCSimpleTextHolder("[${NAME}] Failed to reload JSON file!").withFormatting(MCTextFormat.RED)
+                    MCSimpleTextHolder("[${CrashPatchConstants.NAME}] Failed to reload JSON file!").withFormatting(MCTextFormat.Companion.RED)
                 }
 
                 ctx.source.displayMessage(text)
@@ -96,22 +79,5 @@ object CrashPatch
 
         CrashPatchConfig // Initialize the config
     }
-
-    //#if FORGE
-    @Mod.EventHandler
-    fun onPreInit(e: FMLPreInitializationEvent) {
-        preInitialize()
-    }
-
-    @Mod.EventHandler
-    fun onInit(e: FMLInitializationEvent) {
-        initialize()
-    }
-    //#else
-    //$$ override fun onInitializeClient() {
-    //$$     preInitialize()
-    //$$     initialize()
-    //$$ }
-    //#endif
 
 }

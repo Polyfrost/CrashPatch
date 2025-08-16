@@ -2,6 +2,8 @@
 
 import dev.deftu.gradle.utils.GameSide
 import dev.deftu.gradle.utils.includeOrShade
+import dev.deftu.gradle.utils.version.MinecraftVersion
+import dev.deftu.gradle.utils.version.MinecraftVersions
 
 plugins {
     java
@@ -44,8 +46,46 @@ toolkitLoomHelper {
     }
 }
 
+repositories {
+    maven("https://api.modrinth.com/maven") {
+        content { includeGroup("maven.modrinth") }
+    }
+}
+
 dependencies {
     implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
+    if (mcData.version >= MinecraftVersions.VERSION_1_16) {
+        data class CompatDependency(
+            val forge: String,
+            val fabric: String,
+            val neoforge: String
+        )
+
+        fun DependencyHandlerScope.modImplementationCompat(notation: CompatDependency?) {
+            notation?.let {
+                when {
+                    mcData.isNeoForge -> modImplementation(it.neoforge)
+                    mcData.isForge -> modImplementation(it.forge)
+                    mcData.isFabric -> modImplementation(it.fabric)
+                    else -> error("Unsupported loader type: ${mcData.loader}")
+                }
+            }
+        }
+
+        fun nec(mcVersion: String, modVersion: String) =
+            mcVersion to CompatDependency(
+                fabric = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-fabric",
+                forge = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-forge",
+                neoforge = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-neoforge"
+            )
+
+        val nec = mapOf(
+            nec("1.16.5", "4.1.4"),
+            nec("1.17.1", "4.1.4")
+        )
+
+        modImplementationCompat(nec[mcData.version.toString()])
+    }
 }
 
 tasks {

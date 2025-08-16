@@ -14,11 +14,15 @@ object GuiDisconnectedHook {
     @JvmStatic
     fun onGUIDisplay(screen: GuiScreen?, ci: CallbackInfo) {
         if (screen is GuiDisconnected && CrashPatchConfig.disconnectCrashPatch) {
-            val gui = screen as AccessorGuiDisconnected
-            val scan = scanReport(gui.message.formattedText, true)
+            val reason = (screen as AccessorGuiDisconnected).reason
+                //#if MC>=1.16
+                //$$ .string
+                //#endif
+
+            val scan = scanReport(reason, true)
             if (scan != null && scan.solutions.size > 1) {
                 ci.cancel()
-                mc.displayGuiScreen(CrashUI(gui.message.formattedText, null, gui.reason, CrashUI.GuiType.DISCONNECT).create())
+                mc.displayGuiScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
             }
         }
     }

@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.crashes
 
+//#if MC<1.13
 import org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
@@ -46,3 +47,4 @@ class DeobfuscatingRewritePolicy : RewritePolicy {
         }
     }
 }
+//#endif

@@ -1,5 +1,5 @@
 package org.polyfrost.crashpatch.identifier
-
+//#if MC<1.13
 //#if FORGE
 import java.io.IOException
 import java.net.URISyntaxException
@@ -17,16 +17,17 @@ import net.minecraftforge.fml.common.Loader
 //$$ import java.nio.file.Paths
 //#endif
 
+import net.minecraft.crash.CrashReport
 import java.io.File
 import org.apache.logging.log4j.LogManager
 
-typealias ModMap = Map<File, MutableSet<ModMetadata>>
+private typealias ModMap = Map<File, MutableSet<ModMetadata>>
 
 object ModIdentifier {
 
     private val logger = LogManager.getLogger()
 
-    fun identifyFromStacktrace(e: Throwable?): ModMetadata? {
+    fun identifyFromStacktrace(crashReport: CrashReport, e: Throwable?): ModMetadata? {
         val modMap = makeModMap()
 
         // Get the set of classes
@@ -190,3 +191,4 @@ object ModIdentifier {
     //#endif
 
 }
+//#endif

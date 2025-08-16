@@ -5,7 +5,8 @@ import dev.deftu.omnicore.client.OmniDesktop
 import dev.deftu.omnicore.client.OmniScreen
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
-import org.polyfrost.crashpatch.CrashPatch
+import org.polyfrost.crashpatch.CrashPatchConstants
+import org.polyfrost.crashpatch.client.CrashPatchClient
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
@@ -155,7 +156,7 @@ class CrashUI @JvmOverloads constructor(
                             Button(leftImage = "/assets/crashpatch/copy.svg".image()).onClick {
                                 selectedSolution?.solutions?.joinToString("\n")?.let(Clipboard.getInstance()::setString).also { copyState ->
                                     if (copyState == true) {
-                                        Notifications.enqueue(Notifications.Type.Success, CrashPatch.NAME, "Copied to clipboard!")
+                                        Notifications.enqueue(Notifications.Type.Success, CrashPatchConstants.NAME, "Copied to clipboard!")
                                     }
                                 }
 
@@ -167,9 +168,9 @@ class CrashUI @JvmOverloads constructor(
                                     Clipboard.getInstance().setString(link)
 
                                     if (OmniDesktop.browse(URI.create(link))) {
-                                        Notifications.enqueue(Notifications.Type.Success, CrashPatch.NAME, "Link copied to clipboard and opened in browser")
+                                        Notifications.enqueue(Notifications.Type.Success, CrashPatchConstants.NAME, "Link copied to clipboard and opened in browser")
                                     } else {
-                                        Notifications.enqueue(Notifications.Type.Warning, CrashPatch.NAME, "Couldn't open link in browser, copied to clipboard instead.")
+                                        Notifications.enqueue(Notifications.Type.Warning, CrashPatchConstants.NAME, "Couldn't open link in browser, copied to clipboard instead.")
                                     }
                                 }
 
