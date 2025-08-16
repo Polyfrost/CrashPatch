@@ -20,6 +20,11 @@ class MixinPlugin : IMixinConfigPlugin {
         //#else
         //$$ result.add("MixinEntryPointCatcher_UseCrashPatchGui")
         //$$ result.add("MixinInGameCatcher_UseCrashPatchGui")
+        //$$ result.add("MixinMinecraft_CrashPatchInitUI")
+        //$$ result.add("MixinMinecraft_CrashInitGui")
+        //#if FABRIC && MC>=1.20.4
+        //$$ result.add("MixinModLoaders_Debug")
+        //#endif
         //#endif
 
         return result

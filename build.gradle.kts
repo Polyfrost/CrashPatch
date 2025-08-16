@@ -17,6 +17,10 @@ plugins {
     id("dev.deftu.gradle.tools.minecraft.releases") // Applies the Minecraft auto-releasing plugin, which allows you to automatically release your mod to CurseForge and Modrinth.
 }
 
+if (mcData.isForge) {
+    loom.forge.mixinConfig("mixins.crashpatch.init.json")
+}
+
 toolkitLoomHelper {
     useOneConfig {
         version = "1.0.0-alpha.134"
@@ -31,6 +35,10 @@ toolkitLoomHelper {
             +module
         }
     }
+
+    useMixinExtras("0.5.0")
+
+    useProperty("mixin.debug.export", "true", GameSide.BOTH)
 
     // Turns off the server-side run configs, as we're building a client-sided mod.
     disableRunConfigs(GameSide.SERVER)
@@ -50,11 +58,20 @@ repositories {
     maven("https://api.modrinth.com/maven") {
         content { includeGroup("maven.modrinth") }
     }
+    maven("https://maven.bawnorton.com/releases") {
+        content { includeGroup("com.github.bawnorton.mixinsquared") }
+    }
 }
 
 dependencies {
     implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
+    includeOrShade(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)!!)
+    includeOrShade("io.github.llamalad7:mixinextras-common:0.5.0")
+    if (mcData.isFabric) {
+        includeOrShade(implementation("io.github.llamalad7:mixinextras-fabric:0.5.0")!!)
+    }
     if (mcData.version >= MinecraftVersions.VERSION_1_16) {
+        includeOrShade(implementation("com.github.bawnorton.mixinsquared:mixinsquared-${mcData.loader}:0.3.3")!!)
         data class CompatDependency(
             val forge: String,
             val fabric: String,
@@ -100,5 +117,13 @@ dependencies {
 tasks {
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    remapJar {
+        manifest {
+            attributes(mapOf(
+                "MixinConfigs" to "mixins.crashpatch.init.json,mixins.crashpatch.json",
+            ))
+        }
     }
 }

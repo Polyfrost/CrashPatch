@@ -1,18 +1,24 @@
 package org.polyfrost.crashpatch.mixin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.main.GameConfig;
 import org.polyfrost.crashpatch.client.CrashPatchClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(Minecraft.class)
 public class MixinMinecraft_PreInitialize {
 
-    @ModifyVariable(method = "<init>", at = @At("STORE"), argsOnly = true, ordinal = 0)
-    private static GameConfig preInitialize(GameConfig v) {
+    // Random injection point that works across 1.16-1.21.x
+    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target =
+            //#if MC<1.18
+            "Lorg/apache/logging/log4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;)V"
+            //#else
+            //$$ "Lorg/slf4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;)V"
+            //#endif
+            , remap = false, ordinal = 0), index = 0, remap = true)
+    private static String preInitialize(String par1) {
         CrashPatchClient.INSTANCE.preInitialize();
-        return v;
+        return par1;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "${java_version}",
   "minVersion": "0.8",
   "package": "org.polyfrost.crashpatch.mixin",
   "plugin": "org.polyfrost.crashpatch.plugin.MixinPlugin",
@@ -12,6 +12,7 @@
     "MixinCrashReport",
     "MixinCrashReportCategory",
     "MixinGuiConnecting",
+    "MixinMinecraft_Debug",
     "MixinMinecraft_OverrideDisconnectedScreen",
     "MixinMinecraft_PreInitialize"
   ],

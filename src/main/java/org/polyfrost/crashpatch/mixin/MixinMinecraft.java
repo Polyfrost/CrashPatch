@@ -157,11 +157,6 @@ public abstract class MixinMinecraft implements MinecraftHook {
             while (running) {
                 if (!this.hasCrashed || this.crashReporter == null) {
                     try {
-                        if (CrashPatchClient.INSTANCE.getRequestedCrash()) {
-                            CrashPatchClient.INSTANCE.setRequestedCrash(false);
-                            throw new RuntimeException("Crash requested by CrashPatch");
-                        }
-
                         runGameLoop();
                     } catch (ReportedException e) {
                         crashpatch$clientCrashCount++;

@@ -14,6 +14,7 @@ import org.polyfrost.crashpatch.utils.UploadUtils
 import org.polyfrost.oneconfig.api.ui.v1.Notifications
 import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
 import org.polyfrost.oneconfig.api.ui.v1.UIManager
+import org.polyfrost.oneconfig.internal.OneConfig
 import org.polyfrost.polyui.PolyUI
 import org.polyfrost.polyui.animate.Animations
 import org.polyfrost.polyui.color.Colors
@@ -60,6 +61,24 @@ class CrashUI @JvmOverloads constructor(
 
     companion object {
         var leaveWorldCrash = false
+        var currentInstance: GuiScreen? = null
+            private set
+        var currentUI: CrashUI? = null
+            private set
+    }
+
+    init {
+        try {
+            val initialized = OneConfig::class.java.getDeclaredField("initialized")
+            initialized.isAccessible = true
+            if (!initialized.getBoolean(OneConfig.INSTANCE)) {
+                val registerEventHandlers = OneConfig::class.java.getDeclaredMethod("registerEventHandlers")
+                registerEventHandlers.isAccessible = true
+                registerEventHandlers.invoke(OneConfig.INSTANCE)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private val crashScan: CrashScan? by lazy {
@@ -226,11 +245,7 @@ class CrashUI @JvmOverloads constructor(
                 Group(
                     Button(text = "crashpatch.continue", padding = Vec2(14f, 14f)).onClick {
                         if (type == GuiType.INIT) {
-                            //#if MC < 1.13
                             shouldCrash = true
-                            //#else
-                            //$$ throw throwable!!
-                            //#endif
                         } else {
                             OmniScreen.closeScreen()
                         }
@@ -252,7 +267,9 @@ class CrashUI @JvmOverloads constructor(
 
         val screen = UIManager.INSTANCE.createPolyUIScreen(polyUI, 1920f, 1080f, false, true, onClose)
         polyUI.window = UIManager.INSTANCE.createWindow()
-        return screen as GuiScreen
+        currentUI = this
+        currentInstance = screen as GuiScreen
+        return screen
     }
 
     private fun createSolutionText(solution: CrashScan.Solution) = Text(

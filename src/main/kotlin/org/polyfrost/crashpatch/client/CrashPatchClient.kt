@@ -49,6 +49,12 @@ object CrashPatchClient {
                 logger.error("CrashHelper failed to preload crash data JSON!")
             }
         }
+
+        //#if MC<1.13
+        if (System.getProperty("polyfrost.crashpatch.init_crash") == "true") {
+            throw RuntimeException("Crash requested by CrashPatch")
+        }
+        //#endif
     }
 
     fun initialize() {

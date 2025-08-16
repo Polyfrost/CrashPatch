@@ -1,0 +1,7 @@
+{
+  "minVersion": "0.8",
+  "package": "org.polyfrost.crashpatch.mixin",
+  "plugin": "org.polyfrost.crashpatch.plugin.EarlyMixinPlugin",
+  "target": "@env(INIT)",
+  "priority": 1000
+}
