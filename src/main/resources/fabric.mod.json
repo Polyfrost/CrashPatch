@@ -25,6 +25,7 @@
     ],
     "depends": {
         "fabricloader": ">=0.15.11",
-        "fabric-language-kotlin": "*"
+        "fabric-language-kotlin": "*",
+        "notenoughcrashes": "*"
     }
 }
