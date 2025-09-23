@@ -1,6 +1,5 @@
 package org.polyfrost.crashpatch.client
 
-import dev.deftu.omnicore.client.OmniClientCommands
 import dev.deftu.textile.minecraft.MCSimpleTextHolder
 import dev.deftu.textile.minecraft.MCTextFormat
 import org.apache.logging.log4j.LogManager
@@ -58,8 +57,6 @@ object CrashPatchClient {
     }
 
     fun initialize() {
-        OmniClientCommands.initialize()
-
         CommandManager.register(with(CommandManager.literal(CrashPatchConstants.ID)) {
             executes {
                 CrashPatchConfig.openUI()
@@ -73,8 +70,7 @@ object CrashPatchClient {
                     MCSimpleTextHolder("[${CrashPatchConstants.NAME}] Failed to reload JSON file!").withFormatting(MCTextFormat.Companion.RED)
                 }
 
-                ctx.source.displayMessage(text)
-                1
+                ctx.source.replyChat(text)
             })
 
             then(CommandManager.literal("crash").executes { ctx ->

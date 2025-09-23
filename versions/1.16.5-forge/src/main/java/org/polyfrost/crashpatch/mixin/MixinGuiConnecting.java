@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.deftu.omnicore.client.OmniDesktop;
+import dev.deftu.omnicore.api.client.OmniDesktop;
 import dev.deftu.textile.minecraft.MCTextFormat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;

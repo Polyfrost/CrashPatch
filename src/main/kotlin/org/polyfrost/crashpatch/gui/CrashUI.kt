@@ -1,12 +1,11 @@
 package org.polyfrost.crashpatch.gui
 
 import dev.deftu.clipboard.Clipboard
-import dev.deftu.omnicore.client.OmniDesktop
-import dev.deftu.omnicore.client.OmniScreen
+import dev.deftu.omnicore.api.client.OmniDesktop
+import dev.deftu.omnicore.api.client.screen.closeScreen
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.crash.CrashReport
 import org.polyfrost.crashpatch.CrashPatchConstants
-import org.polyfrost.crashpatch.client.CrashPatchClient
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.crashpatch.crashes.CrashScan
 import org.polyfrost.crashpatch.hooks.CrashReportHook
@@ -247,7 +246,7 @@ class CrashUI @JvmOverloads constructor(
                         if (type == GuiType.INIT) {
                             shouldCrash = true
                         } else {
-                            OmniScreen.closeScreen()
+                            closeScreen()
                         }
                     }.setPalette { brand.fg },
                     Button(

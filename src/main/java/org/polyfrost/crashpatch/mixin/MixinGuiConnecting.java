@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
-import dev.deftu.omnicore.client.OmniDesktop;
+import dev.deftu.omnicore.api.client.OmniDesktop;
 import dev.deftu.textile.minecraft.MCTextFormat;
 import org.polyfrost.crashpatch.client.CrashPatchClient;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;

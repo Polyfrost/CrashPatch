@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch
 
-import dev.deftu.omnicore.client.OmniDesktop
+import dev.deftu.omnicore.api.client.OmniDesktop
 import org.polyfrost.oneconfig.api.config.v1.Config
 import org.polyfrost.oneconfig.api.config.v1.annotations.*
 import java.net.URI

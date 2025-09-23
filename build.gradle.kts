@@ -23,7 +23,7 @@ if (mcData.isForge) {
 
 toolkitLoomHelper {
     useOneConfig {
-        version = "1.0.0-alpha.134"
+        version = "1.0.0-alpha.151"
         loaderVersion = "1.1.0-alpha.48"
 
         usePolyMixin = true
@@ -66,10 +66,6 @@ repositories {
 dependencies {
     implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
     includeOrShade(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)!!)
-    includeOrShade("io.github.llamalad7:mixinextras-common:0.5.0")
-    if (mcData.isFabric) {
-        includeOrShade(implementation("io.github.llamalad7:mixinextras-fabric:0.5.0")!!)
-    }
     if (mcData.version >= MinecraftVersions.VERSION_1_16) {
         includeOrShade(implementation("com.github.bawnorton.mixinsquared:mixinsquared-${mcData.loader}:0.3.3")!!)
         data class CompatDependency(
@@ -98,16 +94,12 @@ dependencies {
 
         val nec = mapOf(
             nec("1.16.5", "4.1.4"),
-            nec("1.17.1", "4.1.4"),
-            nec("1.18.2", "4.2.0"),
-            nec("1.19.2", "5.0.0"),
-            nec("1.19.4", "4.4.1"),
             nec("1.20.1", "4.4.9"),
             nec("1.20.4", "4.4.7"),
-            nec("1.20.6", "4.4.7"),
             nec("1.21.1", "4.4.9"),
             nec("1.21.4", "4.4.8"),
-            nec("1.21.5", "4.4.9")
+            nec("1.21.5", "4.4.9"),
+            nec("1.21.8", "4.4.9"),
         )
 
         modImplementationCompat(nec[mcData.version.toString()])
