@@ -1,6 +1,6 @@
 package org.polyfrost.crashpatch.crashes
 
-import org.polyfrost.crashpatch.config.CrashPatchConfig
+//#if MC<1.13
 import org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LogEvent
@@ -9,12 +9,14 @@ import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender
 import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy
 import org.apache.logging.log4j.core.config.AppenderRef
 import org.apache.logging.log4j.core.config.LoggerConfig
+import org.polyfrost.crashpatch.CrashPatchConfig
 
 class DeobfuscatingRewritePolicy : RewritePolicy {
     override fun rewrite(source: LogEvent): LogEvent {
         if (CrashPatchConfig.deobfuscateCrashLog) {
             source.thrown?.let { StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(it) }
         }
+
         return source
     }
 
@@ -45,3 +47,4 @@ class DeobfuscatingRewritePolicy : RewritePolicy {
         }
     }
 }
+//#endif

@@ -1,5 +1,7 @@
 package org.polyfrost.crashpatch.hooks;
 
+//#if MC<1.13
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.HttpURLConnection;
@@ -8,6 +10,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+//TODO rewrite for fabric
 public class StacktraceDeobfuscator {
     public static final StacktraceDeobfuscator INSTANCE = new StacktraceDeobfuscator();
 
@@ -21,7 +24,13 @@ public class StacktraceDeobfuscator {
         if (!mappings.exists()) {
             HttpURLConnection connection = null;
             try {
-                URL mappingsURL = new URL("https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_stable_nodoc/22-1.8.9/mcp_stable_nodoc-22-1.8.9.zip");
+                URL mappingsURL = new URL(
+                        //#if MC==1.8.9
+                        "https://maven.minecraftforge.net/de/oceanlabs/mcp/mcp_stable_nodoc/22-1.8.9/mcp_stable_nodoc-22-1.8.9.zip"
+                        //#else
+                        //$$ "http://export.mcpbot.bspk.rs/mcp_stable_nodoc/39-1.12/mcp_stable_nodoc-39-1.12.zip"
+                        //#endif
+                );
                 connection = (HttpURLConnection) mappingsURL.openConnection();
                 connection.setDoInput(true);
                 connection.connect();
@@ -103,3 +112,4 @@ public class StacktraceDeobfuscator {
         return mcpName != null ? mcpName : srgName;
     }
 }
+//#endif

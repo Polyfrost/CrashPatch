@@ -6,11 +6,10 @@
 
 package org.polyfrost.crashpatch.mixin;
 
-import org.polyfrost.crashpatch.crashes.ModIdentifier;
+import org.polyfrost.crashpatch.identifier.ModIdentifier;
 import org.polyfrost.crashpatch.hooks.CrashReportHook;
-import org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator;
 import net.minecraft.crash.CrashReport;
-import net.minecraftforge.fml.common.ModContainer;
+import org.polyfrost.crashpatch.identifier.ModMetadata;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,14 +29,22 @@ public class MixinCrashReport implements CrashReportHook {
         return crashpatch$suspectedMod;
     }
 
-    @Inject(method = "populateEnvironment", at = @At("TAIL"))
+    @Inject(method =
+            //#if MC<1.17
+            "populateEnvironment"
+            //#else
+            //$$ "<init>"
+            //#endif
+            , at = @At("TAIL"))
     private void afterPopulateEnvironment(CallbackInfo ci) {
-        ModContainer susMod = ModIdentifier.INSTANCE.identifyFromStacktrace(cause);
+        ModMetadata susMod = ModIdentifier.INSTANCE.identifyFromStacktrace((CrashReport) (Object) this, this.cause);
         crashpatch$suspectedMod = (susMod == null ? "Unknown" : susMod.getName());
     }
 
+    //#if MC<1.13
     @Inject(method = "populateEnvironment", at = @At("HEAD"))
     private void beforePopulateEnvironment(CallbackInfo ci) {
-        StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(cause);
+        org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(this.cause);
     }
+    //#endif
 }

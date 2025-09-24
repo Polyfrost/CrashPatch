@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.crashes
 
+//#if MC<1.13
 import java.lang.ref.WeakReference
 
 /**
@@ -26,3 +27,4 @@ object StateManager {
         fun resetState()
     }
 }
+//#endif

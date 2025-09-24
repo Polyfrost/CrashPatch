@@ -1,0 +1,22 @@
+crashpatch.crash=Uh-oh. Your game crashed!
+crashpatch.init=Uh-oh. Your game crashed on startup!
+crashpatch.disconnect=Uh-oh. You were disconnected from the server!
+
+crashpatch.crash.desc.1=But, CrashPatch just saved the day! Feel free to ignore this, and
+crashpatch.crash.desc.2=continue playing your game despite the crash.
+
+crashpatch.disconnect.desc.1=The full reason is below, but
+crashpatch.disconnect.desc.2=you can ignore this and continue playing.
+
+crashpatch.init.desc.1=To fix this, join the Discord server and make a support ticket.
+crashpatch.init.desc.2=Additionally, try following at the tips listed below.
+
+crashpatch.crash.cause=This could have been caused by:
+crashpatch.disconnect.cause=Reason for disconnect:
+
+crashpatch.continue=Return to game
+crashpatch.log=Crash log
+
+crashpatch.discord.prompt=If the solution above doesn't help, join
+crashpatch.link.discord.skyclient=https://inv.wtf/skyclient
+crashpatch.link.discord.polyfrost=https://polyfrost.org/discord

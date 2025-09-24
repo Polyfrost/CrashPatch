@@ -1,190 +1,121 @@
 @file:Suppress("UnstableApiUsage", "PropertyName")
 
-import org.polyfrost.gradle.util.noServerRunConfigs
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import dev.deftu.gradle.utils.GameSide
+import dev.deftu.gradle.utils.includeOrShade
+import dev.deftu.gradle.utils.version.MinecraftVersion
+import dev.deftu.gradle.utils.version.MinecraftVersions
 
-// Adds support for kotlin, and adds the Polyfrost Gradle Toolkit
-// which we use to prepare the environment.
 plugins {
-    kotlin("jvm")
-    id("org.polyfrost.multi-version")
-    id("org.polyfrost.defaults.repo")
-    id("org.polyfrost.defaults.java")
-    id("org.polyfrost.defaults.loom")
-    id("com.github.johnrengelman.shadow")
-    id("net.kyori.blossom") version "1.3.2"
-    id("signing")
     java
+    kotlin("jvm")
+    id("dev.deftu.gradle.multiversion") // Applies preprocessing for multiple versions of Minecraft and/or multiple mod loaders.
+    id("dev.deftu.gradle.tools") // Applies several configurations to things such as the Java version, project name/version, etc.
+    id("dev.deftu.gradle.tools.resources") // Applies resource processing so that we can replace tokens, such as our mod name/version, in our resources.
+    id("dev.deftu.gradle.tools.bloom") // Applies the Bloom plugin, which allows us to replace tokens in our source files, such as being able to use `@MOD_VERSION` in our source files.
+    id("dev.deftu.gradle.tools.minecraft.loom") // Applies the Loom plugin, which automagically configures Essential's Architectury Loom plugin for you.
+    id("dev.deftu.gradle.tools.shadow") // Applies the Shadow plugin, which allows us to shade our dependencies into our mod JAR. This is NOT recommended for Fabric mods, but we have an *additional* configuration for those!
+    id("dev.deftu.gradle.tools.minecraft.releases") // Applies the Minecraft auto-releasing plugin, which allows you to automatically release your mod to CurseForge and Modrinth.
 }
 
-// Gets the mod name, version and id from the `gradle.properties` file.
-val mod_name: String by project
-val mod_version: String by project
-val mod_id: String by project
-val mod_archives_name: String by project
-
-// Replaces the variables in `ExampleMod.java` to the ones specified in `gradle.properties`.
-blossom {
-    replaceToken("@VER@", mod_version)
-    replaceToken("@NAME@", mod_name)
-    replaceToken("@ID@", mod_id)
+if (mcData.isForge) {
+    loom.forge.mixinConfig("mixins.crashpatch.init.json")
 }
 
-// Sets the mod version to the one specified in `gradle.properties`. Make sure to change this following semver!
-version = mod_version
-// Sets the group, make sure to change this to your own. It can be a website you own backwards or your GitHub username.
-// e.g. com.github.<your username> or com.<your domain>
-group = "org.polyfrost"
+toolkitLoomHelper {
+    useOneConfig {
+        version = "1.0.0-alpha.151"
+        loaderVersion = "1.1.0-alpha.48"
 
-// Sets the name of the output jar (the one you put in your mods folder and send to other people)
-// It outputs all versions of the mod into the `build` directory.
-base {
-    archivesName.set("$mod_archives_name-$platform")
+        usePolyMixin = true
+        polyMixinVersion = "0.8.4+build.6"
+
+        applyLoaderTweaker = true
+
+        for (module in arrayOf("commands", "config", "config-impl", "events", "internal", "hud", "ui", "utils")) {
+            +module
+        }
+    }
+
+    useMixinExtras("0.5.0")
+
+    useProperty("mixin.debug.export", "true", GameSide.BOTH)
+
+    // Turns off the server-side run configs, as we're building a client-sided mod.
+    disableRunConfigs(GameSide.SERVER)
+
+    // Defines the name of the Mixin refmap, which is used to map the Mixin classes to the obfuscated Minecraft classes.
+    if (!mcData.isNeoForge) {
+        useMixinRefMap(modData.id)
+    }
+
+    if (mcData.isForge) {
+        // Configures the Mixin tweaker if we are building for Forge.
+        useForgeMixin(modData.id)
+    }
 }
 
-// Configures the Polyfrost Loom, our plugin fork to easily set up the programming environment.
-loom {
-    // Removes the server configs from IntelliJ IDEA, leaving only client runs.
-    // If you're developing a server-side mod, you can remove this line.
-    noServerRunConfigs()
+repositories {
+    maven("https://api.modrinth.com/maven") {
+        content { includeGroup("maven.modrinth") }
+    }
+    maven("https://maven.bawnorton.com/releases") {
+        content { includeGroup("com.github.bawnorton.mixinsquared") }
+    }
+}
 
-    // Adds the tweak class if we are building legacy version of forge as per the documentation (https://docs.polyfrost.org)
-    if (project.platform.isLegacyForge) {
-        runConfigs {
-            "client" {
-                programArgs("--tweakClass", "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin")
-                //property("fml.coreMods.load", "")
-                property("mixin.debug.export", "true")
+dependencies {
+    implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
+    includeOrShade(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)!!)
+    if (mcData.version >= MinecraftVersions.VERSION_1_16) {
+        includeOrShade(implementation("com.github.bawnorton.mixinsquared:mixinsquared-${mcData.loader}:0.3.3")!!)
+        data class CompatDependency(
+            val forge: String,
+            val fabric: String,
+            val neoforge: String
+        )
+
+        fun DependencyHandlerScope.modImplementationCompat(notation: CompatDependency?) {
+            notation?.let {
+                when {
+                    mcData.isNeoForge -> modImplementation(it.neoforge)
+                    mcData.isForge -> modImplementation(it.forge)
+                    mcData.isFabric -> modImplementation(it.fabric)
+                    else -> error("Unsupported loader type: ${mcData.loader}")
+                }
             }
         }
-    }
-    // Configures the mixins if we are building for forge, useful for when we are dealing with cross-platform projects.
-    if (project.platform.isForge) {
-        forge {
-            mixinConfig("mixin.${mod_id}.json")
-        }
-    }
-    // Configures the name of the mixin "refmap" using an experimental loom api.
-    mixin.defaultRefmapName.set("mixin.${mod_id}.refmap.json")
-}
 
-// Creates the shade/shadow configuration, so we can include libraries inside our mod, rather than having to add them separately.
-val shade: Configuration by configurations.creating {
-    configurations.implementation.get().extendsFrom(this)
-}
+        fun nec(mcVersion: String, modVersion: String) =
+            mcVersion to CompatDependency(
+                fabric = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-fabric",
+                forge = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-forge",
+                neoforge = "maven.modrinth:notenoughcrashes:$modVersion+$mcVersion-neoforge"
+            )
 
-// Configures the output directory for when building from the `src/resources` directory.
-sourceSets {
-    main {
-        output.setResourcesDir(java.classesDirectory)
-    }
-}
+        val nec = mapOf(
+            nec("1.16.5", "4.1.4"),
+            nec("1.20.1", "4.4.9"),
+            nec("1.20.4", "4.4.7"),
+            nec("1.21.1", "4.4.9"),
+            nec("1.21.4", "4.4.8"),
+            nec("1.21.5", "4.4.9"),
+            nec("1.21.8", "4.4.9"),
+        )
 
-// Adds the Polyfrost maven repository so that we can get the libraries necessary to develop the mod.
-repositories {
-    maven("https://repo.polyfrost.org/releases")
-}
-
-// Configures the libraries/dependencies for your mod.
-dependencies {
-    // Adds the OneConfig library, so we can develop with it.
-    modCompileOnly("cc.polyfrost:oneconfig-$platform:0.2.2-alpha+")
-
-    modRuntimeOnly("me.djtheredstoner:DevAuth-${if (platform.isFabric) "fabric" else if (platform.isLegacyForge) "forge-legacy" else "forge-latest"}:1.2.0")
-    shade("gs.mclo:api:3.0.1")
-    // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
-    if (platform.isLegacyForge) {
-        compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-        shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
+        modImplementationCompat(nec[mcData.version.toString()])
     }
 }
 
 tasks {
-    // Processes the `src/resources/mcmod.info or fabric.mod.json` and replaces
-    // the mod id, name and version with the ones in `gradle.properties`
-    processResources {
-        inputs.property("id", mod_id)
-        inputs.property("name", mod_name)
-        val java = if (project.platform.mcMinor >= 18) {
-            17 // If we are playing on version 1.18, set the java version to 17
-        } else {
-            // Else if we are playing on version 1.17, use java 16.
-            if (project.platform.mcMinor == 17)
-                16
-            else
-                8 // For all previous versions, we **need** java 8 (for Forge support).
-        }
-        val compatLevel = "JAVA_${java}"
-        inputs.property("java", java)
-        inputs.property("java_level", compatLevel)
-        inputs.property("version", mod_version)
-        inputs.property("mcVersionStr", project.platform.mcVersionStr)
-        filesMatching(listOf("mcmod.info", "mixin.${mod_id}.json", "mods.toml")) {
-            expand(
-                mapOf(
-                    "id" to mod_id,
-                    "name" to mod_name,
-                    "java" to java,
-                    "java_level" to compatLevel,
-                    "version" to mod_version,
-                    "mcVersionStr" to project.platform.mcVersionStr
-                )
-            )
-        }
-        filesMatching("fabric.mod.json") {
-            expand(
-                mapOf(
-                    "id" to mod_id,
-                    "name" to mod_name,
-                    "java" to java,
-                    "java_level" to compatLevel,
-                    "version" to mod_version,
-                    "mcVersionStr" to project.platform.mcVersionStr.substringBeforeLast(".") + ".x"
-                )
-            )
-        }
-    }
-
-    // Configures the resources to include if we are building for forge or fabric.
-    withType(Jar::class.java) {
-        if (project.platform.isFabric) {
-            exclude("mcmod.info", "mods.toml")
-        } else {
-            exclude("fabric.mod.json")
-            if (project.platform.isLegacyForge) {
-                exclude("mods.toml")
-            } else {
-                exclude("mcmod.info")
-            }
-        }
-    }
-
-    // Configures our shadow/shade configuration, so we can
-    // include some dependencies within our mod jar file.
-    named<ShadowJar>("shadowJar") {
-        archiveClassifier.set("dev") // TODO: machete gets confused by the `dev` prefix.
-        configurations = listOf(shade)
+    jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 
     remapJar {
-        inputFile.set(shadowJar.get().archiveFile)
-        archiveClassifier.set("")
-    }
-
-    jar {
-        // Sets the jar manifest attributes.
-        if (platform.isLegacyForge) {
-            manifest.attributes += mapOf(
-                "ModSide" to "CLIENT", // We aren't developing a server-side mod, so this is fine.
-                "ForceLoadAsMod" to true, // We want to load this jar as a mod, so we force Forge to do so.
-                "TweakOrder" to "0", // Makes sure that the OneConfig launch wrapper is loaded as soon as possible.
-                "MixinConfigs" to "mixin.${mod_id}.json", // We want to use our mixin configuration, so we specify it here.
-                "TweakClass" to "org.polyfrost.crashpatch.hooks.ModsCheckerPlugin" // Loads the OneConfig launch wrapper.
-            )
+        manifest {
+            attributes(mapOf(
+                "MixinConfigs" to "mixins.crashpatch.init.json,mixins.crashpatch.json",
+            ))
         }
-        dependsOn(shadowJar)
-        archiveClassifier.set("")
-        enabled = false
     }
 }
