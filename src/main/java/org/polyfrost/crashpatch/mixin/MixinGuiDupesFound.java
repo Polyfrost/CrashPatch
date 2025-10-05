@@ -1,9 +1,10 @@
 package org.polyfrost.crashpatch.mixin;
 
 //#if FORGE && MC<1.13
-import dev.deftu.omnicore.client.OmniClient;
-import dev.deftu.omnicore.client.OmniDesktop;
-import dev.deftu.textile.minecraft.MCTextFormat;
+import dev.deftu.omnicore.api.client.OmniClient;
+import dev.deftu.omnicore.api.client.OmniDesktop;
+import dev.deftu.omnicore.api.client.render.OmniTextRenderer;
+import net.minecraft.client.gui.FontRenderer;
 import org.polyfrost.crashpatch.client.CrashPatchClient;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiErrorScreen;
@@ -21,6 +22,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.awt.*;
 import java.io.File;
 import java.util.Map;
+
+//#if MC >= 1.12.2
+//$$ import net.minecraft.util.text.TextFormatting;
+//#else
+import net.minecraft.util.EnumChatFormatting;
+//#endif
 
 @Mixin(GuiDupesFound.class)
 public class MixinGuiDupesFound extends GuiErrorScreen {
@@ -70,7 +77,13 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
 
         offset += 10;
 
-        crashpatch$drawSplitString(MCTextFormat.BOLD + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatchClient.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
+        String bold =
+                //#if MC >= 1.12.2
+                //$$ TextFormatting.BOLD.toString();
+                //#else
+                EnumChatFormatting.BOLD.toString();
+                //#endif
+        crashpatch$drawSplitString(bold + "To fix this, go into your mods folder by clicking the button below or going to " + CrashPatchClient.getMcDir().getAbsolutePath() + " and deleting the duplicate mods.", width / 2, offset, width, Color.BLUE.getRGB());
 
         for (GuiButton guiButton : this.buttonList) {
             guiButton.drawButton(this.mc, mouseX, mouseY
@@ -88,9 +101,15 @@ public class MixinGuiDupesFound extends GuiErrorScreen {
     private static int crashpatch$drawSplitString(String str, int x, int y, int wrapWidth, int textColor) {
         str = crashpatch$trimStringNewline(str);
         int y2 = y;
-        for (String s : OmniClient.getFontRenderer().listFormattedStringToWidth(str, wrapWidth)) {
-            OmniClient.getFontRenderer().drawStringWithShadow(s, (float) (x - OmniClient.getFontRenderer().getStringWidth(s) / 2), (float) y2, textColor);
-            y2 += OmniClient.getFontRenderer().FONT_HEIGHT;
+        FontRenderer fontRenderer =
+                //#if MC >= 1.12.2
+                //$$ OmniClient.get().fontRenderer;
+                //#else
+                OmniClient.get().fontRendererObj;
+                //#endif
+        for (String s : fontRenderer.listFormattedStringToWidth(str, wrapWidth)) {
+            fontRenderer.drawStringWithShadow(s, (float) (x - OmniTextRenderer.width(s) / 2), (float) y2, textColor);
+            y2 += OmniTextRenderer.getLineHeight();
         }
         return y2 - y;
     }

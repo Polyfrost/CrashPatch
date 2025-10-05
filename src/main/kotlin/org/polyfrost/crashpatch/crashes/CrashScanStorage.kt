@@ -1,7 +1,7 @@
 package org.polyfrost.crashpatch.crashes
 
 import com.google.gson.JsonObject
-import dev.deftu.textile.minecraft.MCTextFormat
+import net.minecraft.util.EnumChatFormatting
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.client.CrashPatchClient
 import org.polyfrost.oneconfig.utils.v1.JsonUtils
@@ -109,7 +109,7 @@ object CrashScanStorage {
                 val causeJson = cause.asJsonObject
                 var theReport = report
                 if (causeJson.has("unformatted") && causeJson["unformatted"].asBoolean) {
-                    theReport = MCTextFormat.strip(theReport)
+                    theReport = EnumChatFormatting.getTextWithoutFormattingCodes(theReport) ?: theReport
                 }
 
                 when (causeJson["method"].asString) {

@@ -46,7 +46,7 @@ class CrashUI @JvmOverloads constructor(
             //#if MC < 1.21
             .completeReport,
             //#else
-            //$$ .getFriendlyReport(net.minecraft.ReportType.CRASH),
+            //$$ .asString(net.minecraft.util.crash.ReportType.MINECRAFT_CRASH_REPORT),
             //#endif
         report.file
         //#if MC >= 1.21

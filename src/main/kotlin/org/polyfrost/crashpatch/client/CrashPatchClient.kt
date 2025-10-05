@@ -1,13 +1,18 @@
 package org.polyfrost.crashpatch.client
 
-import dev.deftu.textile.minecraft.MCSimpleTextHolder
-import dev.deftu.textile.minecraft.MCTextFormat
+import com.mojang.brigadier.Command
+import dev.deftu.omnicore.api.client.commands.OmniClientCommands
+import dev.deftu.omnicore.api.client.commands.command
+import dev.deftu.textile.Text
+import dev.deftu.textile.minecraft.MCTextStyle
+import dev.deftu.textile.minecraft.TextColors
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConfig
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.crashes.CrashScanStorage
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.Multithreading
+import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
 import org.polyfrost.oneconfig.utils.v1.dsl.openUI
 import java.io.File
 
@@ -57,29 +62,35 @@ object CrashPatchClient {
     }
 
     fun initialize() {
-        CommandManager.register(with(CommandManager.literal(CrashPatchConstants.ID)) {
-            executes {
-                CrashPatchConfig.openUI()
-                1
+        OmniClientCommands.command(CrashPatchConstants.ID) {
+            runs { ctx ->
+                ctx.source.openScreen(CrashPatchConfig.createScreen())
             }
 
-            then(CommandManager.literal("reload").executes { ctx ->
-                val text = if (CrashScanStorage.downloadJson()) {
-                    MCSimpleTextHolder("[${CrashPatchConstants.NAME}] Successfully reloaded JSON file!").withFormatting(MCTextFormat.Companion.GREEN)
-                } else {
-                    MCSimpleTextHolder("[${CrashPatchConstants.NAME}] Failed to reload JSON file!").withFormatting(MCTextFormat.Companion.RED)
+            then("reload") {
+                runs { ctx ->
+                    val success = CrashScanStorage.downloadJson()
+
+                    val content = if (success) {
+                        "Successfully reloaded JSON file!" to TextColors.GREEN
+                    } else {
+                        "Failed to reload JSON file!" to TextColors.RED
+                    }
+
+                    val (message, color) = content
+                    ctx.source.replyChat(Text.literal("[${CrashPatchConstants.NAME}] $message").setStyle(MCTextStyle.color(color)))
                 }
+            }
 
-                ctx.source.replyChat(text)
-            })
+            then("crash") {
+                runs { ctx ->
+                    requestedCrash = true
+                    Command.SINGLE_SUCCESS
+                }
+            }
+        }.register()
 
-            then(CommandManager.literal("crash").executes { ctx ->
-                requestedCrash = true
-                1
-            })
-        })
-
-        CrashPatchConfig // Initialize the config
+        CrashPatchConfig.preload() // Initialize the config
     }
 
 }
