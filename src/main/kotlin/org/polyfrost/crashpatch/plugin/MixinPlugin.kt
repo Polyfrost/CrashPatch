@@ -12,16 +12,16 @@ class MixinPlugin : IMixinConfigPlugin {
 
         //#if MC<1.13
         //#if FORGE
-        result.add("MixinGuiDupesFound")
-        result.add("MixinTileEntityRendererDispatcher")
+        result.add("Mixin_CustomModDupesScreen")
+        result.add("Mixin_TileEntityRenderer")
         //#endif
         result.add("MixinMinecraft")
-        result.add("MixinWorldRenderer")
+        result.add("Mixin_ResetWorldState")
         //#else
-        //$$ result.add("MixinEntryPointCatcher_UseCrashPatchGui")
-        //$$ result.add("MixinInGameCatcher_UseCrashPatchGui")
-        //$$ result.add("MixinMinecraft_CrashPatchInitUI")
-        //$$ result.add("MixinMinecraft_CrashInitGui")
+        //$$ result.add("Mixin_EntryPointErrorForceCrashPatchUI")
+        //$$ result.add("Mixin_InGameCatcherForceCrashPatchUI")
+        //$$ result.add("Mixin_CrashPatchInitUI")
+        //$$ result.add("Mixin_CrashInitGui")
         //#if FABRIC && MC>=1.20.4
         //$$ result.add("MixinModLoaders_Debug")
         //#endif

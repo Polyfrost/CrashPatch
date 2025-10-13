@@ -1,5 +1,9 @@
 package org.polyfrost.crashpatch.hooks;
 
 public interface CrashReportHook {
-    String getSuspectedCrashPatchMods();
+    String crashpatch$getSuspectedMod();
+
+    default String getSuspectedMod() {
+        return crashpatch$getSuspectedMod();
+    }
 }

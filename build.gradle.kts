@@ -23,8 +23,8 @@ if (mcData.isForge) {
 
 toolkitLoomHelper {
     useOneConfig {
-        version = "1.0.0-alpha.165"
-        loaderVersion = "1.1.0-alpha.49"
+        version = "1.0.0-alpha.171"
+        loaderVersion = "1.1.0-alpha.53"
 
         usePolyMixin = true
         polyMixinVersion = "0.8.4+build.7"
@@ -64,6 +64,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("com.mojang:datafixerupper:4.0.26")
     implementation(includeOrShade("gs.mclo:api:3.0.1")!!)
     includeOrShade(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)!!)
     if (mcData.version >= MinecraftVersions.VERSION_1_16) {

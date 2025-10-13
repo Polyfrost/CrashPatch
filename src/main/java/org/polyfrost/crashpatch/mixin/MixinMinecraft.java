@@ -31,12 +31,11 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.polyfrost.crashpatch.client.CrashPatchClient;
-import org.polyfrost.crashpatch.CrashPatchConfig;
-import org.polyfrost.crashpatch.crashes.StateManager;
-import org.polyfrost.crashpatch.gui.CrashUI;
+import org.polyfrost.crashpatch.client.CrashPatchConfig;
+import org.polyfrost.crashpatch.client.RenderState;
+import org.polyfrost.crashpatch.client.crashes.GameStateManager;
+import org.polyfrost.crashpatch.client.gui.CrashUI;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
-import org.polyfrost.crashpatch.utils.GlUtil;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -196,6 +195,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
         if (!CrashPatchConfig.INSTANCE.getInGameCrashPatch()) {
             crashpatch$letDie = true;
         }
+
         if ((crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getCrashLimit())) {
             this.logger.error("Crash limit reached, exiting game");
             crashpatch$letDie = true;
@@ -247,7 +247,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
             } catch (Throwable ignored) {
             }
 
-            StateManager.INSTANCE.resetStates();
+            GameStateManager.resetStates();
 
             boolean shouldCrash = crashpatch$clientCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit() || crashpatch$serverCrashCount >= CrashPatchConfig.INSTANCE.getLeaveLimit();
 
@@ -273,7 +273,7 @@ public abstract class MixinMinecraft implements MinecraftHook {
                 this.scheduledTasks.clear(); // TODO: Figure out why this isn't necessary for vanilla disconnect
             }
 
-            GlUtil.INSTANCE.resetState();
+            RenderState.reset();
 
             if (originalMemoryReserveSize != -1) {
                 try {
@@ -285,8 +285,8 @@ public abstract class MixinMinecraft implements MinecraftHook {
         } catch (Throwable t) {
             this.logger.error("Failed to reset state after a crash", t);
             try {
-                StateManager.INSTANCE.resetStates();
-                GlUtil.INSTANCE.resetState();
+                GameStateManager.INSTANCE.resetStates();
+                RenderState.reset();
             } catch (Throwable ignored) {}
         }
     }

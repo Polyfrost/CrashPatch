@@ -1,4 +1,5 @@
 package org.polyfrost.crashpatch.identifier
+
 //#if MC<1.13
 //#if FORGE
 import java.io.IOException

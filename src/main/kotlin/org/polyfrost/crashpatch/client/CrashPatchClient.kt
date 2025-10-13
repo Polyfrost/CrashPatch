@@ -3,58 +3,46 @@ package org.polyfrost.crashpatch.client
 import com.mojang.brigadier.Command
 import dev.deftu.omnicore.api.client.commands.OmniClientCommands
 import dev.deftu.omnicore.api.client.commands.command
+import dev.deftu.omnicore.api.gameDirectory
 import dev.deftu.textile.Text
 import dev.deftu.textile.minecraft.MCTextStyle
 import dev.deftu.textile.minecraft.TextColors
 import org.apache.logging.log4j.LogManager
-import org.polyfrost.crashpatch.CrashPatchConfig
 import org.polyfrost.crashpatch.CrashPatchConstants
-import org.polyfrost.crashpatch.crashes.CrashScanStorage
-import org.polyfrost.oneconfig.api.commands.v1.CommandManager
+import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.oneconfig.utils.v1.Multithreading
 import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
-import org.polyfrost.oneconfig.utils.v1.dsl.openUI
-import java.io.File
+import kotlin.io.path.exists
+
+//#if MC < 1.13
+import org.polyfrost.crashpatch.client.utils.DeobfuscatingLog4jRewritePolicy
+//#endif
 
 object CrashPatchClient {
-
-    private val logger = LogManager.getLogger()
-
-    @JvmStatic
-    val mcDir by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        File(System.getProperty("user.dir"))
-    }
+    private val LOGGER = LogManager.getLogger()
 
     @JvmStatic
-    val gameDir by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        try {
-            if (mcDir.parentFile?.name?.let { name ->
-                name == ".minecraft" || name == "minecraft"
-            } == true) mcDir.parentFile else mcDir
-        } catch (e: Exception) {
-            e.printStackTrace()
-            mcDir
-        }
+    val isSkyClient by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        gameDirectory.resolve("OneConfig/CrashPatch/SKYCLIENT").exists() || gameDirectory.resolve("W-OVERFLOW/CrashPatch/SKYCLIENT").exists()
     }
 
-    val isSkyclient by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        File(mcDir, "OneConfig/CrashPatch/SKYCLIENT").exists() || File(mcDir, "W-OVERFLOW/CrashPatch/SKYCLIENT").exists()
-    }
+    @JvmStatic
+    var isCrashRequested = false
 
-    var requestedCrash = false
-
+    @JvmStatic
     fun preInitialize() {
-        //#if MC<1.13
-        org.polyfrost.crashpatch.crashes.DeobfuscatingRewritePolicy.install()
+        //#if MC <= 1.12.2
+        DeobfuscatingLog4jRewritePolicy.install()
         //#endif
+
+        CrashScanner.initialize()
+
         Multithreading.submit {
-            logger.info("Is SkyClient: $isSkyclient")
-            if (!CrashScanStorage.downloadJson()) {
-                logger.error("CrashHelper failed to preload crash data JSON!")
-            }
+            /** Quickly load [isSkyClient] on another temporary thread */
+            LOGGER.info("Is this a SkyClient installation? $isSkyClient")
         }
 
-        //#if MC<1.13
+        //#if MC < 1.13
         if (System.getProperty("polyfrost.crashpatch.init_crash") == "true") {
             throw RuntimeException("Crash requested by CrashPatch")
         }
@@ -62,6 +50,8 @@ object CrashPatchClient {
     }
 
     fun initialize() {
+        CrashPatchConfig.preload() // Initialize the config
+
         OmniClientCommands.command(CrashPatchConstants.ID) {
             runs { ctx ->
                 ctx.source.openScreen(CrashPatchConfig.createScreen())
@@ -69,14 +59,9 @@ object CrashPatchClient {
 
             then("reload") {
                 runs { ctx ->
-                    val success = CrashScanStorage.downloadJson()
+                    val success = CrashScanner.submitCacheRequest()
 
-                    val content = if (success) {
-                        "Successfully reloaded JSON file!" to TextColors.GREEN
-                    } else {
-                        "Failed to reload JSON file!" to TextColors.RED
-                    }
-
+                    val content = "Requested reload of crash data! Please wait." to TextColors.GREEN
                     val (message, color) = content
                     ctx.source.replyChat(Text.literal("[${CrashPatchConstants.NAME}] $message").setStyle(MCTextStyle.color(color)))
                 }
@@ -84,13 +69,10 @@ object CrashPatchClient {
 
             then("crash") {
                 runs { ctx ->
-                    requestedCrash = true
+                    isCrashRequested = true
                     Command.SINGLE_SUCCESS
                 }
             }
         }.register()
-
-        CrashPatchConfig.preload() // Initialize the config
     }
-
 }
