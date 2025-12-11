@@ -60,7 +60,7 @@ object ModIdentifier {
         // Get the URL of the class
         val untrasformedName = untransformName(Launch.classLoader, className)
         var url = Launch.classLoader.getResource(untrasformedName.replace('.', '/') + ".class")
-        logger.debug("{} = {} = {}", className, untrasformedName, url)
+        logger.debug("%s = %s = %s".format(className, untrasformedName, url))
         if (url == null) {
             logger.warn("Failed to identify $className (untransformed name: $untrasformedName)")
             return emptySet()
