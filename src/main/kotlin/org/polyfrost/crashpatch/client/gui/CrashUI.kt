@@ -3,12 +3,13 @@ package org.polyfrost.crashpatch.client.gui
 import dev.deftu.clipboard.Clipboard
 import dev.deftu.omnicore.api.client.OmniDesktop
 import dev.deftu.omnicore.api.client.screen.closeScreen
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.crash.CrashReport
+import net.minecraft.CrashReport
+import net.minecraft.ReportType
+import net.minecraft.client.gui.screens.Screen
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.LogUploader
-import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.client.crashes.CrashScan
+import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.oneconfig.api.ui.v1.Notifications
 import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
@@ -42,25 +43,16 @@ class CrashUI @JvmOverloads constructor(
 
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
-        report
-            //#if MC < 1.21
-            .completeReport,
-            //#else
-            //$$ .asString(net.minecraft.util.crash.ReportType.MINECRAFT_CRASH_REPORT),
-            //#endif
-        report.file
-            //#if MC >= 1.21
-            //$$ ?.toFile()
-            //#endif
-        ,
+        report.getFriendlyReport(ReportType.CRASH),
+        report.saveFile?.toFile(),
         (report as CrashReportHook).suspectedMod,
         type,
-        report.crashCause
+        report.exception
     )
 
     companion object {
         var leaveWorldCrash = false
-        var currentInstance: GuiScreen? = null
+        var currentInstance: Screen? = null
             private set
         var currentUI: CrashUI? = null
             private set
@@ -87,7 +79,7 @@ class CrashUI @JvmOverloads constructor(
 
     var shouldCrash = false
 
-    fun create(): GuiScreen {
+    fun create(): Screen {
         val builder = OCPolyUIBuilder.create()
             .blurs()
             .atResolution(1920f, 1080f)
@@ -275,7 +267,7 @@ class CrashUI @JvmOverloads constructor(
         val screen = UIManager.INSTANCE.createPolyUIScreen(polyUI, 1920f, 1080f, false, true, onClose)
         polyUI.window = UIManager.INSTANCE.createWindow()
         currentUI = this
-        currentInstance = screen as GuiScreen
+        currentInstance = screen as Screen
         return screen
     }
 

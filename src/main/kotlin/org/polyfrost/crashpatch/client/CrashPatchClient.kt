@@ -14,10 +14,6 @@ import org.polyfrost.oneconfig.utils.v1.Multithreading
 import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
 import kotlin.io.path.exists
 
-//#if MC < 1.13
-import org.polyfrost.crashpatch.client.utils.DeobfuscatingLog4jRewritePolicy
-//#endif
-
 object CrashPatchClient {
     private val LOGGER = LogManager.getLogger()
 
@@ -31,22 +27,12 @@ object CrashPatchClient {
 
     @JvmStatic
     fun preInitialize() {
-        //#if MC <= 1.12.2
-        DeobfuscatingLog4jRewritePolicy.install()
-        //#endif
-
         CrashScanner.initialize()
 
         Multithreading.submit {
             /** Quickly load [isSkyClient] on another temporary thread */
             LOGGER.info("Is this a SkyClient installation? $isSkyClient")
         }
-
-        //#if MC < 1.13
-        if (System.getProperty("polyfrost.crashpatch.init_crash") == "true") {
-            throw RuntimeException("Crash requested by CrashPatch")
-        }
-        //#endif
     }
 
     fun initialize() {

@@ -9,7 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class Mixin_PreInitializeCrashPatch {
-    @Inject(method = "startGame", at = @At(value = "NEW", target = "(Lnet/minecraft/client/resources/IResourceManager;)Lnet/minecraft/client/renderer/texture/TextureManager;"))
+    @Inject(
+            method = "<init>",
+            at = @At(value = "NEW", target = "(Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/TextureManager;")
+    )
     private void preInitialize(CallbackInfo ci) {
         CrashPatchClient.preInitialize();
     }

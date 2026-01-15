@@ -1,8 +1,8 @@
 package org.polyfrost.crashpatch.client.utils
 
 import dev.deftu.omnicore.api.client.screen.currentScreen
-import net.minecraft.client.gui.GuiDisconnected
-import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.screens.DisconnectedScreen
+import net.minecraft.client.gui.screens.Screen
 import org.polyfrost.crashpatch.client.CrashPatchConfig
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.client.gui.CrashUI
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 object DisconnectedScreenHook {
     @JvmStatic
-    fun onScreenDisplayed(screen: GuiScreen?, ci: CallbackInfo) {
-        if (screen is GuiDisconnected && CrashPatchConfig.disconnectCrashPatch) {
+    fun onScreenDisplayed(screen: Screen?, ci: CallbackInfo) {
+        if (screen is DisconnectedScreen && CrashPatchConfig.disconnectCrashPatch) {
             val reason = reason(screen)
             val scan = CrashScanner.scan(reason, true)
             if (scan != null && scan.solutions.size > 1) {
@@ -22,13 +22,7 @@ object DisconnectedScreenHook {
         }
     }
 
-    private fun reason(screen: GuiScreen): String {
-        //#if MC >= 1.21.1
-        //$$ return (screen as Mixin_AccessDisconnectReason).info.comp_2853.string
-        //#elseif MC >= 1.16.5
-        //$$ return (screen as Mixin_AccessDisconnectReason).reason.string
-        //#else
-        return (screen as Mixin_AccessDisconnectReason).reason
-        //#endif
+    private fun reason(screen: Screen): String {
+        return (screen as Mixin_AccessDisconnectReason).info.reason.string
     }
 }

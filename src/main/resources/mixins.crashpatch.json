@@ -1,20 +1,23 @@
 {
-  "compatibilityLevel": "${java_version}",
+  "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "package": "org.polyfrost.crashpatch.mixin",
   "plugin": "org.polyfrost.crashpatch.plugin.MixinPlugin",
-  "refmap": "mixins.crashpatch.refmap.json",
   "injectors": {
     "maxShiftBy": 5
   },
   "mixins": [
       "Mixin_AccessDisconnectReason",
       "Mixin_IdentifySuspiciousMod",
-      "Mixin_DeobfuscateStackTraces",
       "Mixin_WarnIfConnectionStuck",
       "Mixin_DebugRequestedCrash",
       "Mixin_OverrideDisconnectedScreen",
-      "Mixin_PreInitializeCrashPatch"
+      "Mixin_PreInitializeCrashPatch",
+      "Mixin_ModLoaders_Debug",
+      "Mixin_CrashInitGui",
+      "Mixin_CrashPatchInitUI",
+      "Mixin_EntryPointErrorForceCrashPatchUI",
+      "Mixin_InGameCatcherForceCrashPatchUI"
   ],
   "verbose": true
 }

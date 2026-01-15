@@ -36,7 +36,7 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
     @Info(
         title = "polyui.warning",
         description = "It's recommended to leave the world after a few crashes, and outright quit the game if there are more; this is to avoid severe instability",
-        icon = "polyui/warning.svg",
+        icon = "polyui/info.svg",
         subcategory = "Limits"
     )
     var ignored: Boolean = false
@@ -58,13 +58,6 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
         subcategory = "Limits"
     )
     var crashLimit = 5
-
-    @Switch(
-        title = "Deobfuscate Crash Log",
-        description = "Makes certain class names more readable through deobfuscation",
-        subcategory = "Logs"
-    )
-    var deobfuscateCrashLog = true
 
     @Dropdown(
         title = "Log uploader",
