@@ -215,7 +215,6 @@ class CrashUI @JvmOverloads constructor(
                         alignment = Align(
                             main = Align.Content.Start,
                             cross = Align.Content.Start,
-                            mode = Align.Mode.Vertical,
                             pad = Vec2.ZERO
                         ),
                         size = Vec2(518f, 105f),
@@ -275,7 +274,7 @@ class CrashUI @JvmOverloads constructor(
         solution.solutions.joinToString("\n"),
         fontSize = 12f,
         visibleSize = Vec2(518f, 105f),
-    ).setFont { PolyUI.monospaceFont }.padded(16f, 8f)
+    ).setFont { PolyUI.monospaceFont }
 
     private fun createCustomButtonPalette(normal: PolyColor) = Colors.Palette(normal, GRAY_700, GRAY_700, PolyColor.TRANSPARENT)
 
