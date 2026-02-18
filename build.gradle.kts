@@ -47,15 +47,15 @@ dependencies {
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
     implementation("gs.mclo:api:3.0.1")
 
-    modImplementation("org.polyfrost.oneconfig:${property("minecraft_version")}-fabric:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:commands:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:config:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:config-impl:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:events:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:internal:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:ui:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:utils:1.0.0-alpha.181")
-    modImplementation("org.polyfrost.oneconfig:hud:1.0.0-alpha.181")
+    modImplementation("org.polyfrost.oneconfig:${property("minecraft_version")}-fabric:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:commands:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:config:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:config-impl:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:events:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:internal:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:ui:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:utils:1.0.0-alpha.182")
+    modImplementation("org.polyfrost.oneconfig:hud:1.0.0-alpha.182")
 }
 
 bloom {
