@@ -6,9 +6,9 @@
 
 package org.polyfrost.crashpatch.mixin;
 
+import net.minecraft.CrashReport;
 import org.polyfrost.crashpatch.identifier.ModIdentifier;
 import org.polyfrost.crashpatch.hooks.CrashReportHook;
-import net.minecraft.crash.CrashReport;
 import org.polyfrost.crashpatch.identifier.ModMetadata;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,28 +20,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = CrashReport.class, priority = 500)
 public class Mixin_IdentifySuspiciousMod implements CrashReportHook {
-    @Shadow @Final private Throwable cause;
+    @Shadow @Final private Throwable exception;
     @Unique private String crashpatch$suspectedMod;
 
     @Inject(
-            //#if MC >= 1.17.1
-            //$$ method = "<init>",
-            //#else
-            method = "populateEnvironment",
-            //#endif
+            method = "<init>",
             at = @At("TAIL")
     )
     private void afterPopulateEnvironment(CallbackInfo ci) {
-        ModMetadata suspiciousMod = ModIdentifier.INSTANCE.identifyFromStacktrace((CrashReport) (Object) this, this.cause);
+        ModMetadata suspiciousMod = ModIdentifier.INSTANCE.identifyFromStacktrace((CrashReport) (Object) this, this.exception);
         crashpatch$suspectedMod = (suspiciousMod == null ? "Unknown" : suspiciousMod.getName());
     }
-
-    //#if MC<1.13
-    @Inject(method = "populateEnvironment", at = @At("HEAD"))
-    private void beforePopulateEnvironment(CallbackInfo ci) {
-        org.polyfrost.crashpatch.hooks.StacktraceDeobfuscator.INSTANCE.deobfuscateThrowable(this.cause);
-    }
-    //#endif
 
     @Override @Unique
     public String crashpatch$getSuspectedMod() {

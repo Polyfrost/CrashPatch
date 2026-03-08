@@ -10,22 +10,11 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun getMixins(): MutableList<String> {
         val result = mutableListOf<String>()
 
-        //#if MC<1.13
-        //#if FORGE
-        result.add("Mixin_CustomModDupesScreen")
-        result.add("Mixin_TileEntityRenderer")
-        //#endif
-        result.add("MixinMinecraft")
-        result.add("Mixin_ResetWorldState")
-        //#else
-        //$$ result.add("Mixin_EntryPointErrorForceCrashPatchUI")
-        //$$ result.add("Mixin_InGameCatcherForceCrashPatchUI")
-        //$$ result.add("Mixin_CrashPatchInitUI")
-        //$$ result.add("Mixin_CrashInitGui")
-        //#if FABRIC && MC>=1.20.4
-        //$$ result.add("MixinModLoaders_Debug")
-        //#endif
-        //#endif
+        result.add("Mixin_EntryPointErrorForceCrashPatchUI")
+        result.add("Mixin_InGameCatcherForceCrashPatchUI")
+        result.add("Mixin_CrashPatchInitUI")
+        result.add("Mixin_CrashInitGui")
+        result.add("Mixin_ModLoaders_Debug")
 
         return result
     }
