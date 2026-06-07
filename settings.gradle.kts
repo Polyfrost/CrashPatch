@@ -18,13 +18,16 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7.10"
+    id("dev.kikugie.stonecutter") version "0.9.5"
+    id("dev.kikugie.loom-back-compat") version "0.3"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+val versions = listOf("1.21.1", "1.21.4", "1.21.8", "1.21.10", "1.21.11", "26.1.2")
 stonecutter {
     create(rootProject) {
-        versions("1.21.1", "1.21.4", "1.21.8", "1.21.10", "1.21.11")
-        vcsVersion = "1.21.10"
+        versions(versions)
+        vcsVersion = versions.last()
     }
 }
 

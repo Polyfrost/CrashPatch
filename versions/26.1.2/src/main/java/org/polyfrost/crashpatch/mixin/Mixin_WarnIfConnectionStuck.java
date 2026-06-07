@@ -1,7 +1,8 @@
 package org.polyfrost.crashpatch.mixin;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
@@ -27,10 +28,10 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
         super(arg);
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    private void drawWarningText(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void drawWarningText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         if (((MinecraftHook) Minecraft.getInstance()).hasRecoveredFromCrash()) {
-            crashpatch$drawSplitCenteredString(guiGraphics, crashpatch$getText(), width / 2, 5, Color.WHITE.getRGB());
+            crashpatch$drawSplitCenteredString(graphics, crashpatch$getText(), width / 2, 5, Color.WHITE.getRGB());
         }
     }
 
@@ -40,13 +41,13 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean clicked = super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        boolean clicked = super.mouseClicked(mouseButtonEvent, bl);
         if (!clicked) {
             return true;
         }
         if (((MinecraftHook) Minecraft.getInstance()).hasRecoveredFromCrash()) {
-            if (button == 0) {
+            if (mouseButtonEvent.button() == 0) {
                 List<FormattedCharSequence> list = this.font.split(FormattedText.of(crashpatch$getText()), width);
                 int width = -1;
                 for (FormattedCharSequence text : list) {
@@ -54,6 +55,8 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
                 }
 
                 int left = (this.width / 2) - width / 2;
+                double mouseX = mouseButtonEvent.x();
+                double mouseY = mouseButtonEvent.y();
                 if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.size() - 1) * (this.font.lineHeight + 2)))) {
                     DesktopHelper.browse(URI.create("https://discord.gg/eh7tNFezct"));
                     return true;
@@ -64,9 +67,9 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
     }
 
     @Unique
-    public void crashpatch$drawSplitCenteredString(GuiGraphics ctx, String text, int x, int y, int color) {
+    public void crashpatch$drawSplitCenteredString(GuiGraphicsExtractor ctx, String text, int x, int y, int color) {
         for (FormattedCharSequence line : this.font.split(FormattedText.of(text), width)) {
-            ctx.drawString(this.font, line, (int) (x - ((float) this.font.width(line) / 2)), y, color);
+            ctx.text(this.font, line, (int) (x - ((float) this.font.width(line) / 2)), y, color);
             y += this.font.lineHeight + 2;
         }
     }

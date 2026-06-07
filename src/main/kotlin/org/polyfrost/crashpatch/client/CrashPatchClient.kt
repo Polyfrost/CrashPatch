@@ -1,12 +1,6 @@
 package org.polyfrost.crashpatch.client
 
 import com.mojang.brigadier.Command
-import dev.deftu.omnicore.api.client.commands.OmniClientCommands
-import dev.deftu.omnicore.api.client.commands.command
-import dev.deftu.omnicore.api.gameDirectory
-import dev.deftu.textile.Text
-import dev.deftu.textile.minecraft.MCTextStyle
-import dev.deftu.textile.minecraft.TextColors
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
@@ -19,7 +13,8 @@ object CrashPatchClient {
 
     @JvmStatic
     val isSkyClient by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-        gameDirectory.resolve("OneConfig/CrashPatch/SKYCLIENT").exists() || gameDirectory.resolve("W-OVERFLOW/CrashPatch/SKYCLIENT").exists()
+        CrashPatchConstants.gameDirectory.resolve("OneConfig/CrashPatch/SKYCLIENT").exists() ||
+                CrashPatchConstants.gameDirectory.resolve("W-OVERFLOW/CrashPatch/SKYCLIENT").exists()
     }
 
     @JvmStatic

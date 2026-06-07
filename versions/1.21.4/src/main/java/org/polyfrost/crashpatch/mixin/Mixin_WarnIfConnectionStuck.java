@@ -1,6 +1,5 @@
 package org.polyfrost.crashpatch.mixin;
 
-import dev.deftu.omnicore.api.client.OmniDesktop;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -11,6 +10,7 @@ import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,7 +55,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
 
                 int left = (this.width / 2) - width / 2;
                 if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.size() - 1) * (this.font.lineHeight + 2)))) {
-                    OmniDesktop.browse(URI.create("https://discord.gg/eh7tNFezct"));
+                    DesktopHelper.browse(URI.create("https://discord.gg/eh7tNFezct"));
                     return true;
                 }
             }

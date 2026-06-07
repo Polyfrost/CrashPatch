@@ -1,12 +1,12 @@
 package org.polyfrost.crashpatch.client
 
-import dev.deftu.omnicore.api.client.OmniDesktop
 import org.polyfrost.oneconfig.api.config.v1.Config
 import org.polyfrost.oneconfig.api.config.v1.annotations.Button
 import org.polyfrost.oneconfig.api.config.v1.annotations.Dropdown
 import org.polyfrost.oneconfig.api.config.v1.annotations.Info
 import org.polyfrost.oneconfig.api.config.v1.annotations.Slider
 import org.polyfrost.oneconfig.api.config.v1.annotations.Switch
+import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper
 import java.net.URI
 
 object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpatch_dark.svg", "CrashPatch", Category.QOL) {
@@ -71,7 +71,7 @@ object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpat
         text = "Discord"
     )
     fun supportDiscord() {
-        OmniDesktop.browse(URI.create("https://polyfrost.org/discord"))
+        DesktopHelper.browse(URI.create("https://polyfrost.org/discord"))
     }
 
     enum class UploadMethod(val text: String) {

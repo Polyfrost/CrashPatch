@@ -1,8 +1,6 @@
 package org.polyfrost.crashpatch.client.gui
 
-import dev.deftu.clipboard.Clipboard
-import dev.deftu.omnicore.api.client.OmniDesktop
-import dev.deftu.omnicore.api.client.screen.closeScreen
+import androidx.compose.runtime.Composable
 import net.minecraft.CrashReport
 import net.minecraft.ReportType
 import net.minecraft.client.gui.screens.Screen
@@ -11,24 +9,8 @@ import org.polyfrost.crashpatch.client.LogUploader
 import org.polyfrost.crashpatch.client.crashes.CrashScan
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
-import org.polyfrost.oneconfig.api.ui.v1.Notifications
-import org.polyfrost.oneconfig.api.ui.v1.OCPolyUIBuilder
-import org.polyfrost.oneconfig.api.ui.v1.UIManager
 import org.polyfrost.oneconfig.internal.OneConfig
-import org.polyfrost.polyui.PolyUI
-import org.polyfrost.polyui.animate.Animations
-import org.polyfrost.polyui.color.Colors
-import org.polyfrost.polyui.color.PolyColor
-import org.polyfrost.polyui.color.rgba
-import org.polyfrost.polyui.component.extensions.*
-import org.polyfrost.polyui.component.impl.*
-import org.polyfrost.polyui.operations.Move
-import org.polyfrost.polyui.operations.Resize
-import org.polyfrost.polyui.unit.Align
-import org.polyfrost.polyui.unit.Vec2
-import org.polyfrost.polyui.unit.seconds
-import org.polyfrost.polyui.utils.image
-import org.polyfrost.polyui.utils.mapToArray
+import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen
 import java.io.File
 import java.net.URI
 import java.util.function.Consumer
@@ -39,7 +21,7 @@ class CrashUI @JvmOverloads constructor(
     private val susThing: String,
     private val type: GuiType = GuiType.NORMAL,
     val throwable: Throwable? = null
-) {
+) : ComposeScreen() {
 
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
@@ -268,6 +250,11 @@ class CrashUI @JvmOverloads constructor(
         currentUI = this
         currentInstance = screen as Screen
         return screen
+    }
+
+    @Composable
+    override fun compose() {
+
     }
 
     private fun createSolutionText(solution: CrashScan.Solution) = Text(

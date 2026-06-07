@@ -3,21 +3,27 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.3.0"
-    id("net.fabricmc.fabric-loom-remap") version "1.14-SNAPSHOT"
+    id("dev.kikugie.loom-back-compat")
     id("dev.deftu.gradle.bloom") version "0.2.0"
-    id("me.modmuss50.mod-publish-plugin") version "1.1.0"
+    id("me.modmuss50.mod-publish-plugin") version "2.0.0"
 }
 
 val modid = property("mod.id")
 val modname = property("mod.name")
 val modversion = property("mod.version")
 val mcversion = stonecutter.current.version
+val versionoverride = property("minecraft_version")
+
+val loaderversion = property("loader_version")
 val oneconfigversion = property("oneconfig_version")
+
+val necversion = property("nec_version")
 
 version = "$modversion+$mcversion"
 base.archivesName = modname.toString()
 
 repositories {
+    mavenCentral()
     maven("https://maven.parchmentmc.org")
     maven("https://repo.polyfrost.org/releases")
     maven("https://repo.polyfrost.org/snapshots")
@@ -27,6 +33,8 @@ repositories {
     maven("https://maven.bawnorton.com/releases") {
         content { includeGroup("com.github.bawnorton.mixinsquared") }
     }
+    maven("https://redirector.kotlinlang.org/maven/compose-dev")
+    google()
 }
 
 loom {
@@ -41,15 +49,15 @@ loom {
 dependencies {
     minecraft("com.mojang:minecraft:$mcversion")
     compileOnly("com.mojang:datafixerupper:4.0.26")
-    mappings(loom.officialMojangMappings())
+    loomx.applyMojangMappings()
 
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
-    modImplementation("maven.modrinth:notenoughcrashes:${property("nec_version")}+$mcversion-fabric")
+    modImplementation("net.fabricmc:fabric-loader:$loaderversion")
+    modImplementation("maven.modrinth:notenoughcrashes:$necversion+$mcversion-fabric")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
     implementation("gs.mclo:api:3.0.1")
 
-    modImplementation("org.polyfrost.oneconfig:$mcversion-fabric:1.0.0-alpha.182")
-    for (module in arrayOf("config", "config-impl", "internal", "ui")) {
+    modImplementation("org.polyfrost.oneconfig:$versionoverride-fabric:$oneconfigversion")
+    for (module in arrayOf("config", "config-impl", "internal")) {
         implementation("org.polyfrost.oneconfig:$module:$oneconfigversion")
     }
 }
@@ -86,17 +94,17 @@ tasks.build {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_25)
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.jar {
@@ -114,12 +122,18 @@ val modrinthId = findProperty("publish.modrinth")?.toString()?.takeIf { it.isNot
 
 // make sure modrinth.token is set in your user gradle properties
 publishMods {
-    file = project.tasks.remapJar.get().archiveFile
+    val jarTask = if (stonecutter.eval(stonecutter.current.version, ">=26.1")) {
+        project.tasks.named<AbstractArchiveTask>("jar")
+    } else {
+        project.tasks.named<AbstractArchiveTask>("remapJar")
+    }.get()
+
+    file.set(jarTask.archiveFile)
 
     displayName = modversion.toString()
     version = "v$modversion"
-    changelog = project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
-    type = ALPHA
+    changelog.set(project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided.")
+    type.set(ALPHA)
 
     modLoaders.add("fabric")
 
@@ -127,8 +141,8 @@ publishMods {
 
     if (modrinthId != null) {
         modrinth {
-            projectId = property("publish.modrinth").toString()
-            accessToken = findProperty("modrinth.token").toString()
+            projectId.set(property("publish.modrinth").toString())
+            accessToken.set(findProperty("modrinth.token").toString())
 
             minecraftVersions.add(mcversion)
 

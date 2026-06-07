@@ -1,6 +1,5 @@
 package org.polyfrost.crashpatch.client.crashes
 
-import dev.deftu.omnicore.api.gameDirectory
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.crashes.cache.CacheResult
@@ -121,7 +120,7 @@ object CrashScanner {
 
     private fun registerDefaultPlaceholders() {
         placeholders.add(ScanPlaceholder("%pathindicator%") { "" })
-        placeholders.add(ScanPlaceholder("%gameroot%") { gameDirectory.toAbsolutePath().toString().removeSuffix(File.separator) })
-        placeholders.add(ScanPlaceholder("%profileroot%") { gameDirectory.resolve("OneConfig").parent.toAbsolutePath().toString().removeSuffix(File.separator) })
+        placeholders.add(ScanPlaceholder("%gameroot%") { CrashPatchConstants.gameDirectory.toAbsolutePath().toString().removeSuffix(File.separator) })
+        placeholders.add(ScanPlaceholder("%profileroot%") { CrashPatchConstants.gameDirectory.resolve("OneConfig").parent.toAbsolutePath().toString().removeSuffix(File.separator) })
     }
 }

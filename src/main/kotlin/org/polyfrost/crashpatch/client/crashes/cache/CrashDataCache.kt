@@ -3,7 +3,6 @@ package org.polyfrost.crashpatch.client.crashes.cache
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.mojang.serialization.JsonOps
-import dev.deftu.omnicore.api.gameDirectory
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.crashes.data.CrashData
@@ -14,7 +13,7 @@ object CrashDataCache {
     private val LOGGER = LogManager.getLogger("${CrashPatchConstants.NAME} / Crash Data Cache")
 
     private val cacheFile by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        gameDirectory.resolve("OneConfig/CrashPatch/cache.json").toFile()
+        CrashPatchConstants.gameDirectory.resolve("OneConfig/CrashPatch/cache.json").toFile()
     }
 
     private val gson = GsonBuilder()
