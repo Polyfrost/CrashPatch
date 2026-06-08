@@ -2,10 +2,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.3.0"
+    kotlin("jvm") version "2.4.0"
     id("dev.kikugie.loom-back-compat")
     id("dev.deftu.gradle.bloom") version "0.2.0"
     id("me.modmuss50.mod-publish-plugin") version "2.0.0"
+    id("org.jetbrains.compose") version "1.11.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.4.0"
 }
 
 val modid = property("mod.id")
@@ -16,6 +18,7 @@ val versionoverride = property("minecraft_version")
 
 val loaderversion = property("loader_version")
 val oneconfigversion = property("oneconfig_version")
+val fapiversion = property("fabric_api_version")
 
 val necversion = property("nec_version")
 
@@ -52,6 +55,7 @@ dependencies {
     loomx.applyMojangMappings()
 
     modImplementation("net.fabricmc:fabric-loader:$loaderversion")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiversion")
     modImplementation("maven.modrinth:notenoughcrashes:$necversion+$mcversion-fabric")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
     implementation("gs.mclo:api:3.0.1")
@@ -60,6 +64,7 @@ dependencies {
     for (module in arrayOf("config", "config-impl", "internal")) {
         implementation("org.polyfrost.oneconfig:$module:$oneconfigversion")
     }
+    compileOnly(compose.desktop.currentOs)
 }
 
 bloom {

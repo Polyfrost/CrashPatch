@@ -1,11 +1,16 @@
 package org.polyfrost.crashpatch.client
 
 import com.mojang.brigadier.Command
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands
+import net.minecraft.network.chat.Component
+import net.minecraft.util.CommonColors
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
+import org.polyfrost.crashpatch.client.CrashPatchClient.isSkyClient
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.oneconfig.utils.v1.Multithreading
-import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
+import org.polyfrost.oneconfig.utils.v1.dsl.mc
 import kotlin.io.path.exists
 
 object CrashPatchClient {
@@ -33,27 +38,21 @@ object CrashPatchClient {
     fun initialize() {
         CrashPatchConfig.preload() // Initialize the config
 
-        OmniClientCommands.command(CrashPatchConstants.ID) {
-            runs { ctx ->
-                ctx.source.openScreen(CrashPatchConfig.createScreen())
-            }
-
-            then("reload") {
-                runs { ctx ->
-                    val success = CrashScanner.submitCacheRequest()
-
-                    val content = "Requested reload of crash data! Please wait." to TextColors.GREEN
-                    val (message, color) = content
-                    ctx.source.replyChat(Text.literal("[${CrashPatchConstants.NAME}] $message").setStyle(MCTextStyle.color(color)))
-                }
-            }
-
-            then("crash") {
-                runs { ctx ->
-                    isCrashRequested = true
-                    Command.SINGLE_SUCCESS
-                }
-            }
-        }.register()
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
+            dispatcher.register(
+                ClientCommands.literal("crashpatch")
+                    .then(ClientCommands.literal("reload").executes {
+                        CrashScanner.submitCacheRequest()
+                        val content = "Requested reload of crash data! Please wait." to CommonColors.GREEN
+                        val (message, color) = content
+                        mc.gui.chat.addClientSystemMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
+                        Command.SINGLE_SUCCESS
+                    })
+                    .then(ClientCommands.literal("crash").executes {
+                        isCrashRequested = true
+                        Command.SINGLE_SUCCESS
+                    })
+            )
+        }
     }
 }

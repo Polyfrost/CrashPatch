@@ -6,7 +6,6 @@ import fudge.notenoughcrashes.mixinhandlers.EntryPointCatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.polyfrost.crashpatch.client.gui.CrashUI;
-import org.polyfrost.oneconfig.api.ui.v1.internal.wrappers.PolyUIScreen;
 import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen;import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
