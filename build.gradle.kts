@@ -89,18 +89,22 @@ tasks.processResources {
     }
 }
 
+val javaVersion = if (isPostUnobf()) 25 else 21
+val javaVersionEnum = JavaVersion.toVersion(javaVersion)
+val jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
+
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(25)
+    options.release.set(javaVersion)
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_25)
+    compilerOptions.jvmTarget.set(jvmTarget)
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = javaVersionEnum
+    targetCompatibility = javaVersionEnum
 }
 
 tasks.jar {
@@ -118,7 +122,7 @@ val modrinthId = findProperty("publish.modrinth")?.toString()?.takeIf { it.isNot
 
 // make sure modrinth.token is set in your user gradle properties
 publishMods {
-    val jarTask = if (stonecutter.eval(stonecutter.current.version, ">=26.1")) {
+    val jarTask = if (isPostUnobf()) {
         project.tasks.named<AbstractArchiveTask>("jar")
     } else {
         project.tasks.named<AbstractArchiveTask>("remapJar")
@@ -129,7 +133,7 @@ publishMods {
     displayName = modversion.toString()
     version = "v$modversion"
     changelog.set(project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided.")
-    type.set(ALPHA)
+    type.set(BETA)
 
     modLoaders.add("fabric")
 
@@ -146,3 +150,5 @@ publishMods {
         }
     }
 }
+
+fun isPostUnobf(): Boolean = stonecutter.eval(stonecutter.current.version, ">=26.1")

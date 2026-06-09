@@ -6,7 +6,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
-import org.polyfrost.crashpatch.client.CrashPatchClient;
 import org.polyfrost.crashpatch.hooks.MinecraftHook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,7 +36,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
 
     @Unique
     private String crashpatch$getText() {
-        return ChatFormatting.RED + "If Minecraft is stuck on this screen, please force close the game" + (CrashPatchClient.isSkyClient() ? " and go to https://discord.gg/eh7tNFezct for support" : "") + ".";
+        return ChatFormatting.RED + "If Minecraft is stuck on this screen, please force close the game and go to https://discord.gg/polyfrost for support.";
     }
 
     @Override
@@ -58,7 +57,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
                 double mouseX = mouseButtonEvent.x();
                 double mouseY = mouseButtonEvent.y();
                 if ((width == -1 || (left < mouseX && left + width > mouseX)) && (mouseY > 5 && mouseY < 15 + ((list.size() - 1) * (this.font.lineHeight + 2)))) {
-                    DesktopHelper.browse(URI.create("https://discord.gg/eh7tNFezct"));
+                    DesktopHelper.browse(URI.create("https://discord.gg/polyfrost"));
                     return true;
                 }
             }
