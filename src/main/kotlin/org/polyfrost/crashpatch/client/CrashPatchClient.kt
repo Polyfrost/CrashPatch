@@ -2,14 +2,15 @@ package org.polyfrost.crashpatch.client
 
 import com.mojang.brigadier.Command
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
-import net.fabricmc.fabric.api.client.command.v2.ClientCommands
 import net.minecraft.network.chat.Component
 import net.minecraft.util.CommonColors
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.CrashPatchClient.isSkyClient
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
+import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.Multithreading
+import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
 import org.polyfrost.oneconfig.utils.v1.dsl.mc
 import kotlin.io.path.exists
 
@@ -40,18 +41,28 @@ object CrashPatchClient {
 
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(
-                ClientCommands.literal("crashpatch")
-                    .then(ClientCommands.literal("reload").executes {
+                CommandManager.literal("crashpatch")
+                    .executes {
+                        mc.setScreen(CrashPatchConfig.createScreen())
+                        Command.SINGLE_SUCCESS
+                    }
+                    .then(CommandManager.literal("reload").executes {
                         CrashScanner.submitCacheRequest()
                         val content = "Requested reload of crash data! Please wait." to CommonColors.GREEN
                         val (message, color) = content
-                        mc.gui.chat.addClientSystemMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
+                        mc.gui.chat.
+                            //? if < 26.1 {
+                            /*addMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
+                            *///? } else {
+                            addClientSystemMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
+                            //? }
                         Command.SINGLE_SUCCESS
                     })
-                    .then(ClientCommands.literal("crash").executes {
+                    .then(CommandManager.literal("crash").executes {
                         isCrashRequested = true
                         Command.SINGLE_SUCCESS
                     })
+
             )
         }
     }

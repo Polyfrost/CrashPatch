@@ -89,15 +89,6 @@ tasks.processResources {
     }
 }
 
-tasks.build {
-    doLast {
-        val sourceFile = rootProject.projectDir.resolve("versions/${project.name}/build/libs/crashpatch.jar")
-        val targetFile = rootProject.projectDir.resolve("build/libs/crashpatch-${stonecutter.current.version}.jar")
-        targetFile.parentFile.mkdirs()
-        targetFile.writeBytes(sourceFile.readBytes())
-    }
-}
-
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(25)
 }
