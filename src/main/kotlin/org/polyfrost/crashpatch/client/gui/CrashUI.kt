@@ -2,6 +2,7 @@ package org.polyfrost.crashpatch.client.gui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,9 @@ class CrashUI @JvmOverloads constructor(
     private val type: GuiType = GuiType.NORMAL,
     val throwable: Throwable? = null
 ) : ComposeScreen() {
+
+    val blue = Color(0, 84, 211)
+    val lightBlue = Color(40, 155, 255)
 
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
@@ -109,17 +113,17 @@ class CrashUI @JvmOverloads constructor(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.7f)
+                        .width(650.dp)
                         .verticalScroll(pageScroll)
                         .background(current.popupBackground, current.popupShape)
                         .border(1.dp, current.borderColor, current.popupShape)
-                        .padding(24.dp),
+                        .padding(48.dp, 48.dp, 48.dp, 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon("/assets/crashpatch/WarningTriangle.svg", Color(0xFFFF5555))
+                    Icon("/assets/crashpatch/WarningTriangle.svg", current.textColor)
                     Text(
                         text = translate(type.title),
-                        color = Color(0xFFFF5555),
+                        color = current.textColor,
                         fontSize = 24.sp,
                     )
                     Spacer(Modifier.height(12.dp))
@@ -139,13 +143,13 @@ class CrashUI @JvmOverloads constructor(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = translate(if (type == GuiType.DISCONNECT) "crashpatch.disconnect.cause" else "crashpatch.crash.cause"),
-                        color = current.textColor,
+                        color = current.textColorSecondary,
                         fontSize = 17.sp,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = susThing,
-                        color = Color(0xFFFF5555),
+                        color = blue,
                         fontSize = 22.sp,
                     )
 
@@ -157,42 +161,78 @@ class CrashUI @JvmOverloads constructor(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(current.sidebarBackground, current.popupShape)
-                                .border(1.dp, current.borderColor, current.popupShape)
-                                .padding(12.dp),
+                                .background(
+                                    current.sidebarBackground,
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .border(1.dp, current.borderColor, current.popupShape),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .horizontalScroll(tabScroll),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                solutions.forEach { solution ->
-                                    val selected = selectedSolution == solution
-                                    Box(
-                                        modifier = Modifier
-                                            .background(
-                                                color = if (selected) current.textColorSecondary else current.pageBackground,
-                                                shape = current.buttonShape,
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .horizontalScroll(tabScroll),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    solutions.forEach { solution ->
+                                        val selected = selectedSolution == solution
+                                        Box(
+                                            modifier = Modifier
+                                                .background(
+                                                    color = if (selected) lightBlue else current.sidebarBackground,
+                                                    shape = current.buttonShape,
+                                                )
+                                                .clickable { selectedSolution = solution }
+                                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                                        ) {
+                                            Text(
+                                                text = solution.name,
+                                                color = if (selected) current.accentTextColor else current.textColorSecondary,
+                                                fontSize = 13.sp,
                                             )
-                                            .clickable { selectedSolution = solution }
-                                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                                    ) {
-                                        Text(
-                                            text = solution.name,
-                                            color = if (selected) current.accentTextColor else current.textColorSecondary,
-                                            fontSize = 13.sp,
-                                        )
+                                        }
+                                    }
+                                }
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    IconButton("/assets/crashpatch/copy.svg") {
+                                        ClipboardHelper.setString(activeSolution.solutions.joinToString("\n"))
+                                        statusText = "Copied text to clipboard."
+                                    }
+                                    IconButton("/assets/crashpatch/upload.svg") {
+                                        val body = buildString {
+                                            append(activeSolution.solutions.joinToString("\n"))
+                                            append("\n\n")
+                                            if (!activeSolution.isCrashReport) append(scanText)
+                                        }
+                                        val link = LogUploader.upload(body)
+                                        ClipboardHelper.setString(link)
+                                        val opened = DesktopHelper.browse(URI.create(link))
+                                        statusText = if (opened) {
+                                            "Link copied to clipboard and opened in browser"
+                                        } else {
+                                            "Couldn't open link in browser, copied to clipboard instead."
+                                        }
                                     }
                                 }
                             }
-                            Spacer(Modifier.height(12.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(180.dp)
-                                    .background(current.pageBackground, current.popupShape)
+                                    .background(
+                                        current.pageBackground,
+                                        RoundedCornerShape(
+                                            0.dp, 0.dp,
+                                            12.dp, 12.dp
+                                        )
+                                    )
                                     .padding(10.dp),
                             ) {
                                 Text(
@@ -202,28 +242,6 @@ class CrashUI @JvmOverloads constructor(
                                     modifier = Modifier.verticalScroll(solutionScroll),
                                 )
                             }
-                            Spacer(Modifier.height(12.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                IconButton("/assets/crashpatch/copy.svg") {
-                                    ClipboardHelper.setString(activeSolution.solutions.joinToString("\n"))
-                                    statusText = "Copied text to clipboard."
-                                }
-                                IconButton("/assets/crashpatch/upload.svg") {
-                                    val body = buildString {
-                                        append(activeSolution.solutions.joinToString("\n"))
-                                        append("\n\n")
-                                        if (!activeSolution.isCrashReport) append(scanText)
-                                    }
-                                    val link = LogUploader.upload(body)
-                                    ClipboardHelper.setString(link)
-                                    val opened = DesktopHelper.browse(URI.create(link))
-                                    statusText = if (opened) {
-                                        "Link copied to clipboard and opened in browser"
-                                    } else {
-                                        "Couldn't open link in browser, copied to clipboard instead."
-                                    }
-                                }
-                            }
                         }
                     }
 
@@ -231,18 +249,31 @@ class CrashUI @JvmOverloads constructor(
                     Text(
                         text = translate("crashpatch.discord.prompt"),
                         color = current.textColor,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                     )
-                    Text(
-                        text = translate("crashpatch.link.discord.polyfrost"),
-                        color = Color(0xFF6BA6FF),
-                        fontSize = 15.sp,
-                        modifier = Modifier.clickable {
-                            val opened =
-                                DesktopHelper.browse(URI.create(translate("crashpatch.link.discord.polyfrost")))
-                            if (!opened) statusText = "Couldn't open Discord link."
-                        },
-                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .clickable {
+                                val opened =
+                                    DesktopHelper.browse(URI.create(translate("crashpatch.link.discord.polyfrost")))
+                                if (!opened) statusText = "Couldn't open Discord link."
+                            },
+                    ) {
+                        Icon(
+                            "/assets/crashpatch/discord.svg",
+                            current.textColor,
+                            modifier = Modifier
+                                .size(28.dp),
+                        )
+                        Text(
+                            text = translate("crashpatch.link.discord.polyfrost"),
+                            color = blue,
+                            fontSize = 16.sp,
+                        )
+                    }
 
                     if (!statusText.isNullOrBlank()) {
                         Spacer(Modifier.height(12.dp))
@@ -257,14 +288,25 @@ class CrashUI @JvmOverloads constructor(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        ActionButton(translate("crashpatch.continue"), highlighted = true) {
+                        ActionButton(translate("crashpatch.continue"), primary = true) {
                             if (type == GuiType.INIT) {
                                 shouldCrash = true
                             } else {
                                 client.setScreen(null)
                             }
                         }
-                        ActionButton(translate("crashpatch.log")) {
+                        ActionButton({
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    translate("crashpatch.log"),
+                                    color = current.textColor,
+                                )
+                                Icon("/assets/crashpatch/open-external.svg", current.textColor)
+                            }
+                        }) {
                             val target = file ?: return@ActionButton
                             val opened = DesktopHelper.executeIfDesktop(Desktop.Action.OPEN) { it.open(target) }
                             if (!opened) statusText = "Couldn't open crash log file."
@@ -278,25 +320,34 @@ class CrashUI @JvmOverloads constructor(
     @Composable
     private fun ActionButton(
         text: String,
-        highlighted: Boolean = false,
+        primary: Boolean = false,
+        onClick: () -> Unit,
+    ) {
+        ActionButton(
+            text = { Text(text, color = LocalTheme.current.textColor) },
+            primary = primary,
+            onClick = onClick,
+        )
+    }
+
+    @Composable
+    private fun ActionButton(
+        text: @Composable () -> Unit,
+        primary: Boolean = false,
         onClick: () -> Unit,
     ) {
         val current = LocalTheme.current
         Box(
             modifier = Modifier
                 .background(
-                    if (highlighted) current.modCardBackground else current.pageBackground,
+                    if (primary) blue else current.popupBackground,
                     current.buttonShape,
                 )
-                .border(1.dp, current.borderColor, current.buttonShape)
                 .clickable(onClick = onClick)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .apply { if (primary) border(1.dp, current.borderColor, current.buttonShape) },
         ) {
-            Text(
-                text = text,
-                color = current.textColor,
-                fontSize = 14.sp,
-            )
+            text()
         }
     }
 
