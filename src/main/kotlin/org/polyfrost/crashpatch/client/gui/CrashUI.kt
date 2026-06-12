@@ -171,9 +171,9 @@ class CrashUI @JvmOverloads constructor(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(12.dp),
+                                    .padding(12.dp, 12.dp, 12.dp, 0.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -183,19 +183,26 @@ class CrashUI @JvmOverloads constructor(
                                 ) {
                                     solutions.forEach { solution ->
                                         val selected = selectedSolution == solution
-                                        Box(
+                                        Column(
                                             modifier = Modifier
-                                                .background(
-                                                    color = if (selected) lightBlue else current.sidebarBackground,
-                                                    shape = current.buttonShape,
-                                                )
-                                                .clickable { selectedSolution = solution }
-                                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                                                .clickable { selectedSolution = solution },
+                                            horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
-                                            Text(
-                                                text = solution.name,
-                                                color = if (selected) current.accentTextColor else current.textColorSecondary,
-                                                fontSize = 13.sp,
+                                            Box(
+                                                modifier = Modifier
+                                                    .padding(10.dp, 0.dp, 10.dp, 6.dp),
+                                            ) {
+                                                Text(
+                                                    text = solution.name,
+                                                    color = current.textColorSecondary,
+                                                    fontSize = 13.sp,
+                                                )
+                                            }
+                                            Box(
+                                                modifier = Modifier
+                                                    .height(2.dp)
+                                                    .fillMaxWidth()
+                                                    .background(if (selected) lightBlue else Color.Transparent)
                                             )
                                         }
                                     }
@@ -284,7 +291,7 @@ class CrashUI @JvmOverloads constructor(
                         )
                     }
 
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(32.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
