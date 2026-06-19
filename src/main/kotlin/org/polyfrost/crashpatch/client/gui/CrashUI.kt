@@ -11,6 +11,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.minecraft.CrashReport
 import net.minecraft.ReportType
+//? if < 26.1 {
+/*import net.minecraft.client.gui.GuiGraphics
+*///? } else {
+import net.minecraft.client.gui.GuiGraphicsExtractor
+//? }
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.resources.language.I18n
 import org.polyfrost.crashpatch.client.LogUploader
@@ -19,6 +24,7 @@ import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper
 import org.polyfrost.oneconfig.internal.OneConfig
+import org.polyfrost.oneconfig.internal.ui.compose.BlurRenderer
 import org.polyfrost.oneconfig.internal.ui.components.Icon
 import org.polyfrost.oneconfig.internal.ui.components.IconButton
 import org.polyfrost.oneconfig.internal.ui.components.Text
@@ -79,10 +85,18 @@ class CrashUI @JvmOverloads constructor(
 
     var shouldCrash = false
 
+    private var sceneClosed = false
+
     fun create(): Screen {
         currentUI = this
         currentInstance = this
         return this
+    }
+
+    override fun onClose() {
+        sceneClosed = true
+        super.onClose()
+        client.setScreen(null)
     }
 
     override fun removed() {
@@ -91,6 +105,20 @@ class CrashUI @JvmOverloads constructor(
         currentUI = null
         super.removed()
     }
+
+    //? if < 26.1 {
+    /*override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
+        if (sceneClosed) return
+        BlurRenderer.drawBlur(8f)
+        super.render(guiGraphics, mouseX, mouseY, partialTick)
+    }
+    *///? } else {
+    override fun extractRenderState(ctx: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, tickDelta: Float) {
+        if (sceneClosed) return
+        BlurRenderer.drawBlur(8f)
+        super.extractRenderState(ctx, mouseX, mouseY, tickDelta)
+    }
+    //? }
 
     @Composable
     override fun compose() {
@@ -107,7 +135,6 @@ class CrashUI @JvmOverloads constructor(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(current.pageBackground)
                     .padding(24.dp),
                 contentAlignment = Alignment.Center,
             ) {
@@ -117,10 +144,15 @@ class CrashUI @JvmOverloads constructor(
                         .verticalScroll(pageScroll)
                         .background(current.popupBackground, current.popupShape)
                         .border(1.dp, current.borderColor, current.popupShape)
-                        .padding(48.dp, 48.dp, 48.dp, 8.dp),
+                        .padding(48.dp, 48.dp, 48.dp, 48.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon("/assets/crashpatch/WarningTriangle.svg", current.textColor)
+                    Icon(
+                        "/assets/crashpatch/WarningTriangle.svg",
+                        current.textColor,
+                        modifier = Modifier
+                            .size(32.dp),
+                    )
                     Text(
                         text = translate(type.title),
                         color = current.textColor,
@@ -185,6 +217,7 @@ class CrashUI @JvmOverloads constructor(
                                         val selected = selectedSolution == solution
                                         Column(
                                             modifier = Modifier
+                                                .width(IntrinsicSize.Max)
                                                 .clickable { selectedSolution = solution },
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
@@ -295,7 +328,8 @@ class CrashUI @JvmOverloads constructor(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        ActionButton(translate("crashpatch.continue"), primary = true) {
+                        val continueLabel = if (type == GuiType.INIT) "crashpatch.exit" else "crashpatch.continue"
+                        ActionButton(translate(continueLabel), primary = true) {
                             if (type == GuiType.INIT) {
                                 shouldCrash = true
                             } else {

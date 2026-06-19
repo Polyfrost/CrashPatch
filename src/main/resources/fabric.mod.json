@@ -20,8 +20,7 @@
         ]
     },
     "mixins": [
-        "mixins.${mod_id}.json",
-        "mixins.${mod_id}.init.json"
+        "mixins.${mod_id}.json"
     ],
     "depends": {
         "fabricloader": ">=0.15.11",

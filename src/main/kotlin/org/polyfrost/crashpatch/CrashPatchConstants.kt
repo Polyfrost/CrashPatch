@@ -11,4 +11,7 @@ object CrashPatchConstants {
 
     val gameDirectory by lazy { FabricLoader.getInstance().gameDir }
 
+    @JvmField
+    var recoveredFromCrash = false
+
 }

@@ -1,5 +1,7 @@
 package org.polyfrost.crashpatch.plugin
 
+import com.bawnorton.mixinsquared.MixinSquaredBootstrap
+import com.llamalad7.mixinextras.MixinExtrasBootstrap
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo
 
@@ -12,6 +14,7 @@ class MixinPlugin : IMixinConfigPlugin {
 
         result.add("Mixin_EntryPointErrorForceCrashPatchUI")
         result.add("Mixin_InGameCatcherForceCrashPatchUI")
+        result.add("Mixin_InGameCatcherKeepWorld")
         result.add("Mixin_CrashPatchInitUI")
         result.add("Mixin_CrashInitGui")
         result.add("Mixin_ModLoaders_Debug")
@@ -23,7 +26,8 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean = true
 
     override fun onLoad(mixinPackage: String) {
-        // no-op
+        MixinExtrasBootstrap.init()
+        MixinSquaredBootstrap.init()
     }
 
     override fun acceptTargets(myTargets: MutableSet<String>, otherTargets: MutableSet<String>) {

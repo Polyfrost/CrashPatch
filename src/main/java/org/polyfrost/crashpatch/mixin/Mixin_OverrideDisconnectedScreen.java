@@ -15,7 +15,7 @@ public class Mixin_OverrideDisconnectedScreen {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onGUIDisplay(Screen i, CallbackInfo ci) {
-        DisconnectedScreenHook.onScreenDisplayed(i, ci);
+    private void onGUIDisplay(Screen screen, CallbackInfo ci) {
+        DisconnectedScreenHook.onScreenDisplayed(screen, ci);
     }
 }

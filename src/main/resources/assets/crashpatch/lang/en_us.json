@@ -16,6 +16,7 @@
   "crashpatch.disconnect.cause": "Reason for disconnect:",
 
   "crashpatch.continue": "Return to game",
+  "crashpatch.exit": "Exit game",
   "crashpatch.log": "Crash log",
 
   "crashpatch.discord.prompt": "If the solution above doesn't help, join",

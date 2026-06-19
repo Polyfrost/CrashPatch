@@ -42,6 +42,7 @@ repositories {
 
 loom {
     runConfigs.all {
+        //property("polyfrost.crashpatch.init_crash", "true")
         ideConfigGenerated(stonecutter.current.isActive)
         runDir = "../../run"
     }

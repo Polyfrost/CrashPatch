@@ -6,8 +6,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
-import org.polyfrost.crashpatch.hooks.MinecraftHook;
-import net.minecraft.client.Minecraft;
+import org.polyfrost.crashpatch.CrashPatchConstants;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper;
@@ -29,7 +28,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void drawWarningText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-        if (((MinecraftHook) Minecraft.getInstance()).hasRecoveredFromCrash()) {
+        if (CrashPatchConstants.recoveredFromCrash) {
             crashpatch$drawSplitCenteredString(graphics, crashpatch$getText(), width / 2, 5, Color.WHITE.getRGB());
         }
     }
@@ -45,7 +44,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
         if (!clicked) {
             return true;
         }
-        if (((MinecraftHook) Minecraft.getInstance()).hasRecoveredFromCrash()) {
+        if (CrashPatchConstants.recoveredFromCrash) {
             if (mouseButtonEvent.button() == 0) {
                 List<FormattedCharSequence> list = this.font.split(FormattedText.of(crashpatch$getText()), width);
                 int width = -1;
