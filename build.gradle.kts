@@ -80,7 +80,8 @@ tasks.processResources {
         "mod_name" to modname,
         "mod_version" to modversion,
         "minecraft_version_range" to property("minecraft_version_range"),
-        "loader_version" to providers.gradleProperty("loader_version").get()
+        "loader_version" to providers.gradleProperty("loader_version").get(),
+        "nec_version" to necversion,
     )
 
     inputs.properties(props)
@@ -134,22 +135,21 @@ publishMods {
     displayName = modversion.toString()
     version = "v$modversion"
     changelog.set(project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided.")
-    type.set(BETA)
 
+    type.set(BETA)
     modLoaders.add("fabric")
 
-    dryRun = modrinthId == null
+    modrinth {
+        projectId.set(property("publish.modrinth").toString())
+        accessToken.set(findProperty("modrinth.token").toString())
 
-    if (modrinthId != null) {
-        modrinth {
-            projectId.set(property("publish.modrinth").toString())
-            accessToken.set(findProperty("modrinth.token").toString())
+        minecraftVersions.add(mcversion)
 
-            minecraftVersions.add(mcversion)
-
-            requires("oneconfig")
-        }
+        requires("oneconfig")
+        requires("notenoughcrashes")
     }
+
+    dryRun.set(modrinthId == null)
 }
 
 fun isPostUnobf(): Boolean = stonecutter.eval(stonecutter.current.version, ">=26.1")
