@@ -138,6 +138,11 @@ tasks.matching { it.name == "publishModrinth" }.configureEach {
     dependsOn(validateChangelog)
 }
 
+val modrinthMinecraftVersionOverride = mapOf(
+    "26.1.2" to listOf("26.1", "26.1.1", "26.1.2")
+)
+val minecraftVersion = modrinthMinecraftVersionOverride[mcversion] ?: listOf(mcversion)
+
 // make sure modrinth.token is set in your user gradle properties
 publishMods {
     val taskName = if (isPostUnobf()) "jar" else "remapJar"
@@ -154,7 +159,7 @@ publishMods {
         projectId.set(modrinthId)
         accessToken.set(token)
 
-        minecraftVersions.add(mcversion)
+        minecraftVersions.addAll(minecraftVersion)
 
         requires("oneconfig")
         requires("fabric-language-kotlin")
