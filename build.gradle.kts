@@ -121,35 +121,47 @@ fun <T> optionalProp(property: String, block: (String) -> T?): T? =
     findProperty(property)?.toString()?.takeUnless { it.isBlank() }?.let(block)
 
 val modrinthId = findProperty("publish.modrinth")?.toString()?.takeIf { it.isNotBlank() }
+val token = findProperty("modrinth.token")?.toString()
+
+val changelog = project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
+val validateChangelog by tasks.registering {
+    description = "Validates that the changelog is written for the current version."
+    if (!changelog.contains(modversion.toString())) {
+        throw GradleException("Changelog for version $modversion not found.")
+    }
+}
+
+tasks.publishMods.configure {
+    dependsOn(validateChangelog)
+}
+tasks.matching { it.name == "publishModrinth" }.configureEach {
+    dependsOn(validateChangelog)
+}
 
 // make sure modrinth.token is set in your user gradle properties
 publishMods {
-    val jarTask = if (isPostUnobf()) {
-        project.tasks.named<AbstractArchiveTask>("jar")
-    } else {
-        project.tasks.named<AbstractArchiveTask>("remapJar")
-    }.get()
+    val taskName = if (isPostUnobf()) "jar" else "remapJar"
+    file.set(project.tasks.named<AbstractArchiveTask>(taskName).flatMap { it.archiveFile })
 
-    file.set(jarTask.archiveFile)
-
-    displayName = modversion.toString()
-    version = "v$modversion"
-    changelog.set(project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided.")
+    displayName.set(modversion.toString())
+    version.set("v$modversion")
+    changelog.set(changelog)
 
     type.set(BETA)
     modLoaders.add("fabric")
 
     modrinth {
-        projectId.set(property("publish.modrinth").toString())
-        accessToken.set(findProperty("modrinth.token").toString())
+        projectId.set(modrinthId)
+        accessToken.set(token)
 
         minecraftVersions.add(mcversion)
 
         requires("oneconfig")
+        requires("fabric-language-kotlin")
         requires("notenoughcrashes")
     }
 
-    dryRun.set(modrinthId == null)
+    dryRun.set(token == null || modrinthId == null)
 }
 
 fun isPostUnobf(): Boolean = stonecutter.eval(stonecutter.current.version, ">=26.1")
