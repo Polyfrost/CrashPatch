@@ -15,6 +15,7 @@ val modname = property("mod.name")
 val modversion = property("mod.version")
 val mcversion = stonecutter.current.version
 val versionoverride = property("minecraft_version")
+val versionrange = property("minecraft_version_range")
 
 val loaderversion = property("loader_version")
 val oneconfigversion = property("oneconfig_version")
@@ -79,8 +80,8 @@ tasks.processResources {
         "mod_id" to modid,
         "mod_name" to modname,
         "mod_version" to modversion,
-        "minecraft_version_range" to property("minecraft_version_range"),
-        "loader_version" to providers.gradleProperty("loader_version").get(),
+        "minecraft_version_range" to versionrange,
+        "loader_version" to loaderversion,
         "nec_version" to necversion,
     )
 
@@ -123,10 +124,10 @@ fun <T> optionalProp(property: String, block: (String) -> T?): T? =
 val modrinthId = findProperty("publish.modrinth")?.toString()?.takeIf { it.isNotBlank() }
 val token = findProperty("modrinth.token")?.toString()
 
-val changelog = project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
+val changelogMd = project.rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
 val validateChangelog by tasks.registering {
     description = "Validates that the changelog is written for the current version."
-    if (!changelog.contains(modversion.toString())) {
+    if (!changelogMd.contains(modversion.toString())) {
         throw GradleException("Changelog for version $modversion not found.")
     }
 }
@@ -145,7 +146,7 @@ publishMods {
 
     displayName.set(modversion.toString())
     version.set("v$modversion")
-    changelog.set(changelog)
+    changelog.set(changelogMd)
 
     type.set(BETA)
     modLoaders.add("fabric")
