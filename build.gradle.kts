@@ -79,7 +79,7 @@ tasks.processResources {
         "mod_id" to modid,
         "mod_name" to modname,
         "mod_version" to modversion,
-        "mc_version" to mcversion,
+        "minecraft_version_range" to property("minecraft_version_range"),
         "loader_version" to providers.gradleProperty("loader_version").get()
     )
 

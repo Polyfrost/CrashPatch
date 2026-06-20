@@ -23,7 +23,8 @@
         "mixins.${mod_id}.json"
     ],
     "depends": {
-        "fabricloader": ">=0.15.11",
+        "minecraft": "${minecraft_version_range}",
+        "fabricloader": ">=${loader_version}",
         "fabric-language-kotlin": "*",
         "notenoughcrashes": "*"
     }
