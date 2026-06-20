@@ -26,6 +26,6 @@
         "minecraft": "${minecraft_version_range}",
         "fabricloader": ">=${loader_version}",
         "fabric-language-kotlin": "*",
-        "notenoughcrashes": ">=${nec_version}"
+        "notenoughcrashes": "*"
     }
 }
