@@ -82,7 +82,6 @@ tasks.processResources {
         "mod_version" to modversion,
         "minecraft_version_range" to versionrange,
         "loader_version" to loaderversion,
-        "nec_version" to necversion,
     )
 
     inputs.properties(props)
