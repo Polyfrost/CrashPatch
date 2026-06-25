@@ -349,7 +349,7 @@ class CrashUI @JvmOverloads constructor(
                             }
                         }) {
                             val target = file ?: return@ActionButton
-                            val opened = DesktopHelper.executeIfDesktop(Desktop.Action.OPEN) { it.open(target) }
+                            val opened = DesktopHelper.open(target)
                             if (!opened) statusText = "Couldn't open crash log file."
                         }
                     }
