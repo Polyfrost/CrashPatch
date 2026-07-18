@@ -60,7 +60,7 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiversion")
     modImplementation("maven.modrinth:notenoughcrashes:$necversion+$mcversion-fabric")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
-    implementation("gs.mclo:api:3.0.1")
+    include(implementation("gs.mclo:api:3.0.1")!!)
 
     modImplementation("org.polyfrost.oneconfig:$versionoverride-fabric:$oneconfigversion")
     for (module in arrayOf("config", "config-impl", "internal")) {
