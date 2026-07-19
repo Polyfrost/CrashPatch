@@ -28,9 +28,12 @@ base.archivesName = modname.toString()
 
 repositories {
     mavenCentral()
-    maven("https://maven.parchmentmc.org")
+    google()
     maven("https://repo.polyfrost.org/releases")
     maven("https://repo.polyfrost.org/snapshots")
+    maven("https://maven.parchmentmc.org") {
+        content { includeGroupAndSubgroups("org.parchmentmc") }
+    }
     maven("https://central.sonatype.com/repository/maven-snapshots") {
         content { includeGroup("net.kyori") }
     }
@@ -38,11 +41,12 @@ repositories {
         content { includeGroup("maven.modrinth") }
     }
     maven("https://maven.bawnorton.com/releases") {
-        content { includeGroup("com.github.bawnorton.mixinsquared") }
+        content { includeGroupAndSubgroups("com.github.bawnorton") }
     }
-    maven("https://redirector.kotlinlang.org/maven/compose-dev")
-    maven("https://maven.terraformersmc.com/releases")
-    google()
+    //maven("https://maven.terraformersmc.com/releases") {
+    maven("https://maven.gnomecraft.net/releases/") {
+        content { includeGroup("com.terraformersmc") }
+    }
 }
 
 loom {
