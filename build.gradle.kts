@@ -152,7 +152,7 @@ publishMods {
     version.set("v$modversion")
     changelog.set(changelogMd)
 
-    type.set(BETA)
+    type.set(STABLE)
     modLoaders.add("fabric")
 
     modrinth {
