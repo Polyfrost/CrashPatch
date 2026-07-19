@@ -1,3 +1,5 @@
-2.1.0:
+2.1.1:
 
-- Stable release
+- Add 26.2 support
+- Fix icons being blurry
+- Add Sentry for OneClient users
