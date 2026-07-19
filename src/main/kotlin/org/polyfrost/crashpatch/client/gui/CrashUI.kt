@@ -19,6 +19,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.resources.language.I18n
 import org.polyfrost.crashpatch.client.LogUploader
+import org.polyfrost.crashpatch.client.SentryManager
 import org.polyfrost.crashpatch.client.crashes.CrashScan
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
@@ -76,6 +77,8 @@ class CrashUI @JvmOverloads constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        throwable?.let { SentryManager.capture(it, susThing, type.name) }
     }
 
     private val crashScan: CrashScan? by lazy {
@@ -96,7 +99,11 @@ class CrashUI @JvmOverloads constructor(
     override fun onClose() {
         sceneClosed = true
         super.onClose()
-        client.setScreen(null)
+        //? if < 26.2 {
+        /*client.setScreen(null)
+        *///? } else {
+        client.gui.setScreen(null)
+        //? }
     }
 
     override fun removed() {
@@ -333,7 +340,11 @@ class CrashUI @JvmOverloads constructor(
                             if (type == GuiType.INIT) {
                                 shouldCrash = true
                             } else {
-                                client.setScreen(null)
+                                //? if < 26.2 {
+                                /*client.setScreen(null)
+                                *///? } else {
+                                client.gui.setScreen(null)
+                                //? }
                             }
                         }
                         ActionButton({

@@ -31,6 +31,9 @@ repositories {
     maven("https://maven.parchmentmc.org")
     maven("https://repo.polyfrost.org/releases")
     maven("https://repo.polyfrost.org/snapshots")
+    maven("https://central.sonatype.com/repository/maven-snapshots") {
+        content { includeGroup("net.kyori") }
+    }
     maven("https://api.modrinth.com/maven") {
         content { includeGroup("maven.modrinth") }
     }
@@ -38,6 +41,7 @@ repositories {
         content { includeGroup("com.github.bawnorton.mixinsquared") }
     }
     maven("https://redirector.kotlinlang.org/maven/compose-dev")
+    maven("https://maven.terraformersmc.com/releases")
     google()
 }
 
@@ -61,6 +65,7 @@ dependencies {
     modImplementation("maven.modrinth:notenoughcrashes:$necversion+$mcversion-fabric")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
     include(implementation("gs.mclo:api:3.0.1")!!)
+    include(implementation("io.sentry:sentry:8.16.0")!!)
 
     modImplementation("org.polyfrost.oneconfig:$versionoverride-fabric:$oneconfigversion")
     for (module in arrayOf("config", "config-impl", "internal")) {

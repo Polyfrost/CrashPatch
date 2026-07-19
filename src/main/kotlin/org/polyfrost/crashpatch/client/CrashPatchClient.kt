@@ -27,19 +27,25 @@ object CrashPatchClient {
             dispatcher.register(
                 CommandManager.literal("crashpatch")
                     .executes {
-                        mc.setScreen(CrashPatchConfig.createScreen())
+                        //? if < 26.2 {
+                        /*mc.setScreen(CrashPatchConfig.createScreen())
+                        *///? } else {
+                        mc.gui.setScreen(CrashPatchConfig.createScreen())
+                        //? }
                         Command.SINGLE_SUCCESS
                     }
                     .then(CommandManager.literal("reload").executes {
                         CrashScanner.submitCacheRequest()
                         val content = "Requested reload of crash data! Please wait." to CommonColors.GREEN
                         val (message, color) = content
-                        mc.gui.chat.
-                            //? if < 26.1 {
-                            /*addMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
-                            *///? } else {
-                            addClientSystemMessage(Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color))
-                            //? }
+                        val chatComponent = Component.literal("[${CrashPatchConstants.NAME}] $message").withColor(color)
+                        //? if < 26.1 {
+                        /*mc.gui.chat.addMessage(chatComponent)
+                        *///? } elif < 26.2 {
+                        /*mc.gui.chat.addClientSystemMessage(chatComponent)
+                        *///? } else {
+                        mc.gui.hud.chat.addClientSystemMessage(chatComponent)
+                        //? }
                         Command.SINGLE_SUCCESS
                     })
                     .then(CommandManager.literal("crash").executes {

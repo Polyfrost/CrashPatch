@@ -17,7 +17,11 @@ object DisconnectedScreenHook {
             val scan = CrashScanner.scan(reason, true)
             if (scan != null && scan.solutions.size > 1) {
                 ci.cancel()
-                mc.setScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
+                //? if < 26.2 {
+                /*mc.setScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
+                *///? } else {
+                mc.gui.setScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
+                //? }
             }
         }
     }

@@ -4,6 +4,7 @@
   "package": "org.polyfrost.crashpatch.mixin",
   "plugin": "org.polyfrost.crashpatch.plugin.MixinPlugin",
   "injectors": {
+    "defaultRequire": 1,
     "maxShiftBy": 5
   },
   "mixins": [
