@@ -66,7 +66,7 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:$loaderversion")
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiversion")
-    modImplementation("maven.modrinth:notenoughcrashes:$necversion+$mcversion-fabric")
+    modImplementation("maven.modrinth:notenoughcrashes:$necversion-fabric")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.3")!!)
     include(implementation("gs.mclo:api:3.0.1")!!)
 
