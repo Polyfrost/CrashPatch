@@ -147,7 +147,7 @@ tasks.matching { it.name == "publishModrinth" }.configureEach {
 }
 
 val modrinthMinecraftVersionOverride = mapOf(
-    "26.1.2" to listOf("26.1", "26.1.1", "26.1.2")
+    "26.1" to listOf("26.1", "26.1.1", "26.1.2")
 )
 val minecraftVersion = modrinthMinecraftVersionOverride[mcversion] ?: listOf(mcversion)
 
