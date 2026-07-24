@@ -87,11 +87,6 @@ tasks.test {
         showStackTraces = true
         exceptionFormat = TestExceptionFormat.FULL
     }
-
-    if (mcversion == "26.1") {
-        // The 26.1 dev jar predates 26.1.2, the only Minecraft version NEC 4.4.9+26.1.2 accepts.
-        systemProperty("fabric.gameVersion", "26.1.2")
-    }
 }
 
 bloom {
