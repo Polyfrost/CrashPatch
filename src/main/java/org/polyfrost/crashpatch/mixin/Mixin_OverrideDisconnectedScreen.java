@@ -8,7 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Minecraft.class)
+//? if < 26.2 {
+/*@Mixin(Minecraft.class)
+*///? } else {
+@Mixin(net.minecraft.client.gui.Gui.class)
+//? }
 public class Mixin_OverrideDisconnectedScreen {
     @Inject(
             method = "setScreen",
