@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -82,6 +83,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        showStackTraces = true
+        exceptionFormat = TestExceptionFormat.FULL
+    }
 
     if (mcversion == "26.1") {
         // The 26.1 dev jar predates 26.1.2, the only Minecraft version NEC 4.4.9+26.1.2 accepts.
