@@ -1,3 +1,2 @@
-2.1.3:
-
-- Fix suspicious mod detection conflict with NEC
+## 2.1.4
+- Fixed disconnect screen handling not working on 26.2
