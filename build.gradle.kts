@@ -75,6 +75,18 @@ dependencies {
         implementation("org.polyfrost.oneconfig:$module:$oneconfigversion")
     }
     compileOnly(compose.desktop.currentOs)
+
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
+    testImplementation("net.fabricmc:fabric-loader-junit:$loaderversion")
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    if (mcversion == "26.1") {
+        // The 26.1 dev jar predates 26.1.2, the only Minecraft version NEC 4.4.9+26.1.2 accepts.
+        systemProperty("fabric.gameVersion", "26.1.2")
+    }
 }
 
 bloom {
