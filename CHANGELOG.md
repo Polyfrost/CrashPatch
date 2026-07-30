@@ -1,2 +1,2 @@
-## 2.1.4
-- Fixed disconnect screen handling not working on 26.2
+## 2.1.5
+- Update to latest OneConfig version
