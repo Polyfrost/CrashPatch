@@ -1,0 +1,21 @@
+* text=auto
+
+# Text Files
+*.java text eol=lf
+*.kt text eol=lf
+*.json text eol=lf
+*.gradle text eol=lf
+*.gradle.kts text eol=lf
+*.properties text eol=lf
+*.yml text eol=lf
+*.bat text eol=crlf
+*.md text eol=lf
+*.info text eol=lf
+*.txt text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+LICENSE text eol=lf
+
+# Binaries
+*.png binary
+*.jar binary

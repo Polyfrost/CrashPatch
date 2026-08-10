@@ -1,6 +1,5 @@
 package org.polyfrost.crashpatch.client
 
-import gs.mclo.api.APIException
 import gs.mclo.api.Log
 import gs.mclo.api.MclogsClient
 import org.polyfrost.crashpatch.CrashPatchConstants
@@ -9,6 +8,7 @@ import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CompletionException
 import javax.net.ssl.HttpsURLConnection
 
 object LogUploader {
@@ -20,10 +20,10 @@ object LogUploader {
 
     @JvmStatic
     fun upload(text: String): String {
-        val log = Log(sanitize(text))
+        val sanitized = sanitize(text)
         return when (CrashPatchConfig.crashLogUploadMethod) {
-            CrashPatchConfig.UploadMethod.HASTEBIN -> uploadToHastebin(log.content)
-            CrashPatchConfig.UploadMethod.MCLOGS -> uploadToMclogs(log)
+            CrashPatchConfig.UploadMethod.HASTEBIN -> uploadToHastebin(sanitized)
+            CrashPatchConfig.UploadMethod.MCLOGS -> uploadToMclogs(Log(sanitized))
         }
     }
 
@@ -62,9 +62,9 @@ object LogUploader {
 
     private fun uploadToMclogs(log: Log): String {
         return try {
-            mcLogsClient.uploadLog(log).url
-        } catch (e: APIException) {
-            e.printStackTrace()
+            mcLogsClient.uploadLog(log).join().url
+        } catch (e: CompletionException) {
+            e.cause?.printStackTrace() ?: e.printStackTrace()
             "Failed to upload crash log to mclo.gs"
         }
     }

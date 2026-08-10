@@ -21,7 +21,7 @@ object CrashPatchClient {
     }
 
     fun initialize() {
-        CrashPatchConfig.preload() // Initialize the config
+        CrashPatchConfig.preload()
 
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ ->
             dispatcher.register(

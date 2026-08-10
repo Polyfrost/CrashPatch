@@ -1,0 +1,63 @@
+mod.id = "crashpatch"
+mod.name = "CrashPatch"
+mod.group = "org.polyfrost"
+mod.version = "2.1.5"
+
+deps.fabric_loader = "0.19.3"
+deps.oneconfig = "1.1.4"
+deps.junit = "6.1.2"
+deps.mixinsquared = "0.3.4"
+deps.mclo = "6.2.1"
+deps.datafixerupper = "4.0.26"
+
+loomx.loom_version = "1.17-SNAPSHOT"
+
+publish.modrinth = "nZ3E8WQz"
+
+["1.21.1"]
+mod.mc_compat = "1.21.1"
+mod.mc_releases = ["1.21.1"]
+deps.fabric_api = "0.116.15+1.21.1"
+deps.nec = "4.4.9+1.21.1"
+
+["1.21.4"]
+mod.mc_compat = "1.21.4"
+mod.mc_releases = ["1.21.4"]
+deps.fabric_api = "0.119.4+1.21.4"
+deps.nec = "4.4.8+1.21.4"
+
+["1.21.5"]
+mod.mc_compat = "1.21.5"
+mod.mc_releases = ["1.21.5"]
+deps.fabric_api = "0.128.2+1.21.5"
+deps.nec = "4.4.9+1.21.5"
+
+["1.21.8"]
+mod.mc_compat = ">=1.21.7 <=1.21.8"
+mod.mc_releases = ["1.21.8"]
+deps.fabric_api = "0.136.1+1.21.8"
+deps.nec = "4.4.9+1.21.8"
+
+["1.21.10"]
+mod.mc_compat = ">=1.21.9 <=1.21.10"
+mod.mc_releases = ["1.21.10"]
+deps.fabric_api = "0.138.4+1.21.10"
+deps.nec = "4.4.9+1.21.10"
+
+["1.21.11"]
+mod.mc_compat = "1.21.11"
+mod.mc_releases = ["1.21.11"]
+deps.fabric_api = "0.141.6+1.21.11"
+deps.nec = "4.4.9+1.21.11"
+
+["26.1"]
+mod.mc_compat = "~26.1"
+mod.mc_releases = ["26.1", "26.1.1", "26.1.2"]
+deps.fabric_api = "0.155.2+26.1.2"
+deps.nec = "4.4.9+26.1.2"
+
+["26.2"]
+mod.mc_compat = "~26.2"
+mod.mc_releases = ["26.2"]
+deps.fabric_api = "0.157.0+26.2"
+deps.nec = "4.4.9+26.2"

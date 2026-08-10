@@ -11,7 +11,6 @@ import java.net.URI
 
 object CrashPatchConfig : Config("crashpatch.json", "/assets/crashpatch/crashpatch_dark.svg", "CrashPatch", Category.QOL) {
 
-    // Toggles
     @Switch(
         title = "Catch crashes during gameplay",
         description = "Catch crashes whilst in-game, and prevent the game from closing",

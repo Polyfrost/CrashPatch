@@ -16,7 +16,6 @@ public class Mixin_InGameCatcherForceCrashPatchUI {
 
     @ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lfudge/notenoughcrashes/stacktrace/CrashUtils;outputReport(Lnet/minecraft/CrashReport;Z)V"), index = 0, remap = false)
     private static CrashReport captureCrashReport(CrashReport report) {
-        // Capture the crash report to be used in the CrashPatch GUI
         crashpatch$crashReport = report;
         return report;
     }
@@ -27,7 +26,6 @@ public class Mixin_InGameCatcherForceCrashPatchUI {
     @ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreenAndShow(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
     //? }
     private static Screen useCrashPatchGui(Screen par1) {
-        // Use the CrashPatch GUI instead of the default one
         CrashPatchConstants.recoveredFromCrash = true;
         return new CrashUI(crashpatch$crashReport, CrashUI.GuiType.NORMAL).create();
     }

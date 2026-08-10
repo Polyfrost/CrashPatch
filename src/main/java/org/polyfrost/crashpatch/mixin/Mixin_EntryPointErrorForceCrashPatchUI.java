@@ -19,7 +19,6 @@ public class Mixin_EntryPointErrorForceCrashPatchUI {
     @ModifyArg(method = "displayInitErrorScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreenAndShow(Lnet/minecraft/client/gui/screens/Screen;)V"), index = 0)
     //? }
     private static Screen useCrashPatchGui(Screen screen) {
-        // Use the CrashPatch GUI instead of the default one
         return new CrashUI(crashReport, CrashUI.GuiType.INIT).create();
     }
 }

@@ -27,7 +27,6 @@ object CrashDataCache {
                 ?.asJsonObject
                 ?: return CacheResult.Failure(IllegalStateException("Failed to download crash data JSON!"))
             if (!cacheFile.exists() && !cacheFile.parentFile.exists()) {
-                // Then fail if we can't create the necessary directories and file
                 if (!cacheFile.parentFile.mkdirs() && !cacheFile.parentFile.exists()) {
                     return CacheResult.Failure(IllegalStateException("Failed to create cache directory!"))
                 }

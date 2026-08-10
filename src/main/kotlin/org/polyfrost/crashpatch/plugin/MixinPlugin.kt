@@ -31,7 +31,6 @@ class MixinPlugin : IMixinConfigPlugin {
     }
 
     override fun acceptTargets(myTargets: MutableSet<String>, otherTargets: MutableSet<String>) {
-        // no-op
     }
 
     override fun preApply(
@@ -40,7 +39,6 @@ class MixinPlugin : IMixinConfigPlugin {
         mixinClassName: String,
         mixinInfo: IMixinInfo
     ) {
-        // no-op
     }
 
     override fun postApply(
@@ -49,7 +47,6 @@ class MixinPlugin : IMixinConfigPlugin {
         mixinClassName: String,
         mixinInfo: IMixinInfo
     ) {
-        // no-op
     }
 
 }
