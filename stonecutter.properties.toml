@@ -5,7 +5,7 @@ mod.version = "2.1.5"
 
 deps.fabric_loader = "0.19.3"
 deps.oneconfig = "1.1.4"
-deps.junit = "6.1.2"
+deps.junit = "6.1.3"
 deps.mixinsquared = "0.3.4"
 deps.mclo = "6.2.1"
 deps.datafixerupper = "4.0.26"
