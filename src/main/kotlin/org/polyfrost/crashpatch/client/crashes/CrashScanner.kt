@@ -50,14 +50,16 @@ object CrashScanner {
     }
 
     @JvmStatic
-    fun scan(text: String, isServerCrash: Boolean = false): CrashScan? {
+    @JvmOverloads
+    fun scan(text: String, isServerCrash: Boolean = false, extra: Map<String, List<String>> = emptyMap()): CrashScan? {
         return try {
             val data = data ?: return null
-            val responses = compileResponses(data, text, isServerCrash)
+            val responses = compileResponses(data, text + extra.values.flatten().joinToString("\n", "\n"), isServerCrash)
             val lines = text.split("\\R".toRegex())
             val key = if (isServerCrash) "Disconnect reason" else "Crash log"
 
             val augment = responses.toMutableMap()
+            augment.putAll(extra)
             augment[key] = lines
 
             CrashScan(augment.toSortedMap(comparator).map { map ->

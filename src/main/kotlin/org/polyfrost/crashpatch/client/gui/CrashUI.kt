@@ -21,6 +21,7 @@ import net.minecraft.client.resources.language.I18n
 import org.polyfrost.crashpatch.client.LogUploader
 import org.polyfrost.crashpatch.client.crashes.CrashScan
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
+import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper
 import org.polyfrost.oneconfig.internal.OneConfig
@@ -51,7 +52,7 @@ class CrashUI @JvmOverloads constructor(
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
         report.getFriendlyReport(ReportType.CRASH),
         report.saveFile?.toFile(),
-        (report as CrashReportHook).suspectedMod,
+        LogScanner.refineSuspect((report as CrashReportHook).suspectedMod),
         type,
         report.exception
     )
@@ -79,7 +80,10 @@ class CrashUI @JvmOverloads constructor(
     }
 
     private val crashScan: CrashScan? by lazy {
-        CrashScanner.scan(scanText, type == GuiType.DISCONNECT)
+        val suppressed = LogScanner.reportLines()
+        val extra = if (suppressed.isEmpty()) emptyMap() else mapOf("Errors before the crash" to suppressed)
+
+        CrashScanner.scan(scanText, type == GuiType.DISCONNECT, extra)
             ?.takeIf { it.solutions.isNotEmpty() }
     }
 

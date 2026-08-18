@@ -2,6 +2,7 @@ package org.polyfrost.crashpatch.plugin
 
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap
 import com.llamalad7.mixinextras.MixinExtrasBootstrap
+import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo
 
@@ -28,6 +29,7 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun onLoad(mixinPackage: String) {
         MixinExtrasBootstrap.init()
         MixinSquaredBootstrap.init()
+        LogScanner.install()
     }
 
     override fun acceptTargets(myTargets: MutableSet<String>, otherTargets: MutableSet<String>) {
