@@ -1,2 +1,2 @@
-## 2.1.5
-- Update to latest OneConfig version
+## 2.1.6
+- Detect suppressed errors

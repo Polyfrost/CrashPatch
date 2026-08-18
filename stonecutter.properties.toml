@@ -1,7 +1,7 @@
 mod.id = "crashpatch"
 mod.name = "CrashPatch"
 mod.group = "org.polyfrost"
-mod.version = "2.1.5"
+mod.version = "2.1.6"
 
 deps.fabric_loader = "0.19.3"
 deps.oneconfig = "1.1.4"
