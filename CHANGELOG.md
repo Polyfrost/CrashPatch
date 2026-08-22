@@ -1,2 +1,2 @@
-## 2.1.6
-- Detect suppressed errors
+## 2.1.7
+- Detect faulty mod from mixin errors
