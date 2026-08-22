@@ -18,6 +18,8 @@ object LogScanner {
 
     private val MIXIN_FAILURE = Regex("""Mixin (?:apply|prepare) for mod (\S+) failed""")
 
+    private val MIXIN_OWNER = Regex("""from mod ([a-zA-Z0-9_\-]+)""")
+
     private val SWALLOWED_PACKET = Regex("""Failed to handle packet .*disconnecting""")
 
     private val UNHELPFUL_SUSPECTS = setOf("unknown", "minecraft", "not enough crashes", "crashpatch")
@@ -48,6 +50,21 @@ object LogScanner {
     }
 
     fun failedModId(message: String): String? = MIXIN_FAILURE.find(message)?.groupValues?.get(1)
+
+    @JvmStatic
+    fun modFromMixinError(thrown: Throwable?): ModMetadata? {
+        var cause = thrown
+        var depth = 0
+        while (cause != null && depth < MAX_CAUSES) {
+            val id = MIXIN_OWNER.find(cause.message.orEmpty())?.groupValues?.get(1)
+            if (id != null) return ModMetadata(id, modName(id))
+            val next = cause.cause
+            if (next === cause) break
+            cause = next
+            depth++
+        }
+        return null
+    }
 
     @JvmStatic
     fun refineSuspect(reported: String): String {

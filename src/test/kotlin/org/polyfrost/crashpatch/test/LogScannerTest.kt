@@ -19,6 +19,22 @@ class LogScannerTest {
     }
 
     @Test
+    fun `injection failures without mod frames still name their mod`() {
+        val root = Error(
+            "Critical injection failure: Redirector redirectUpdatePlayers(Lnet/minecraft/server/level/" +
+                "ChunkMap\$TrackedEntity;Ljava/util/List;)V in seamlessportals-ip-core-common.mixins.json:" +
+                "common.entity_sync.MixinChunkMap_E from mod seamlessportals failed injection check, (0/1) succeeded.",
+        )
+        val thrown = RuntimeException(
+            "Mixin transformation of net.minecraft.server.level.ChunkMap failed",
+            RuntimeException("An unexpected critical error was encountered", root),
+        )
+
+        Assertions.assertEquals("seamlessportals", LogScanner.modFromMixinError(thrown)?.id)
+        Assertions.assertNull(LogScanner.modFromMixinError(RuntimeException("no mixins here")))
+    }
+
+    @Test
     fun `mixins that soft-fail are not blamed`() {
         Assertions.assertNull(
             LogScanner.inspect(

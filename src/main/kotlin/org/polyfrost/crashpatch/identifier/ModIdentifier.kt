@@ -3,6 +3,7 @@ package org.polyfrost.crashpatch.identifier
 import net.minecraft.CrashReport
 import org.apache.logging.log4j.LogManager
 import org.polyfrost.crashpatch.CrashPatchConstants
+import org.polyfrost.crashpatch.client.crashes.LogScanner
 import fudge.notenoughcrashes.stacktrace.ModIdentifier as NECModIdentifier
 
 object ModIdentifier {
@@ -21,7 +22,7 @@ object ModIdentifier {
                         mod.id(),
                         mod.name()
                     )
-                }?.firstOrNull()
+                }?.firstOrNull() ?: LogScanner.modFromMixinError(e)
             }
         } catch (t: Throwable) {
             LOGGER.warn("Failed to identify suspected mod from crash report", t)
