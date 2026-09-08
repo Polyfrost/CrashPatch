@@ -19,10 +19,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //? }
 public class Mixin_CrashPatchInitUI {
     // Minecraft resets the screen to the title screen after an init crash so we block that and keep the CrashUI
-    // Pre 26.2 NEC guards the same reset so its handler is disabled below
-    //? if < 26.2 {
-    /*@TargetHandler(
-            mixin = "fudge.notenoughcrashes.mixins.client.MixinMinecraftClient",
+    // NEC guards the same reset (except on 26.2) so its handler is disabled below
+    //? if < 26.2 || >= 26.3 {
+    @TargetHandler(
+            //? if < 26.2 {
+            /*mixin = "fudge.notenoughcrashes.mixins.client.MixinMinecraftClient",
+            *///? } else {
+            mixin = "fudge.notenoughcrashes.mixins.client.MixinGui",
+            //? }
             name = "setScreenDontResetCrashScreen",
             prefix = "handler"
     )
@@ -36,7 +40,7 @@ public class Mixin_CrashPatchInitUI {
     private boolean setScreenDontResetCrashScreen(boolean original) {
         return false;
     }
-    *///? }
+    //? }
 
     @Inject(
             method = "setScreen",
