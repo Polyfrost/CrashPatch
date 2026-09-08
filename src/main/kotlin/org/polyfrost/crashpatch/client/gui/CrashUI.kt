@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.JsonParser
 import net.minecraft.CrashReport
 import net.minecraft.ReportType
 //? if < 26.1 {
@@ -63,6 +64,15 @@ class CrashUI @JvmOverloads constructor(
             private set
         var currentUI: CrashUI? = null
             private set
+
+        private val fallbackLang: Map<String, String> by lazy {
+            runCatching {
+                CrashUI::class.java.getResourceAsStream("/assets/crashpatch/lang/en_us.json")!!.use { stream ->
+                    JsonParser.parseReader(stream.reader()).asJsonObject.entrySet()
+                        .associate { (key, value) -> key to value.asString }
+                }
+            }.getOrDefault(emptyMap())
+        }
     }
 
     init {
@@ -404,7 +414,10 @@ class CrashUI @JvmOverloads constructor(
         }
     }
 
-    private fun translate(key: String): String = I18n.get(key)
+    private fun translate(key: String): String {
+        val translated = I18n.get(key)
+        return if (translated == key) fallbackLang[key] ?: key else translated
+    }
 
     enum class GuiType(val title: String) {
         INIT("crashpatch.init"), NORMAL("crashpatch.crash"), DISCONNECT("crashpatch.disconnect")

@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.CommonColors
 import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
+import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
 import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
 import org.polyfrost.oneconfig.utils.v1.dsl.mc
@@ -17,6 +18,7 @@ object CrashPatchClient {
 
     @JvmStatic
     fun preInitialize() {
+        LogScanner.install()
         CrashScanner.initialize()
     }
 

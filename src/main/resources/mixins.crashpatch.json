@@ -20,7 +20,8 @@
       "Mixin_CrashPatchInitUI",
       "Mixin_EntryPointErrorForceCrashPatchUI",
       "Mixin_InGameCatcherForceCrashPatchUI",
-      "Mixin_InGameCatcherKeepWorld"
+      "Mixin_InGameCatcherKeepWorld",
+      "Mixin_LogCrashWhenScreenSkipped"
   ],
   "verbose": true
 }

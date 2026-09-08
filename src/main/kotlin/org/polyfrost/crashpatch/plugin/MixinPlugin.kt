@@ -16,6 +16,10 @@ class MixinPlugin : IMixinConfigPlugin {
         result.add("Mixin_EntryPointErrorForceCrashPatchUI")
         result.add("Mixin_InGameCatcherForceCrashPatchUI")
         result.add("Mixin_InGameCatcherKeepWorld")
+        result.add("Mixin_LogCrashWhenScreenSkipped")
+        //? if <26.1 {
+        /*result.add("Mixin_RelayWorkerThreadCrash")
+        *///? }
         result.add("Mixin_CrashPatchInitUI")
         result.add("Mixin_CrashInitGui")
         result.add("Mixin_ModLoaders_Debug")
@@ -27,9 +31,9 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun shouldApplyMixin(targetClassName: String, mixinClassName: String): Boolean = true
 
     override fun onLoad(mixinPackage: String) {
+        LogScanner.install()
         MixinExtrasBootstrap.init()
         MixinSquaredBootstrap.init()
-        LogScanner.install()
     }
 
     override fun acceptTargets(myTargets: MutableSet<String>, otherTargets: MutableSet<String>) {

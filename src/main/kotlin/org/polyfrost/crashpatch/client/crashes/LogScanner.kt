@@ -36,15 +36,19 @@ object LogScanner {
 
     @JvmStatic
     fun install() {
-        if (!installed.compareAndSet(false, true)) return
+        if (installed.get()) return
+        var owned = false
         try {
             val root = LogManager.getRootLogger()
             if (root !is Logger) {
-                LOGGER.warn("Root logger is a ${root.javaClass.name}, so suppressed errors won't be collected")
+                LOGGER.warn("Root logger is a ${root.javaClass.name}, retrying later")
                 return
             }
+            if (!installed.compareAndSet(false, true)) return
+            owned = true
             root.addAppender(Listener().apply { start() })
         } catch (t: Throwable) {
+            if (owned) installed.set(false)
             LOGGER.warn("Failed to listen for suppressed errors", t)
         }
     }

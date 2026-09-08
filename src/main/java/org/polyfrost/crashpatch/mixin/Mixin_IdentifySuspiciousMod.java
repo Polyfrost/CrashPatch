@@ -7,7 +7,6 @@
 package org.polyfrost.crashpatch.mixin;
 
 import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
 import org.polyfrost.crashpatch.client.crashes.LogScanner;
 import org.polyfrost.crashpatch.identifier.ModIdentifier;
 import org.polyfrost.crashpatch.hooks.CrashReportHook;
@@ -34,18 +33,22 @@ public class Mixin_IdentifySuspiciousMod implements CrashReportHook {
     private void afterPopulateEnvironment(CallbackInfo ci) {
         ModMetadata suspiciousMod = ModIdentifier.INSTANCE.identifyFromStacktrace((CrashReport) (Object) this, this.exception);
         crashpatch$suspectedMod = (suspiciousMod == null ? "Unknown" : suspiciousMod.getName());
-        crashpatch$reportSuppressedErrors();
     }
 
-    @Unique
-    private void crashpatch$reportSuppressedErrors() {
+    @Inject(
+            method = "getDetails(Ljava/lang/StringBuilder;)V",
+            at = @At("TAIL")
+    )
+    private void afterDetails(StringBuilder builder, CallbackInfo ci) {
         List<String> suppressed = LogScanner.reportLines();
         if (suppressed.isEmpty()) return;
 
-        CrashReportCategory category = ((CrashReport) (Object) this).addCategory("Errors before the crash (found by CrashPatch)");
+        builder.append("\n-- Errors before the crash (found by CrashPatch) --\n");
+        builder.append("Details:");
         for (int i = 0; i < suppressed.size(); i++) {
-            category.setDetail("Line " + (i + 1), suppressed.get(i));
+            builder.append("\n\tLine ").append(i + 1).append(": ").append(suppressed.get(i));
         }
+        builder.append("\n\n");
     }
 
     @Override @Unique

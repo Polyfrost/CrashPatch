@@ -22,11 +22,11 @@ object ModIdentifier {
                         mod.id(),
                         mod.name()
                     )
-                }?.firstOrNull() ?: LogScanner.modFromMixinError(e)
-            }
+                }?.firstOrNull()
+            } ?: LogScanner.modFromMixinError(e)
         } catch (t: Throwable) {
             LOGGER.warn("Failed to identify suspected mod from crash report", t)
-            null
+            LogScanner.modFromMixinError(e)
         } finally {
             identifying.set(false)
         }
