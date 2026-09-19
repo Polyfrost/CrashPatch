@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.mixinhandlers.EntryPointCatcher;
 import net.minecraft.CrashReport;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,3 +23,4 @@ public class Mixin_EntryPointErrorForceCrashPatchUI {
         return new CrashUI(crashReport, CrashUI.GuiType.INIT).create();
     }
 }
+//?}

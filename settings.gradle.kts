@@ -3,6 +3,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven("https://maven.fabricmc.net/")
+        maven("https://maven.ornithemc.net/releases")
         maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
         maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
         maven("https://maven.deftu.dev/releases")
@@ -27,7 +28,7 @@ val versionOverrides = mapOf(
 
 stonecutter {
     create(rootProject) {
-        for (ver in listOf("1.21.1", "1.21.4", "1.21.5", "1.21.8", "1.21.10", "1.21.11", "26.1", "26.2")) {
+        for (ver in listOf("1.8.9", "1.21.1", "1.21.4", "1.21.5", "1.21.8", "1.21.10", "1.21.11", "26.1", "26.2")) {
             version(ver, versionOverrides[ver] ?: ver)
         }
 

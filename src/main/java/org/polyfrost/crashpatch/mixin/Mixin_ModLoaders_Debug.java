@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.fabric.mixinhandlers.ModLoaders;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,3 +25,4 @@ public class Mixin_ModLoaders_Debug {
         debugEntrypointCrashes(runDir, gameInstance, ci);
     }
 }
+//?}

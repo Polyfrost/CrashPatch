@@ -1,14 +1,33 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import net.ornithemc.ploceus.api.PloceusGradleExtensionApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("dev.kikugie.loom-back-compat")
     id("org.jetbrains.kotlin.jvm") version "2.4.10"
+    id("net.fabricmc.fabric-loom-remap") version "1.17-SNAPSHOT" apply false
+    id("ploceus") version "1.17.4" apply false
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.10"
     id("org.jetbrains.compose") version "1.11.1"
     id("dev.deftu.gradle.bloom") version "0.2.0"
     id("me.modmuss50.mod-publish-plugin") version "2.2.0"
+}
+
+val isOrnithe = stonecutter.current.version == "1.8.9"
+val ploceus = if (isOrnithe) {
+    pluginManager.apply("net.fabricmc.fabric-loom-remap")
+    pluginManager.apply("ploceus")
+
+    configurations.configureEach {
+        exclude(group = "org.lwjgl.lwjgl")
+    }
+
+    extensions.getByType<PloceusGradleExtensionApi>().apply {
+        setIntermediaryGeneration(2)
+    }
+} else {
+    null
 }
 
 val modid: String = sc.properties["mod.id"]
@@ -21,8 +40,7 @@ val mcline: String = sc.current.project
 val versionrange: String = sc.properties["mod.mc_compat"]
 val loaderversion: String = sc.properties["deps.fabric_loader"]
 val oneconfigversion: String = sc.properties["deps.oneconfig"]
-val fapiversion: String = sc.properties["deps.fabric_api"]
-val necversion: String = sc.properties["deps.nec"]
+val loader = if (isOrnithe) "ornithe" else "fabric"
 
 version = "$modversion+$mcversion"
 base.archivesName = modname
@@ -32,7 +50,7 @@ val requiredJava: JavaVersion = when {
     sc.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
     sc.current.parsed >= "1.18" -> JavaVersion.VERSION_17
     sc.current.parsed >= "1.17" -> JavaVersion.VERSION_16
-    else -> JavaVersion.VERSION_1_8
+    else -> JavaVersion.VERSION_25
 }
 
 val compatibleVersions: List<String> = sc.properties.rawOrNull("mod", "mc_releases")
@@ -52,6 +70,9 @@ repositories {
         name = "Sonatype Snapshots"
         content { includeGroup("net.kyori") }
     }
+    maven("https://maven.cloverclient.com/releases") {
+        content { includeGroup("pl.tomgirl") }
+    }
     maven("https://maven.bawnorton.com/releases") {
         name = "Bawnorton"
         content { includeGroupAndSubgroups("com.github.bawnorton") }
@@ -65,18 +86,34 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:$mcversion")
-    compileOnly("com.mojang:datafixerupper:${sc.properties.get<String>("deps.datafixerupper")}")
-    loomx.applyMojangMappings()
+    val datafixerupper = "com.mojang:datafixerupper:${sc.properties.get<String>("deps.datafixerupper")}"
+    if (isOrnithe) {
+        include(implementation(datafixerupper) { isTransitive = false })
+        mappings(ploceus!!.layeredMappings {
+            mappings("net.ornithemc:feather-gen2:$mcversion+build.${sc.properties["feather_build"] as String}:v2") {
+                containsUnpick()
+            }
+            mappings(rootProject.file("mappings/feather-overrides.tiny"))
+        })
+        testCompileOnly("net.ornithemc.osl-gen2:entrypoints:${sc.properties["deps.osl_entrypoints"] as String}")
+    } else {
+        compileOnly(datafixerupper)
+        loomx.applyMojangMappings()
+    }
 
     modImplementation("net.fabricmc:fabric-loader:$loaderversion")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiversion")
-    modImplementation("maven.modrinth:notenoughcrashes:$necversion-fabric")
+    if (!isOrnithe) {
+        val fapiversion: String = sc.properties["deps.fabric_api"]
+        val necversion: String = sc.properties["deps.nec"]
+        modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiversion")
+        modImplementation("maven.modrinth:notenoughcrashes:$necversion-fabric")
+    }
 
     val mixinsquared = sc.properties.get<String>("deps.mixinsquared")
     implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:$mixinsquared")!!)
     include(implementation("gs.mclo:api:${sc.properties.get<String>("deps.mclo")}")!!)
 
-    modImplementation("org.polyfrost.oneconfig:$mcline-fabric:$oneconfigversion")
+    modImplementation("org.polyfrost.oneconfig:$mcline-$loader:$oneconfigversion")
     for (module in arrayOf("config", "config-impl", "internal")) {
         implementation("org.polyfrost.oneconfig:$module:$oneconfigversion")
     }
@@ -152,7 +189,10 @@ tasks {
 
         inputs.properties(props)
 
-        filesMatching("fabric.mod.json") { expand(props) }
+        filesMatching("fabric.mod.json") {
+            expand(props)
+            if (isOrnithe) filter { line -> line.takeUnless { "notenoughcrashes" in it } }
+        }
     }
 
     jar {
@@ -202,7 +242,7 @@ publishMods {
     changelog = changelogs
     type = STABLE
 
-    modLoaders.add("fabric")
+    modLoaders.add(loader)
 
     dryRun = modrinthId == null || modrinthToken == null
 
@@ -215,7 +255,7 @@ publishMods {
 
             requires("oneconfig")
             requires("fabric-language-kotlin")
-            requires("notenoughcrashes")
+            if (!isOrnithe) requires("notenoughcrashes")
         }
     }
 }

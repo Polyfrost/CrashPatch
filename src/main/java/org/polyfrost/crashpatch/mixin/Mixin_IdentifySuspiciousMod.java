@@ -36,6 +36,7 @@ public class Mixin_IdentifySuspiciousMod implements CrashReportHook {
     }
 
     @Inject(
+            //~ if = 1.8.9 'getDetails' -> 'addDetails'
             method = "getDetails(Ljava/lang/StringBuilder;)V",
             at = @At("TAIL")
     )

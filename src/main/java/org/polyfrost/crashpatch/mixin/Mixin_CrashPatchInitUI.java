@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import fudge.notenoughcrashes.mixinhandlers.EntryPointCatcher;
@@ -49,3 +50,4 @@ public class Mixin_CrashPatchInitUI {
         }
     }
 }
+//?}

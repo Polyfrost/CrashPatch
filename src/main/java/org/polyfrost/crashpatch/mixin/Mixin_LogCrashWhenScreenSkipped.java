@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.config.NecConfig;
 import fudge.notenoughcrashes.mixinhandlers.EntryPointCatcher;
 import fudge.notenoughcrashes.mixinhandlers.InGameCatcher;
@@ -19,3 +20,4 @@ public class Mixin_LogCrashWhenScreenSkipped {
         }
     }
 }
+//?}
