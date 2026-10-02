@@ -34,8 +34,7 @@ val modid: String = sc.properties["mod.id"]
 val modname: String = sc.properties["mod.name"]
 val modversion: String = sc.properties["mod.version"]
 val mcversion: String = sc.current.version
-// Node name, not the resolved Minecraft version: 26.1 builds against the 26.1.2 dev jar,
-// but OneConfig and the Modrinth range are keyed on the release line.
+val mcDependencyVersion: String = sc.properties.getOrNull<String>("deps.minecraft") ?: mcversion
 val mcline: String = sc.current.project
 val versionrange: String = sc.properties["mod.mc_compat"]
 val loaderversion: String = sc.properties["deps.fabric_loader"]
@@ -62,6 +61,7 @@ repositories {
         filter { groups.forEach(::includeGroup) }
     }
 
+    mavenLocal()
     mavenCentral()
     google()
     maven("https://repo.polyfrost.org/releases") { name = "Polyfrost Releases" }
@@ -85,7 +85,7 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:$mcversion")
+    minecraft("com.mojang:minecraft:$mcDependencyVersion")
     val datafixerupper = "com.mojang:datafixerupper:${sc.properties.get<String>("deps.datafixerupper")}"
     if (isOrnithe) {
         include(implementation(datafixerupper) { isTransitive = false })

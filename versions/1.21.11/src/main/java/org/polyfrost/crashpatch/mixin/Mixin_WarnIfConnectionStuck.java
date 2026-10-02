@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -45,7 +46,7 @@ public class Mixin_WarnIfConnectionStuck extends Screen {
             return true;
         }
         if (CrashPatchConstants.recoveredFromCrash) {
-            if (mouseButtonEvent.button() == 0) {
+            if (mouseButtonEvent.button() == InputConstants.MOUSE_BUTTON_LEFT) {
                 List<FormattedCharSequence> list = this.font.split(FormattedText.of(crashpatch$getText()), width);
                 int width = -1;
                 for (FormattedCharSequence text : list) {
