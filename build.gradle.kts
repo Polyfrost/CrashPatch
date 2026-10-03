@@ -223,8 +223,10 @@ val changelogs = rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.readTe
 
 val validateChangelog = tasks.register("validateChangelog") {
     description = "Validates that the changelog is written for the current version."
-    if (!changelogs.contains(modversion)) {
-        throw GradleException("Changelog for version $modversion not found.")
+    doLast {
+        if (!changelogs.contains(modversion)) {
+            throw GradleException("Changelog for version $modversion not found.")
+        }
     }
 }
 
