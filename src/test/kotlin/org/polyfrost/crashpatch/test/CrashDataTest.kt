@@ -14,10 +14,9 @@ class CrashDataTest {
             """{"fixtypes": [{"name": "Solutions"}], "default_fix_type": 0,
                "fixes": [{"fix": "Update OptiFine", "causes": [{"method": "contains", "value": "optifine"}]}]}""",
         )
-        val data = CrashData.CODEC.parse(JsonOps.INSTANCE, json).result().orElse(null)
+        val data = CrashData.CODEC.parse(JsonOps.INSTANCE, json).result().orElseThrow()
 
-        Assertions.assertNotNull(data)
-        Assertions.assertEquals(0, data!!.resolveId(data.fixes.single()))
+        Assertions.assertEquals(0, data.resolveId(data.fixes.single()))
         Assertions.assertTrue(data.fixes.single().triggersOn("at optifine.Foo"))
     }
 }
