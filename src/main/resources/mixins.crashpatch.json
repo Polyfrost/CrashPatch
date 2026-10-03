@@ -14,14 +14,7 @@
       "Mixin_WarnIfConnectionStuck",
       "Mixin_DebugRequestedCrash",
       "Mixin_OverrideDisconnectedScreen",
-      "Mixin_PreInitializeCrashPatch",
-      "Mixin_ModLoaders_Debug",
-      "Mixin_CrashInitGui",
-      "Mixin_CrashPatchInitUI",
-      "Mixin_EntryPointErrorForceCrashPatchUI",
-      "Mixin_InGameCatcherForceCrashPatchUI",
-      "Mixin_InGameCatcherKeepWorld",
-      "Mixin_LogCrashWhenScreenSkipped"
+      "Mixin_PreInitializeCrashPatch"
   ],
   "verbose": true
 }

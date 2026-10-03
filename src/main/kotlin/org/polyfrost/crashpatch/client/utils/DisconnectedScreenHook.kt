@@ -27,6 +27,9 @@ object DisconnectedScreenHook {
     }
 
     private fun reason(screen: Screen): String {
+        //? if > 1.8.9 {
         return (screen as Mixin_AccessDisconnectReason).info.reason.string
+        //?} else
+        //return (screen as Mixin_AccessDisconnectReason).reason.string
     }
 }

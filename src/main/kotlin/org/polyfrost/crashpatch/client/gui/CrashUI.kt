@@ -11,10 +11,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.JsonParser
 import net.minecraft.CrashReport
+//? if > 1.8.9
 import net.minecraft.ReportType
-//? if < 26.1 {
+//? if < 26.1 && > 1.8.9 {
 /*import net.minecraft.client.gui.GuiGraphics
-*///? } else {
+*///? } elif >= 26.1 {
 import net.minecraft.client.gui.GuiGraphicsExtractor
 //? }
 import net.minecraft.client.gui.screens.Screen
@@ -51,8 +52,13 @@ class CrashUI @JvmOverloads constructor(
 
     @JvmOverloads
     constructor(report: CrashReport, type: GuiType = GuiType.NORMAL) : this(
+        //? if > 1.8.9 {
         report.getFriendlyReport(ReportType.CRASH),
         report.saveFile?.toFile(),
+        //?} else {
+        /*report.build(),
+        report.file,
+        *///?}
         LogScanner.refineSuspect((report as CrashReportHook).suspectedMod),
         type,
         report.exception
@@ -107,6 +113,7 @@ class CrashUI @JvmOverloads constructor(
         return this
     }
 
+    //? if > 1.8.9 {
     override fun onClose() {
         sceneClosed = true
         super.onClose()
@@ -116,6 +123,7 @@ class CrashUI @JvmOverloads constructor(
         client.gui.setScreen(null)
         //? }
     }
+    //?}
 
     override fun removed() {
         leaveWorldCrash = false
@@ -124,7 +132,13 @@ class CrashUI @JvmOverloads constructor(
         super.removed()
     }
 
-    //? if < 26.1 {
+    //? if = 1.8.9 {
+    /*override fun render(mouseX: Int, mouseY: Int, partialTick: Float) {
+        if (sceneClosed) return
+        BlurRenderer.drawBlur(8f)
+        super.render(mouseX, mouseY, partialTick)
+    }
+    *///? } elif < 26.1 {
     /*override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (sceneClosed) return
         BlurRenderer.drawBlur(8f)
@@ -415,6 +429,7 @@ class CrashUI @JvmOverloads constructor(
     }
 
     private fun translate(key: String): String {
+        //~ if = 1.8.9 'I18n.get(' -> 'I18n.translate('
         val translated = I18n.get(key)
         return if (translated == key) fallbackLang[key] ?: key else translated
     }

@@ -1,9 +1,11 @@
 package org.polyfrost.crashpatch.test
 
 import net.minecraft.CrashReport
+//? if > 1.8.9 {
 import net.minecraft.ReportType
 import net.minecraft.SharedConstants
 import net.minecraft.server.Bootstrap
+//?}
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.junit.jupiter.api.Assertions
@@ -20,8 +22,10 @@ class LogScannerWiringTest {
         @JvmStatic
         @org.junit.jupiter.api.BeforeAll
         fun setupEnvironment() {
+            //? if > 1.8.9 {
             SharedConstants.tryDetectVersion()
             Bootstrap.bootStrap()
+            //?}
         }
     }
 
@@ -41,6 +45,7 @@ class LogScannerWiringTest {
         Assertions.assertNotNull(captured, "appender never saw the error: ${LogScanner.suppressedErrors}")
 
         val report = CrashReport("Unexpected error", RuntimeException("downstream NPE"))
+            //~ if = 1.8.9 'getFriendlyReport(ReportType.CRASH)' -> 'build()'
             .getFriendlyReport(ReportType.CRASH)
         Assertions.assertTrue(report.contains("Errors before the crash"), "no section in report")
         Assertions.assertTrue(report.contains("Mixin apply for mod examplemod failed"), "no error in report")
@@ -99,6 +104,7 @@ class LogScannerWiringTest {
     private fun freshReport(withCategory: Boolean): String {
         val report = CrashReport("Unexpected error", RuntimeException("boom"))
         if (withCategory) report.addCategory("Head")
+        //~ if = 1.8.9 'getFriendlyReport(ReportType.CRASH)' -> 'build()'
         return report.getFriendlyReport(ReportType.CRASH)
     }
 
@@ -133,7 +139,9 @@ class LogScannerWiringTest {
             errors += LogScanner.SuppressedError(null, listOf("Mixin apply for mod examplemod failed"))
 
             val report = CrashReport("Unexpected error", RuntimeException("boom"))
+            //~ if = 1.8.9 'getFriendlyReport(ReportType.CRASH)' -> 'build()'
             val first = report.getFriendlyReport(ReportType.CRASH)
+            //~ if = 1.8.9 'getFriendlyReport(ReportType.CRASH)' -> 'build()'
             val second = report.getFriendlyReport(ReportType.CRASH)
 
             Assertions.assertEquals(1, first.sections(), "first render:\n$first")

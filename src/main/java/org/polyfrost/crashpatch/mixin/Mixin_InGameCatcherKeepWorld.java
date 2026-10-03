@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.mixinhandlers.InGameCatcher;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,3 +52,4 @@ public class Mixin_InGameCatcherKeepWorld {
         return true;
     }
 }
+//?}

@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.NotEnoughCrashes;
 import fudge.notenoughcrashes.stacktrace.CrashUtils;
 import net.minecraft.CrashReport;
@@ -40,3 +41,4 @@ public class Mixin_RelayWorkerThreadCrash {
         CrashUtils.outputReport(report, true);
     }
 }
+//?}

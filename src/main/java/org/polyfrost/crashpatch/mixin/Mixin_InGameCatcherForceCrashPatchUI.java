@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+//? if > 1.8.9 {
 import fudge.notenoughcrashes.mixinhandlers.InGameCatcher;
 import net.minecraft.CrashReport;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,3 +31,4 @@ public class Mixin_InGameCatcherForceCrashPatchUI {
         return new CrashUI(crashpatch$crashReport, CrashUI.GuiType.NORMAL).create();
     }
 }
+//?}

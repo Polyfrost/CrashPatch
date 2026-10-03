@@ -13,6 +13,7 @@ class MixinPlugin : IMixinConfigPlugin {
     override fun getMixins(): MutableList<String> {
         val result = mutableListOf<String>()
 
+        //? if > 1.8.9 {
         result.add("Mixin_EntryPointErrorForceCrashPatchUI")
         result.add("Mixin_InGameCatcherForceCrashPatchUI")
         result.add("Mixin_InGameCatcherKeepWorld")
@@ -23,6 +24,10 @@ class MixinPlugin : IMixinConfigPlugin {
         result.add("Mixin_CrashPatchInitUI")
         result.add("Mixin_CrashInitGui")
         result.add("Mixin_ModLoaders_Debug")
+        //?} else {
+        /*result.add("Mixin_CatchCrashes")
+        result.add("Mixin_AccessBufferBuilder")
+        *///?}
 
         return result
     }
