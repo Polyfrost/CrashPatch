@@ -89,6 +89,7 @@ dependencies {
     val datafixerupper = "com.mojang:datafixerupper:${sc.properties.get<String>("deps.datafixerupper")}"
     if (isOrnithe) {
         include(implementation(datafixerupper) { isTransitive = false })
+        // ploceus is always applied on Ornithe
         mappings(ploceus!!.layeredMappings {
             mappings("net.ornithemc:feather-gen2:$mcversion+build.${sc.properties["feather_build"] as String}:v2") {
                 containsUnpick()
