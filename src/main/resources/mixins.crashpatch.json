@@ -15,6 +15,5 @@
       "Mixin_DebugRequestedCrash",
       "Mixin_OverrideDisconnectedScreen",
       "Mixin_PreInitializeCrashPatch"
-  ],
-  "verbose": true
+  ]
 }
