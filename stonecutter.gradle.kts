@@ -7,6 +7,7 @@ stonecutter active "26.3" /* [SC] DO NOT EDIT */
 stonecutter {
     tasks {
         order("publishModrinth")
+        order("publishCurseforge")
     }
 
     parameters {
