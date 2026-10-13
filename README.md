@@ -5,10 +5,16 @@
 
 CrashPatch stops a crash from closing your game. You get a screen that tells you which mod probably caused it and how to fix it, and most of the time you can just keep playing.
 
+![Crash screen](.github/images/crash.gif)
+
 - See which mod is suspected
 - Get known fixes for the crash
 - Read the full crash log, copy it or upload it to hst.sh or mclo.gs (your session token is stripped out first)
 - Go back to the game with one button
+
+![Crash log](.github/images/crash-log.gif)
+
+![Back to the game](.github/images/recovery.gif)
 
 If the game crashes while it is still starting up there's nothing to go back to, but you still get the same screen with the cause and the fixes.
 
