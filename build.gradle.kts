@@ -66,6 +66,7 @@ repositories {
     google()
     maven("https://repo.polyfrost.org/releases") { name = "Polyfrost Releases" }
     maven("https://repo.polyfrost.org/snapshots") { name = "Polyfrost Snapshots" }
+    maven("https://redirector.kotlinlang.org/maven/compose-dev") { name = "Compose Dev" }
     maven("https://central.sonatype.com/repository/maven-snapshots") {
         name = "Sonatype Snapshots"
         content { includeGroup("net.kyori") }
