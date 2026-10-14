@@ -1,21 +1,38 @@
 # CrashPatch
 
-![Compact Powered by OneConfig](https://polyfrost.org/img/compact_vector.svg)
-![Dev Workflow Status](https://img.shields.io/github/v/release/Polyfrost/CrashPatch.svg?style=for-the-badge&color=1452cc&label=release)
+[![Modrinth downloads](https://img.shields.io/modrinth/dt/nZ3E8WQz?style=flat&logo=modrinth&label=Modrinth&color=1bd96a)](https://modrinth.com/mod/crashpatch)
+[![CurseForge downloads](https://img.shields.io/curseforge/dt/1147718?style=flat&logo=curseforge&label=CurseForge&color=f16436)](https://www.curseforge.com/minecraft/mc-mods/crashpatch)
 
-### Stop crashes from closing your game!
+CrashPatch stops a crash from closing your game. You get a screen that tells you which mod probably caused it and how to fix it, and most of the time you can just keep playing.
 
-CrashPatch is a Minecraft (1.8.9) modification port of the BetterCrashes Minecraft modification (1.7.10) which is a port of the VanillaFix Minecraft modification (1.12.2).
+![Crash screen](.github/images/crash.gif)
 
-CrashPatch essentially wraps the game in a try catch which stops the game from closing when something goes wrong (aka a crash).
+- See which mod is suspected
+- Get known fixes for the crash
+- Read the full crash log, copy it or upload it to hst.sh or mclo.gs (your session token is stripped out first)
+- Go back to the game with one button
 
-When CrashPatch detects a crash, it will display a screen where you can either return playing the game, find solutions to the crash, or open / upload the crash log.
+![Crash log](.github/images/crash-log.gif)
 
-If Minecraft crashes while loading / initializing the game, it will not be able to recover but the ability to see possible solutions and / or open and upload crash logs will be available.
+![Back to the game](.github/images/recovery.gif)
 
-Modifiable options include:
-- Whether to catch crashes during launch or gameplay
-- Display disconnect causes
-- Crash limit before force closing
-- Whether to deobfuscate crash log
-- Where to upload logs
+If the game crashes while it is still starting up there's nothing to go back to, but you still get the same screen with the cause and the fixes.
+
+Other things it does:
+
+- Disconnect screens show a fix when the reason is one CrashPatch knows
+- Failed mixins and packet errors from before the crash are added to the report
+- `/crashpatch crash` crashes the game on purpose (if you want to see the screen)
+- On 1.8.9, set how many crashes it takes before you are sent out of the world or the game is allowed to close
+
+## Supported versions
+
+- Minecraft 1.8.9 on Ornithe.
+- Minecraft 1.21.1-26.3 on Fabric.
+
+CrashPatch needs [OneConfig](https://modrinth.com/mod/oneconfig) and Fabric Language Kotlin. The Fabric builds also need [Not Enough Crashes](https://modrinth.com/mod/notenoughcrashes).
+
+## Support
+
+- Report bugs and ask questions on the [Polyfrost Discord](https://polyfrost.org/discord).
+- Check [Polyfrost Status](https://status.polyfrost.org/) if a Polyfrost service is down.
