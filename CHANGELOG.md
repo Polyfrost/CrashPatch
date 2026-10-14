@@ -1,2 +1,3 @@
-## 2.2.0
-- Added support for Minecraft 26.3
+## Unreleased changes
+- Fixed crashing on startup with Not Enough Crashes 4.5.0 on Minecraft 26.3
+- Not Enough Crashes 4.5.0 is now required on Minecraft 26.3

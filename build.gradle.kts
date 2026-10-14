@@ -187,6 +187,7 @@ tasks {
             "minecraft_version_range" to versionrange,
             "loader_version" to loaderversion,
             "oneconfig_version" to oneconfigversion,
+            "nec_version" to sc.properties.getOrNull<String>("deps.nec").orEmpty().substringBefore('+'),
         )
 
         inputs.properties(props)

@@ -73,4 +73,4 @@ deps.nec = "4.4.9+26.2"
 mod.mc_compat = "~26.3"
 mod.mc_releases = ["26.3"]
 deps.fabric_api = "0.160.3+26.3"
-deps.nec = "4.4.9+26.3"
+deps.nec = "4.5.0+26.3"

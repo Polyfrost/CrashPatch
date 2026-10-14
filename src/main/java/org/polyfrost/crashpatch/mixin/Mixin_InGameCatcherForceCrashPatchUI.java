@@ -15,7 +15,9 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class Mixin_InGameCatcherForceCrashPatchUI {
     @Unique private static CrashReport crashpatch$crashReport;
 
-    @ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lfudge/notenoughcrashes/stacktrace/CrashUtils;outputReport(Lnet/minecraft/CrashReport;Z)V"), index = 0, remap = false)
+    // NEC 4.5.0 moved the body into a private overload that also takes the crashing world
+    //~ if >= 26.3 '"displayCrashScreen"' -> '"displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V"'
+    @ModifyArg(method = "displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V", at = @At(value = "INVOKE", target = "Lfudge/notenoughcrashes/stacktrace/CrashUtils;outputReport(Lnet/minecraft/CrashReport;Z)V"), index = 0, remap = false)
     private static CrashReport captureCrashReport(CrashReport report) {
         crashpatch$crashReport = report;
         return report;
@@ -24,7 +26,8 @@ public class Mixin_InGameCatcherForceCrashPatchUI {
     //? if < 26.2 {
     /*@ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
     *///? } else {
-    @ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreenAndShow(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
+    //~ if >= 26.3 '"displayCrashScreen"' -> '"displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V"'
+    @ModifyArg(method = "displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreenAndShow(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
     //? }
     private static Screen useCrashPatchGui(Screen par1) {
         CrashPatchConstants.recoveredFromCrash = true;
