@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalOneConfigUiApi::class)
+
 package org.polyfrost.crashpatch.client.gui
 
 import androidx.compose.foundation.*
@@ -26,14 +28,15 @@ import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.polyfrost.crashpatch.hooks.CrashReportHook
 import org.polyfrost.oneconfig.api.platform.v1.DesktopHelper
+import org.polyfrost.oneconfig.api.ui.v1.ExperimentalOneConfigUiApi
+import org.polyfrost.oneconfig.api.ui.v1.components.Icon
+import org.polyfrost.oneconfig.api.ui.v1.components.IconButton
+import org.polyfrost.oneconfig.api.ui.v1.components.Text
+import org.polyfrost.oneconfig.api.ui.v1.theme.OneConfigTheme
+import org.polyfrost.oneconfig.api.ui.v1.theme.ProvideOneConfigTheme
 import org.polyfrost.oneconfig.internal.OneConfig
 import org.polyfrost.oneconfig.internal.ui.compose.BlurRenderer
-import org.polyfrost.oneconfig.internal.ui.components.Icon
-import org.polyfrost.oneconfig.internal.ui.components.IconButton
-import org.polyfrost.oneconfig.internal.ui.components.Text
 import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen
-import org.polyfrost.oneconfig.internal.ui.themes.LocalTheme
-import org.polyfrost.oneconfig.internal.ui.themes.Theme
 import org.polyfrost.oneconfig.utils.v1.ClipboardHelper
 import java.awt.Desktop
 import java.io.File
@@ -162,8 +165,8 @@ class CrashUI @JvmOverloads constructor(
         val solutionScroll = rememberScrollState()
         val pageScroll = rememberScrollState()
 
-        Theme {
-            val current = LocalTheme.current
+        ProvideOneConfigTheme {
+            val current = OneConfigTheme.current
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -187,18 +190,21 @@ class CrashUI @JvmOverloads constructor(
                     )
                     Text(
                         text = translate(type.title),
+                        modifier = Modifier,
                         color = current.textColor,
                         fontSize = 24.sp,
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
                         text = translate("${type.title}.desc.1"),
+                        modifier = Modifier,
                         color = current.textColorSecondary,
                         fontSize = 14.sp,
                     )
                     if (type != GuiType.INIT || crashScan != null) {
                         Text(
                             text = translate("${type.title}.desc.2"),
+                            modifier = Modifier,
                             color = current.textColorSecondary,
                             fontSize = 14.sp,
                         )
@@ -207,12 +213,14 @@ class CrashUI @JvmOverloads constructor(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = translate(if (type == GuiType.DISCONNECT) "crashpatch.disconnect.cause" else "crashpatch.crash.cause"),
+                        modifier = Modifier,
                         color = current.textColorSecondary,
                         fontSize = 17.sp,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = susThing,
+                        modifier = Modifier,
                         color = blue,
                         fontSize = 22.sp,
                     )
@@ -259,6 +267,7 @@ class CrashUI @JvmOverloads constructor(
                                             ) {
                                                 Text(
                                                     text = solution.name,
+                                                    modifier = Modifier,
                                                     color = current.textColorSecondary,
                                                     fontSize = 13.sp,
                                                 )
@@ -273,11 +282,11 @@ class CrashUI @JvmOverloads constructor(
                                     }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    IconButton("/assets/crashpatch/copy.svg") {
+                                    IconButton("/assets/crashpatch/copy.svg", Modifier) {
                                         ClipboardHelper.setString(activeSolution.solutions.joinToString("\n"))
                                         statusText = "Copied text to clipboard."
                                     }
-                                    IconButton("/assets/crashpatch/upload.svg") {
+                                    IconButton("/assets/crashpatch/upload.svg", Modifier) {
                                         val body = buildString {
                                             append(activeSolution.solutions.joinToString("\n"))
                                             append("\n\n")
@@ -320,6 +329,7 @@ class CrashUI @JvmOverloads constructor(
                     Spacer(Modifier.height(24.dp))
                     Text(
                         text = translate("crashpatch.discord.prompt"),
+                        modifier = Modifier,
                         color = current.textColor,
                         fontSize = 16.sp,
                     )
@@ -342,6 +352,7 @@ class CrashUI @JvmOverloads constructor(
                         )
                         Text(
                             text = translate("crashpatch.link.discord.polyfrost"),
+                            modifier = Modifier,
                             color = blue,
                             fontSize = 16.sp,
                         )
@@ -351,6 +362,7 @@ class CrashUI @JvmOverloads constructor(
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text = statusText.orEmpty(),
+                            modifier = Modifier,
                             color = current.textColorSecondary,
                             fontSize = 13.sp,
                         )
@@ -379,9 +391,10 @@ class CrashUI @JvmOverloads constructor(
                             ) {
                                 Text(
                                     translate("crashpatch.log"),
+                                    modifier = Modifier,
                                     color = current.textColor,
                                 )
-                                Icon("/assets/crashpatch/open-external.svg", current.textColor)
+                                Icon("/assets/crashpatch/open-external.svg", current.textColor, Modifier)
                             }
                         }) {
                             val target = file ?: return@ActionButton
@@ -401,7 +414,7 @@ class CrashUI @JvmOverloads constructor(
         onClick: () -> Unit,
     ) {
         ActionButton(
-            text = { Text(text, color = LocalTheme.current.textColor) },
+            text = { Text(text, modifier = Modifier, color = OneConfigTheme.current.textColor) },
             primary = primary,
             onClick = onClick,
         )
@@ -413,7 +426,7 @@ class CrashUI @JvmOverloads constructor(
         primary: Boolean = false,
         onClick: () -> Unit,
     ) {
-        val current = LocalTheme.current
+        val current = OneConfigTheme.current
         Box(
             modifier = Modifier
                 .background(
