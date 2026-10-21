@@ -1,5 +1,6 @@
 package org.polyfrost.crashpatch.mixin;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
@@ -35,7 +36,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
@@ -139,11 +139,9 @@ public abstract class Mixin_CatchCrashes {
         }
     }
 
-    @Redirect(method = "gameCrashed", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
-    private void crashpatch$exitIfDying(int status) {
-        if (crashpatch$letDie) {
-            System.exit(status);
-        }
+    @WrapWithCondition(method = "gameCrashed", at = @At(value = "INVOKE", target = "Ljava/lang/System;exit(I)V"))
+    private boolean crashpatch$exitIfDying(int status) {
+        return crashpatch$letDie;
     }
 
     @Unique
