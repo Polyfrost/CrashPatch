@@ -3,6 +3,7 @@
     "id": "${mod_id}",
     "version": "${mod_version}",
     "name": "${mod_name}",
+    "icon": "icon.png",
     "authors": [
         "Polyfrost"
     ],
