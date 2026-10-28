@@ -5,6 +5,8 @@ import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import fudge.notenoughcrashes.mixinhandlers.EntryPointCatcher;
 import net.minecraft.client.Minecraft;
+//? if >= 26.2
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import org.polyfrost.crashpatch.client.gui.CrashUI;
 import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen;
@@ -16,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //? if < 26.2 {
 /*@Mixin(value = Minecraft.class, priority = 1500)
 *///? } else {
-@Mixin(value = net.minecraft.client.gui.Gui.class, priority = 1500)
+@Mixin(value = Gui.class, priority = 1500)
 //? }
 public class Mixin_CrashPatchInitUI {
     // Minecraft resets the screen to the title screen after an init crash so we block that and keep the CrashUI

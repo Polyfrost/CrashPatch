@@ -9,6 +9,7 @@ import net.minecraft.server.Bootstrap
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.polyfrost.crashpatch.identifier.ModIdentifier
@@ -20,7 +21,7 @@ class LogScannerWiringTest {
         private const val SECTION_HEADER = "Errors before the crash (found by CrashPatch)"
 
         @JvmStatic
-        @org.junit.jupiter.api.BeforeAll
+        @BeforeAll
         fun setupEnvironment() {
             //? if > 1.8.9 {
             SharedConstants.tryDetectVersion()
