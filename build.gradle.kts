@@ -123,7 +123,6 @@ dependencies {
     for (module in arrayOf("config", "config-impl", "internal")) {
         implementation("org.polyfrost.oneconfig:$module:$oneconfigversion")
     }
-    compileOnly(compose.desktop.currentOs)
 
     testImplementation("org.junit.jupiter:junit-jupiter:${sc.properties.get<String>("deps.junit")}")
     testImplementation("net.fabricmc:fabric-loader-junit:$loaderversion")

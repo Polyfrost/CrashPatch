@@ -29,7 +29,7 @@ import org.lwjgl.opengl.Display;
 import org.polyfrost.crashpatch.CrashPatchConstants;
 import org.polyfrost.crashpatch.client.CrashPatchConfig;
 import org.polyfrost.crashpatch.client.gui.CrashUI;
-import org.polyfrost.oneconfig.internal.ui.compose.SkiaCtx;
+import org.polyfrost.oneconfig.internal.ui.compose.GlHost;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -239,10 +239,6 @@ public abstract class Mixin_CatchCrashes {
             reloadResources();
             textRenderer = new TextRenderer(options, new Identifier("textures/font/ascii.png"), textureManager, false);
             resourceManager.addListener(textRenderer);
-            if (!SkiaCtx.INSTANCE.isReady()) {
-                SkiaCtx.INSTANCE.init();
-            }
-
             running = true;
             crashpatch$runGuiLoop(new CrashUI(report, CrashUI.GuiType.INIT));
         } catch (Throwable t) {
@@ -293,7 +289,7 @@ public abstract class Mixin_CatchCrashes {
             renderTarget.unbindWrite();
             GlStateManager.popMatrix();
 
-            SkiaCtx.INSTANCE.draw();
+            GlHost.INSTANCE.drawBeforeBlit();
             GlStateManager.pushMatrix();
             renderTarget.draw(width, height);
             GlStateManager.popMatrix();

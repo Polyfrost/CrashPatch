@@ -35,7 +35,6 @@ import org.polyfrost.oneconfig.api.ui.v1.components.Text
 import org.polyfrost.oneconfig.api.ui.v1.theme.OneConfigTheme
 import org.polyfrost.oneconfig.api.ui.v1.theme.ProvideOneConfigTheme
 import org.polyfrost.oneconfig.internal.OneConfig
-import org.polyfrost.oneconfig.internal.ui.compose.BlurRenderer
 import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen
 import org.polyfrost.oneconfig.utils.v1.ClipboardHelper
 import java.awt.Desktop
@@ -135,22 +134,21 @@ class CrashUI @JvmOverloads constructor(
         super.removed()
     }
 
+    override fun blurAlpha(): Float = 1f
+
     //? if = 1.8.9 {
     /*override fun render(mouseX: Int, mouseY: Int, partialTick: Float) {
         if (sceneClosed) return
-        BlurRenderer.drawBlur(8f)
         super.render(mouseX, mouseY, partialTick)
     }
     *///? } elif < 26.1 {
     /*override fun render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTick: Float) {
         if (sceneClosed) return
-        BlurRenderer.drawBlur(8f)
         super.render(guiGraphics, mouseX, mouseY, partialTick)
     }
     *///? } else {
     override fun extractRenderState(ctx: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, tickDelta: Float) {
         if (sceneClosed) return
-        BlurRenderer.drawBlur(8f)
         super.extractRenderState(ctx, mouseX, mouseY, tickDelta)
     }
     //? }
