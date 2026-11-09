@@ -11,7 +11,7 @@ deps.mclo = "6.2.1"
 deps.datafixerupper = "4.0.26"
 deps.errorprone = "2.51.0"
 
-loomx.loom_version = "1.17-SNAPSHOT"
+loomx.loom_version = "1.19-SNAPSHOT"
 
 publish.modrinth = "nZ3E8WQz"
 publish.curseforge = "1147718"
