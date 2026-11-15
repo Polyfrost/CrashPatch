@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalOneConfigUiApi::class)
+
 package org.polyfrost.crashpatch.client.utils
 
 import net.minecraft.client.gui.screens.DisconnectedScreen
@@ -6,7 +8,8 @@ import org.polyfrost.crashpatch.client.CrashPatchConfig
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.client.gui.CrashUI
 import org.polyfrost.crashpatch.mixin.Mixin_AccessDisconnectReason
-import org.polyfrost.oneconfig.utils.v1.dsl.mc
+import org.polyfrost.oneconfig.api.ui.v1.ExperimentalOneConfigUiApi
+import org.polyfrost.oneconfig.api.ui.v1.platform.OneConfigScreens
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 
 object DisconnectedScreenHook {
@@ -16,12 +19,9 @@ object DisconnectedScreenHook {
             val reason = reason(screen)
             val scan = CrashScanner.scan(reason, true)
             if (scan != null && scan.solutions.size > 1) {
-                ci.cancel()
-                //? if < 26.2 {
-                /*mc.setScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
-                *///? } else {
-                mc.gui.setScreen(CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create())
-                //? }
+                val ui = CrashUI(reason, null, reason, CrashUI.GuiType.DISCONNECT).create()
+                OneConfigScreens.display(ui)
+                if (OneConfigScreens.current() === ui) ci.cancel()
             }
         }
     }

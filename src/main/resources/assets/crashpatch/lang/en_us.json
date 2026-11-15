@@ -18,6 +18,17 @@
   "crashpatch.continue": "Return to game",
   "crashpatch.exit": "Exit game",
   "crashpatch.log": "Crash log",
+  "crashpatch.copy": "Copy",
+  "crashpatch.upload": "Upload",
+
+  "crashpatch.solution.suppressed": "Errors before the crash",
+
+  "crashpatch.status.copied": "Copied text to clipboard.",
+  "crashpatch.status.uploaded": "Link copied to clipboard and opened in browser.",
+  "crashpatch.status.upload_copied": "Couldn't open link in browser, copied to clipboard instead.",
+  "crashpatch.status.upload_failed": "Couldn't upload the log.",
+  "crashpatch.status.discord_failed": "Couldn't open Discord link.",
+  "crashpatch.status.log_failed": "Couldn't open crash log file.",
 
   "crashpatch.discord.prompt": "If the solution above doesn't help, join",
   "crashpatch.link.discord.skyclient": "https://inv.wtf/skyclient",

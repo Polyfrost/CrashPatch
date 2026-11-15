@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import org.polyfrost.crashpatch.client.gui.CrashUI;
-import org.polyfrost.oneconfig.internal.ui.compose.ComposeScreen;
+import org.polyfrost.oneconfig.api.ui.v1.platform.OneConfigComposeScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -51,7 +51,7 @@ public class Mixin_CrashPatchInitUI {
             cancellable = true
     )
     private void setScreenDontResetCrashScreen(Screen screen, CallbackInfo ci) {
-        if (EntryPointCatcher.crashedDuringStartup() && !(screen instanceof ComposeScreen && screen == CrashUI.Companion.getCurrentInstance())) {
+        if (EntryPointCatcher.crashedDuringStartup() && !(screen instanceof OneConfigComposeScreen && screen == CrashUI.Companion.getCurrentInstance())) {
             ci.cancel();
         }
     }

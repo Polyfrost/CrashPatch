@@ -3,13 +3,9 @@ package org.polyfrost.crashpatch.client
 import gs.mclo.api.Log
 import gs.mclo.api.MclogsClient
 import org.polyfrost.crashpatch.CrashPatchConstants
-import java.io.BufferedReader
-import java.io.DataOutputStream
-import java.io.InputStreamReader
-import java.net.URI
+import org.polyfrost.oneconfig.utils.v1.NetworkUtils
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletionException
-import javax.net.ssl.HttpsURLConnection
 
 object LogUploader {
     private val mcLogsClient by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
@@ -19,7 +15,7 @@ object LogUploader {
     private val SESSION_ID = Regex("((Session ID is|--accessToken|Your new API key is) (\\S+))")
 
     @JvmStatic
-    fun upload(text: String): String {
+    fun upload(text: String): String? {
         val sanitized = sanitize(text)
         return when (CrashPatchConfig.crashLogUploadMethod) {
             CrashPatchConfig.UploadMethod.HASTEBIN -> uploadToHastebin(sanitized)
@@ -33,39 +29,24 @@ object LogUploader {
         return sanitizedText
     }
 
-    private fun uploadToHastebin(text: String): String {
-        val postData = text.toByteArray(StandardCharsets.UTF_8)
-        val connection = (URI.create("https://hst.sh/documents").toURL().openConnection() as HttpsURLConnection).apply {
-            doOutput = true
-            instanceFollowRedirects = false
-            requestMethod = "POST"
-            useCaches = false
-            setRequestProperty("User-Agent", "CrashPatch/${CrashPatchConstants.VERSION}")
-            setRequestProperty("Content-Length", postData.size.toString())
-        }
+    private fun uploadToHastebin(text: String): String? {
+        val response = NetworkUtils.post(
+            "https://hst.sh/documents",
+            text.toByteArray(StandardCharsets.UTF_8),
+            "text/plain; charset=utf-8",
+            mapOf("User-Agent" to "CrashPatch/${CrashPatchConstants.VERSION}"),
+        )?.trim() ?: return null
 
-        var response: String
-        DataOutputStream(connection.outputStream).use { dos ->
-            dos.write(postData)
-            BufferedReader(InputStreamReader(connection.inputStream)).use { br ->
-                response = br.readLine()
-            }
-        }
-
-        if (response.contains("\"key\"")) {
-            response = response.substring(response.indexOf(":") + 2, response.length - 2)
-            response = "https://hst.sh/$response"
-        }
-
-        return response
+        if (!response.contains("\"key\"")) return null
+        return "https://hst.sh/" + response.substring(response.indexOf(":") + 2, response.length - 2)
     }
 
-    private fun uploadToMclogs(log: Log): String {
+    private fun uploadToMclogs(log: Log): String? {
         return try {
             mcLogsClient.uploadLog(log).join().url
         } catch (e: CompletionException) {
             e.cause?.printStackTrace() ?: e.printStackTrace()
-            "Failed to upload crash log to mclo.gs"
+            null
         }
     }
 }

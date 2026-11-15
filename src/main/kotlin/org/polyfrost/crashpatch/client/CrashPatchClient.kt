@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalOneConfigUiApi::class)
+
 package org.polyfrost.crashpatch.client
 
 import com.mojang.brigadier.Command
@@ -11,6 +13,8 @@ import org.polyfrost.crashpatch.CrashPatchConstants
 import org.polyfrost.crashpatch.client.crashes.CrashScanner
 import org.polyfrost.crashpatch.client.crashes.LogScanner
 import org.polyfrost.oneconfig.api.commands.v1.CommandManager
+import org.polyfrost.oneconfig.api.ui.v1.ExperimentalOneConfigUiApi
+import org.polyfrost.oneconfig.api.ui.v1.platform.OneConfigScreens
 import org.polyfrost.oneconfig.utils.v1.dsl.createScreen
 import org.polyfrost.oneconfig.utils.v1.dsl.mc
 
@@ -38,11 +42,7 @@ object CrashPatchClient {
             dispatcher.register(
                 CommandManager.literal("crashpatch")
                     .executes {
-                        //? if < 26.2 {
-                        /*mc.setScreen(CrashPatchConfig.createScreen())
-                        *///? } else {
-                        mc.gui.setScreen(CrashPatchConfig.createScreen())
-                        //? }
+                        OneConfigScreens.display(CrashPatchConfig.createScreen())
                         Command.SINGLE_SUCCESS
                     }
                     .then(CommandManager.literal("reload").executes {
