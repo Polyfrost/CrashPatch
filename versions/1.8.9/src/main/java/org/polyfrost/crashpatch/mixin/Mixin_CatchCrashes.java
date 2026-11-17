@@ -83,7 +83,7 @@ public abstract class Mixin_CatchCrashes {
     @Unique private int crashpatch$clientCrashCount = 0;
     @Unique private int crashpatch$serverCrashCount = 0;
 
-    @Inject(method = "run", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "run", at = @At("HEAD"), cancellable = true, order = Integer.MAX_VALUE)
     private void crashpatch$run(CallbackInfo ci) {
         ci.cancel();
         running = true;
