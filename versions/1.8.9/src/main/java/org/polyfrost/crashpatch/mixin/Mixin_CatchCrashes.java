@@ -231,6 +231,13 @@ public abstract class Mixin_CatchCrashes {
             }
             gameCrashed(report);
 
+            if (renderTarget == null) {
+                LOGGER.error("Game failed to initialize before the window was created, skipping the init error screen");
+                crashpatch$letDie = true;
+                gameCrashed(report);
+                return;
+            }
+
             resourceManager = new SimpleReloadableResourceManager(resourceMetadataSerializerRegistry);
             textureManager = new TextureManager(resourceManager);
             resourceManager.addListener(textureManager);
