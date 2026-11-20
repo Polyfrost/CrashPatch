@@ -28,6 +28,7 @@
         "fabricloader": ">=${loader_version}",
         "fabric-language-kotlin": "*",
         "notenoughcrashes": ">=${nec_version}",
-        "oneconfigv1": ">=${oneconfig_version}"
+        "oneconfigv1": ">=${oneconfig_version}",
+        "polycompose": ">=1.0.0"
     }
 }
