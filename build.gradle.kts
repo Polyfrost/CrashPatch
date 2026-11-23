@@ -96,12 +96,7 @@ dependencies {
     if (isOrnithe) {
         include(implementation(datafixerupper) { isTransitive = false })
         // ploceus is always applied on Ornithe
-        mappings(ploceus!!.layeredMappings {
-            mappings("net.ornithemc:feather-gen2:$mcversion+build.${sc.properties["feather_build"] as String}:v2") {
-                containsUnpick()
-            }
-            mappings(rootProject.file("mappings/feather-overrides.tiny"))
-        })
+        mappings(ploceus!!.featherMappings(sc.properties["feather_build"]))
         testCompileOnly("net.ornithemc.osl-gen2:entrypoints:${sc.properties["deps.osl_entrypoints"] as String}")
     } else {
         compileOnly(datafixerupper)

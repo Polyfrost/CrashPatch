@@ -1,3 +1,0 @@
-tiny	2	0	intermediary	named
-c	net/minecraft/client/Minecraft	net/minecraft/client/Minecraft
-	m	(Lnet/minecraft/unmapped/C_85740840;)V	m_52715402	setScreen

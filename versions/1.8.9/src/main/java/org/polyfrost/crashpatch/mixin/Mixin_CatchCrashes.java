@@ -70,7 +70,7 @@ public abstract class Mixin_CatchCrashes {
     @Shadow protected abstract void init();
     @Shadow protected abstract void runGame();
     @Shadow public abstract void shutdown();
-    @Shadow public abstract void setScreen(Screen screen);
+    @Shadow public abstract void openScreen(Screen screen);
     @Shadow public abstract CrashReport populateCrashReport(CrashReport report);
     @Shadow public abstract void gameCrashed(CrashReport report);
     @Shadow public abstract void reloadResources();
@@ -159,7 +159,7 @@ public abstract class Mixin_CatchCrashes {
             f3CTime = -1;
             options.debugEnabled = false;
 
-            setScreen(new CrashUI(report).create());
+            openScreen(new CrashUI(report).create());
         } catch (Throwable t) {
             LOGGER.error("An uncaught exception occurred while displaying the crash screen, making normal report instead", t);
             crashpatch$letDie = true;
@@ -260,7 +260,7 @@ public abstract class Mixin_CatchCrashes {
     @Unique
     private void crashpatch$runGuiLoop(CrashUI crashUI) throws Throwable {
         Screen crashScreen = crashUI.create();
-        setScreen(crashScreen);
+        openScreen(crashScreen);
         while (running && screen == crashScreen) {
             if (Display.isCreated() && Display.isCloseRequested()) {
                 System.exit(0);

@@ -24,7 +24,8 @@ public class Mixin_InGameCatcherForceCrashPatchUI {
     }
 
     //? if < 26.2 {
-    /*@ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
+    /*//~ if = 1.8.9 'setScreen' -> 'openScreen'
+    @ModifyArg(method = "displayCrashScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
     *///? } else {
     //~ if >= 26.3 '"displayCrashScreen"' -> '"displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V"'
     @ModifyArg(method = "displayCrashScreen(Lnet/minecraft/CrashReport;IZLjava/nio/file/Path;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreenAndShow(Lnet/minecraft/client/gui/screens/Screen;)V", remap = true), index = 0, remap = false)
