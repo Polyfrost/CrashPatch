@@ -131,10 +131,8 @@ tasks.withType<JavaCompile>().configureEach {
         disableAllChecks = true
         error("UnnecessarilyFullyQualified")
     }
-}
-
-tasks.named<JavaCompile>("compileJava") {
-    finalizedBy("checkstyleMain")
+    val sourceSetName = sourceSets.find { it.compileJavaTaskName == name }!!.name
+    finalizedBy("checkstyle${sourceSetName.capitalize()}")
 }
 
 // the enabled Detekt rules need type resolution, which only the per-compilation tasks have
